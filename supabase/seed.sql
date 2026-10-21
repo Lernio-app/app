@@ -1,0 +1,1 @@
+-- Sin datos de ejemplo todavía. Los usuarios de prueba se crean desde el ingreso local (Inbucket en :54324).

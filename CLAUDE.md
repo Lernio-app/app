@@ -9,7 +9,10 @@ Next.js (App Router), TypeScript, Tailwind, shadcn/ui, Supabase (Postgres con RL
 ## Forma de trabajo
 
 - Una pieza por vez (una tabla o una pantalla), con el diff a la vista antes de aplicar.
+<!-- Desactivado mientras se trabaja en solitario directo sobre main:
 - Cada cambio sale de un issue. Branch `tipo/numero-slug` y PR con squash.
+-->
+- Por ahora se trabaja directo sobre `main`, sin branches por feature.
 
 ## Datos
 
@@ -34,7 +37,7 @@ Next.js (App Router), TypeScript, Tailwind, shadcn/ui, Supabase (Postgres con RL
 ## Git
 
 - Antes de empezar a trabajar y antes de pushear: `git pull --rebase origin main`. Si el push es rechazado, hacer pull y rebase de nuevo; nunca `push --force` sobre `main`.
-- `main` está protegida por un ruleset: no se pushea directo, no hay force-push ni borrado, la historia es lineal y todo entra por PR con 1 aprobación de otra persona, mergeado con squash.
+- `main` está protegida por un ruleset: no hay force-push ni borrado y la historia es lineal (hacer `git pull --rebase`, nunca merge commits). Por ahora se puede pushear directo a `main`; los PR, cuando se usen, se mergean con squash.
 - Branch `tipo/numero-slug` con tipo `feat`, `fix`, `chore`, `docs` o `refactor` (ej.: `feat/21-ficha-alumno`).
 - Commits en español, con formato `tipo: descripción`.
 - Al empezar una fase, hacer también `git pull --rebase` en `../producto`.
@@ -58,6 +61,10 @@ Next.js (App Router), TypeScript, Tailwind, shadcn/ui, Supabase (Postgres con RL
 ## Este repo es público
 
 Nada de precios, métricas de negocio, estrategia ni datos de personas en código, issues o PRs.
+
+## Documentar funcionalidades
+
+Cada vez que se crea o modifica una funcionalidad en este repo, se documenta en `../producto/docs/Funcionalidades/` (un archivo por funcionalidad, más su fila en el índice del README de esa carpeta y una línea en `../producto/docs/bitacora.md`). Seguir la convención de ese README. Los commits de documentación van en `producto`, aparte de los de `app`.
 
 ## Contexto de producto
 
