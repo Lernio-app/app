@@ -47,6 +47,7 @@ Next.js (App Router), TypeScript, Tailwind, shadcn/ui, Supabase (Postgres con RL
   - Comentar o cerrar: `gh issue comment N`, `gh issue close N`.
 - Para crear un issue con su issue type (`Feature`, `Task` o `Bug`): `gh api repos/Lernio-app/app/issues -f title=... -f type=Task`. Lleva una etiqueta `area:*`, una `prioridad:*`, el milestone de su fase y se agrega al Project con Fase y Prioridad.
 - El PR cierra su issue con `Closes #N`.
+- Al terminar una tarea, o si el código ya cubre los criterios de aceptación de un issue, proponer pasarlo a `In Review` en el Project (`gh project item-edit`) y esperar la confirmación antes de moverlo.
 - Los issues de `app` son públicos: lo sensible o de negocio va como issue en `Lernio-app/producto`.
 
 ## Bitácora
