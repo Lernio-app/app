@@ -441,10 +441,10 @@ export type Database = {
       issue_student_link: { Args: { p_student_id: string }; Returns: string };
       set_price_plan: {
         Args: {
-          p_amount: number;
+          p_amount?: number;
           p_billing_day?: number;
           p_lessons_per_package?: number;
-          p_mode: string;
+          p_mode?: string;
           p_student_id: string;
         };
         Returns: string;

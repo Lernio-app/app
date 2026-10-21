@@ -5,7 +5,7 @@ import { EmptyState, PageContainer } from "@/components/page-header";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { formatARS, formatDate } from "@/lib/format";
 import { currentPlan, getStudent } from "@/lib/students";
-import { planSummary } from "@/lib/validation/student";
+import { priceSummary } from "@/lib/validation/student";
 import { requireWorkspace } from "@/lib/workspace";
 import { cn } from "@/lib/utils";
 import { archiveStudent, restoreStudent } from "../actions";
@@ -70,8 +70,8 @@ async function Ficha({ params }: { params: PageProps<"/alumnos/[id]">["params"] 
       <section className="space-y-3">
         <h2 className="text-lg">Cobro</h2>
         <dl className="bg-card space-y-3 rounded-xl border p-4">
-          <Detail label="Plan">
-            <span className="tabular">{plan ? planSummary(plan, formatARS) : "Sin plan"}</span>
+          <Detail label="Precio">
+            <span className="tabular">{priceSummary(plan, formatARS)}</span>
           </Detail>
           <Detail label="Quién paga">
             {payer ? (

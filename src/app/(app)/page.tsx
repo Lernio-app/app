@@ -38,17 +38,7 @@ export default function InicioPage() {
         <Greeting />
       </Suspense>
 
-      <Section title="Clases de hoy">
-        <EmptyState title="No hay clases para hoy">
-          Cuando cargues tu agenda, vas a ver acá lo que tenés que dar y los recordatorios para
-          mandar.
-        </EmptyState>
-      </Section>
-      <Section title="Para cobrar">
-        <EmptyState title="Nadie te debe nada todavía">
-          Cuando haya cobros pendientes, los ves acá con el monto y desde cuándo.
-        </EmptyState>
-      </Section>
+      {/* Primero lo académico. Las clases de hoy y los cobros se suman con F2 y F3. */}
       <Section title="Para corregir">
         <EmptyState title="Nada para corregir" />
       </Section>

@@ -2,6 +2,13 @@
 
 Cambios técnicos de `app`. Lo más nuevo arriba.
 
+## 2026-10-21 · Ajustes de F0 y F1 tras el plan v2
+
+- Migración `f1_precio_opcional`: el precio de un alumno es opcional. `create_student` no crea precio sin modalidad y `set_price_plan` sin modalidad cierra el vigente (el alumno queda sin precio).
+- "Plan" pasa a llamarse "Precio" en las pantallas del profe; "plan" queda para lo contratado con Lernio.
+- La navegación y el Inicio muestran solo lo que existe: se sacan Agenda y Cobros hasta F2 y F3, y "Para corregir" pasa primero.
+- Tests pgTAP y unitarios del precio opcional.
+
 ## 2026-10-21 · F1 Alumnos
 
 - Migración `f1_alumnos`: `students`, `student_contacts`, `student_access` (solo hash del token, sin acceso directo desde el cliente) y `price_plans` (un plan vigente por alumno, con historial), con RLS. Funciones `create_student`, `issue_student_link`, `set_price_plan` y `student_by_token`.

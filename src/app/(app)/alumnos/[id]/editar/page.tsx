@@ -34,7 +34,7 @@ async function EditForm({ params }: { params: PageProps<"/alumnos/[id]/editar">[
     payerRelation: payer?.relation ?? "",
     payerPhone: payer?.phone ?? "",
     payerEmail: payer?.email ?? "",
-    mode: (plan?.mode as StudentValues["mode"]) ?? "per_lesson",
+    mode: (plan?.mode as StudentValues["mode"]) ?? "none",
     amount: plan ? amountField(plan.amount) : "",
     lessonsPerPackage: plan?.lessons_per_package?.toString() ?? "",
     billingDay: plan?.billing_day?.toString() ?? "",

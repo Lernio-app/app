@@ -6,9 +6,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  PLAN_MODES,
-  PLAN_MODE_LABELS,
-  type PlanMode,
+  PRICE_CHOICES,
+  PRICE_CHOICE_LABELS,
+  type PriceChoice,
   type StudentValues,
 } from "@/lib/validation/student";
 import { LinkShare } from "./link-share";
@@ -54,7 +54,7 @@ export const EMPTY_STUDENT: StudentValues = {
   payerRelation: "",
   payerPhone: "",
   payerEmail: "",
-  mode: "per_lesson",
+  mode: "none",
   amount: "",
   lessonsPerPackage: "",
   billingDay: "",
@@ -83,7 +83,7 @@ export function StudentForm({
   const errors = state.fieldErrors ?? {};
   // Tras un error se vuelve a mostrar lo que escribió en vez de dejar el formulario vacío.
   const current = state.values ?? defaults;
-  const [mode, setMode] = useState<PlanMode>(current.mode);
+  const [mode, setMode] = useState<PriceChoice>(current.mode);
   const subjectListId = useId();
   const levelListId = useId();
 
@@ -183,11 +183,16 @@ export function StudentForm({
       </section>
 
       <section className="space-y-5">
-        <h2 className="text-lg">Cómo le cobrás</h2>
+        <div className="space-y-1">
+          <h2 className="text-lg">Precio</h2>
+          <p className="text-muted-foreground text-sm">
+            Opcional. Sin precio no se le generan cobros; lo podés definir cuando quieras.
+          </p>
+        </div>
         <fieldset className="space-y-2">
           <legend className="sr-only">Modalidad de cobro</legend>
-          <div className="grid grid-cols-3 gap-2">
-            {PLAN_MODES.map((option) => (
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+            {PRICE_CHOICES.map((option) => (
               <label
                 key={option}
                 className="bg-card has-[:checked]:border-primary has-[:checked]:bg-accent flex min-h-11 cursor-pointer items-center justify-center rounded-lg border px-2 text-center text-sm has-[:checked]:font-medium"
@@ -200,7 +205,7 @@ export function StudentForm({
                   onChange={() => setMode(option)}
                   className="sr-only"
                 />
-                {PLAN_MODE_LABELS[option]}
+                {PRICE_CHOICE_LABELS[option]}
               </label>
             ))}
           </div>
@@ -210,26 +215,28 @@ export function StudentForm({
             </p>
           )}
         </fieldset>
-        <Field
-          id="amount"
-          label={
-            mode === "package"
-              ? "Precio del paquete ($)"
-              : mode === "monthly"
-                ? "Precio por mes ($)"
-                : "Precio por clase ($)"
-          }
-          error={errors.amount}
-        >
-          <Input
+        {mode !== "none" && (
+          <Field
             id="amount"
-            name="amount"
-            inputMode="decimal"
-            defaultValue={current.amount}
-            placeholder="18.000"
-            className="tabular h-11"
-          />
-        </Field>
+            label={
+              mode === "package"
+                ? "Precio del paquete ($)"
+                : mode === "monthly"
+                  ? "Precio por mes ($)"
+                  : "Precio por clase ($)"
+            }
+            error={errors.amount}
+          >
+            <Input
+              id="amount"
+              name="amount"
+              inputMode="decimal"
+              defaultValue={current.amount}
+              placeholder="18.000"
+              className="tabular h-11"
+            />
+          </Field>
+        )}
         {mode === "package" && (
           <Field id="lessonsPerPackage" label="Clases por paquete" error={errors.lessonsPerPackage}>
             <Input

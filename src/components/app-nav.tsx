@@ -2,17 +2,15 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { CalendarDays, Home, Settings, Users, Wallet, type LucideIcon } from "lucide-react";
+import { Home, Settings, Users, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type NavItem = { href: string; label: string; icon: LucideIcon };
 
-// Cada fase suma sus pantallas acá (Tareas, Exámenes y Reportes llegan con F5, F6 y F8).
+// Solo lo que existe. Cada fase suma su pantalla acá: Tareas (F5), Exámenes (F6), Agenda (F2), Cobros (F3) y Reportes (F8).
 const ITEMS: NavItem[] = [
   { href: "/", label: "Inicio", icon: Home },
-  { href: "/agenda", label: "Agenda", icon: CalendarDays },
   { href: "/alumnos", label: "Alumnos", icon: Users },
-  { href: "/cobros", label: "Cobros", icon: Wallet },
   { href: "/ajustes", label: "Ajustes", icon: Settings },
 ];
 
@@ -29,7 +27,7 @@ export function BottomNav() {
       aria-label="Principal"
       className="bg-card fixed inset-x-0 bottom-0 z-20 border-t pb-[env(safe-area-inset-bottom)] md:hidden"
     >
-      <ul className="grid grid-cols-5">
+      <ul className="grid grid-cols-3">
         {ITEMS.map(({ href, label, icon: Icon }) => {
           const active = isActive(href);
           return (

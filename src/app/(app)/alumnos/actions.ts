@@ -73,8 +73,8 @@ export async function createStudent(
     p_payer_relation: input.payerRelation ?? undefined,
     p_payer_phone: input.payerPhone ?? undefined,
     p_payer_email: input.payerEmail ?? undefined,
-    p_mode: input.mode,
-    p_amount: input.amount,
+    p_mode: input.mode ?? undefined,
+    p_amount: input.amount ?? undefined,
     p_lessons_per_package: input.lessonsPerPackage ?? undefined,
     p_billing_day: input.billingDay ?? undefined,
   });
@@ -161,23 +161,25 @@ export async function updateStudent(
       .eq("id", payer.id);
   }
 
-  // Plan de cobro: solo si cambió, para no llenar el historial de precios.
-  const plan = currentPlan(student.price_plans);
-  const planChanged =
-    !plan ||
-    plan.mode !== input.mode ||
-    plan.amount !== input.amount ||
-    plan.lessons_per_package !== input.lessonsPerPackage ||
-    plan.billing_day !== input.billingDay;
-  if (planChanged) {
+  // Precio: solo si cambió, para no llenar el historial. Sin modalidad se quita el vigente.
+  const price = currentPlan(student.price_plans);
+  const priceChanged =
+    input.mode === null
+      ? price !== null
+      : !price ||
+        price.mode !== input.mode ||
+        price.amount !== input.amount ||
+        price.lessons_per_package !== input.lessonsPerPackage ||
+        price.billing_day !== input.billingDay;
+  if (priceChanged) {
     const { error } = await supabase.rpc("set_price_plan", {
       p_student_id: student.id,
-      p_mode: input.mode,
-      p_amount: input.amount,
+      p_mode: input.mode ?? undefined,
+      p_amount: input.amount ?? undefined,
       p_lessons_per_package: input.lessonsPerPackage ?? undefined,
       p_billing_day: input.billingDay ?? undefined,
     });
-    if (error) return fail("No pudimos guardar el plan de cobro.");
+    if (error) return fail("No pudimos guardar el precio.");
   }
 
   await trackEvent(supabase, { orgId: org.id, userId }, "student_updated");

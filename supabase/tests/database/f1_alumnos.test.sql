@@ -1,5 +1,5 @@
 begin;
-select plan(21);
+select plan(24);
 
 insert into auth.users (id, instance_id, aud, role, email)
 values
@@ -103,6 +103,21 @@ set local role authenticated;
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000a1","role":"authenticated"}', true);
 select public.set_price_plan((select student_id from ctx where name = 'a'), 'monthly', 5000000, null, 5::smallint);
 select is((select count(*)::int from public.price_plans), 2, 'el cambio de plan guarda el historial');
+
+-- El precio es opcional: sin modalidad no se crea y se puede quitar.
+select is(
+  (select public.set_price_plan((select student_id from ctx where name = 'a'), null)),
+  null::uuid, 'set_price_plan sin modalidad no crea un precio nuevo'
+);
+select is(
+  (select count(*)::int from public.price_plans where ended_on is null and student_id = (select student_id from ctx where name = 'a')),
+  0, 'quitar el precio deja al alumno sin precio vigente'
+);
+insert into ctx select 'sin_precio', r.student_id, r.token from public.create_student('Sin Precio') r;
+select is(
+  (select count(*)::int from public.price_plans where student_id = (select student_id from ctx where name = 'sin_precio')),
+  0, 'un alumno cargado sin precio no tiene precio'
+);
 
 select * from finish();
 rollback;

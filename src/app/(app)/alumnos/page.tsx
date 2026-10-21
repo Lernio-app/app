@@ -5,7 +5,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { formatARS } from "@/lib/format";
 import { currentPlan, listStudents } from "@/lib/students";
-import { planSummary } from "@/lib/validation/student";
+import { priceSummary } from "@/lib/validation/student";
 import { requireWorkspace } from "@/lib/workspace";
 import { cn } from "@/lib/utils";
 
@@ -82,11 +82,9 @@ async function StudentList({
                 >
                   <p className="font-medium">{student.full_name}</p>
                   {detail && <p className="text-muted-foreground text-sm">{detail}</p>}
-                  {plan && (
-                    <p className="tabular text-muted-foreground text-sm">
-                      {planSummary(plan, formatARS)}
-                    </p>
-                  )}
+                  <p className="tabular text-muted-foreground text-sm">
+                    {priceSummary(plan, formatARS)}
+                  </p>
                 </Link>
               </li>
             );
@@ -101,7 +99,7 @@ export default function AlumnosPage(props: PageProps<"/alumnos">) {
   return (
     <PageContainer>
       <div className="flex items-start justify-between gap-3">
-        <PageHeader title="Alumnos" description="Todos tus alumnos, con su plan de cobro." />
+        <PageHeader title="Alumnos" description="Todos tus alumnos, con su precio." />
         <Link href="/alumnos/nuevo" className={cn(buttonVariants({ size: "lg" }), "h-11 shrink-0")}>
           Nuevo
         </Link>
