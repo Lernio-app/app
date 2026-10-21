@@ -35,6 +35,10 @@ Next.js (App Router), TypeScript, Tailwind, shadcn/ui, Supabase (Postgres con RL
 
 Nada de precios, métricas de negocio, estrategia ni datos de personas en código, issues o PRs.
 
+## Documentar funcionalidades
+
+Cada vez que se crea o modifica una funcionalidad en este repo, se documenta en `../producto/docs/Funcionalidades/` (un archivo por funcionalidad, más su fila en el índice del README de esa carpeta y una línea en `../producto/docs/bitacora.md`). Seguir la convención de ese README. Los commits de documentación van en `producto`, aparte de los de `app`.
+
 ## Contexto de producto
 
 Está en el repo privado `Lernio-app/producto`, clonado en `../producto`. Leer `../producto/docs/README.md` y `../producto/docs/02-plan-mvp.md` antes de trabajar en una fase. Las decisiones nuevas se registran como ADR en `../producto/docs/adr/`.
