@@ -1,0 +1,44 @@
+name: Funcionalidad
+description: Una funcionalidad o pantalla nueva
+title: "[Feature] "
+type: Feature
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Este repo es público: no incluyas precios, métricas de negocio, estrategia ni datos de personas.
+  - type: textarea
+    id: contexto
+    attributes:
+      label: Contexto
+      description: Qué problema o necesidad hay y por qué importa.
+    validations:
+      required: true
+  - type: textarea
+    id: criterios
+    attributes:
+      label: Criterios de aceptación
+      description: Cuándo se considera terminado.
+      placeholder: "- [ ] ..."
+    validations:
+      required: true
+  - type: dropdown
+    id: fase
+    attributes:
+      label: Fase
+      options:
+        - F0 Base
+        - F1 Alumnos
+        - F2 Agenda y asistencia
+        - F3 Cobros
+        - F4 Portal del alumno
+        - F5 Tareas
+        - F6 Exámenes
+        - F7 IA
+        - F8 Reporte mensual
+        - F9 Métricas del piloto
+        - F10 Sitio de marketing
+        - F11 Página del profe
+        - Post-piloto
+    validations:
+      required: true

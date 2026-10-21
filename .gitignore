@@ -1,0 +1,41 @@
+# dependencias
+node_modules/
+.pnp
+.pnp.js
+.yarn/
+
+# Next.js
+.next/
+out/
+next-env.d.ts
+*.tsbuildinfo
+
+# entorno y secretos
+.env*
+!.env.example
+
+# Vercel
+.vercel
+
+# Supabase local
+supabase/.temp
+supabase/.branches
+
+# tests y cobertura
+coverage/
+playwright-report/
+test-results/
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.log
+
+# sistema y editores
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
