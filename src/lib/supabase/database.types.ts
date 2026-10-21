@@ -132,6 +132,219 @@ export type Database = {
         };
         Relationships: [];
       };
+      price_plans: {
+        Row: {
+          amount: number;
+          billing_day: number | null;
+          created_at: string;
+          ended_on: string | null;
+          id: string;
+          lessons_per_package: number | null;
+          mode: string;
+          org_id: string;
+          starts_on: string;
+          student_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          amount: number;
+          billing_day?: number | null;
+          created_at?: string;
+          ended_on?: string | null;
+          id?: string;
+          lessons_per_package?: number | null;
+          mode: string;
+          org_id: string;
+          starts_on: string;
+          student_id: string;
+        };
+        Update: {
+          amount?: number;
+          billing_day?: number | null;
+          created_at?: string;
+          ended_on?: string | null;
+          id?: string;
+          lessons_per_package?: number | null;
+          mode?: string;
+          org_id?: string;
+          starts_on?: string;
+          student_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "price_plans_org_id_fkey";
+            columns: ["org_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "price_plans_student_id_fkey";
+            columns: ["student_id"];
+            isOneToOne: false;
+            referencedRelation: "students";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      student_access: {
+        Row: {
+          created_at: string;
+          id: string;
+          last_seen_at: string | null;
+          org_id: string;
+          revoked_at: string | null;
+          student_id: string;
+          token_hash: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          id?: string;
+          last_seen_at?: string | null;
+          org_id: string;
+          revoked_at?: string | null;
+          student_id: string;
+          token_hash: string;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          last_seen_at?: string | null;
+          org_id?: string;
+          revoked_at?: string | null;
+          student_id?: string;
+          token_hash?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "student_access_org_id_fkey";
+            columns: ["org_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "student_access_student_id_fkey";
+            columns: ["student_id"];
+            isOneToOne: false;
+            referencedRelation: "students";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      student_contacts: {
+        Row: {
+          created_at: string;
+          email: string | null;
+          gets_reports: boolean;
+          id: string;
+          is_payer: boolean;
+          name: string;
+          org_id: string;
+          phone: string | null;
+          relation: string | null;
+          student_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          email?: string | null;
+          gets_reports?: boolean;
+          id?: string;
+          is_payer?: boolean;
+          name: string;
+          org_id: string;
+          phone?: string | null;
+          relation?: string | null;
+          student_id: string;
+        };
+        Update: {
+          created_at?: string;
+          email?: string | null;
+          gets_reports?: boolean;
+          id?: string;
+          is_payer?: boolean;
+          name?: string;
+          org_id?: string;
+          phone?: string | null;
+          relation?: string | null;
+          student_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "student_contacts_org_id_fkey";
+            columns: ["org_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "student_contacts_student_id_fkey";
+            columns: ["student_id"];
+            isOneToOne: false;
+            referencedRelation: "students";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      students: {
+        Row: {
+          archived_at: string | null;
+          created_at: string;
+          email: string | null;
+          full_name: string;
+          id: string;
+          level: string | null;
+          notes: string | null;
+          org_id: string;
+          phone: string | null;
+          status: string;
+          subject: string | null;
+          teacher_id: string;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          archived_at?: string | null;
+          created_at?: string;
+          email?: string | null;
+          full_name: string;
+          id?: string;
+          level?: string | null;
+          notes?: string | null;
+          org_id: string;
+          phone?: string | null;
+          status?: string;
+          subject?: string | null;
+          teacher_id: string;
+          updated_at?: string;
+        };
+        Update: {
+          archived_at?: string | null;
+          created_at?: string;
+          email?: string | null;
+          full_name?: string;
+          id?: string;
+          level?: string | null;
+          notes?: string | null;
+          org_id?: string;
+          phone?: string | null;
+          status?: string;
+          subject?: string | null;
+          teacher_id?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "students_org_id_fkey";
+            columns: ["org_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       teacher_profiles: {
         Row: {
           bio: string | null;
@@ -191,6 +404,28 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      create_student: {
+        Args: {
+          p_amount?: number;
+          p_billing_day?: number;
+          p_email?: string;
+          p_full_name: string;
+          p_lessons_per_package?: number;
+          p_level?: string;
+          p_mode?: string;
+          p_notes?: string;
+          p_payer_email?: string;
+          p_payer_name?: string;
+          p_payer_phone?: string;
+          p_payer_relation?: string;
+          p_phone?: string;
+          p_subject?: string;
+        };
+        Returns: {
+          student_id: string;
+          token: string;
+        }[];
+      };
       create_workspace: {
         Args: {
           p_display_name: string;
@@ -202,6 +437,25 @@ export type Database = {
           p_subjects?: string[];
         };
         Returns: string;
+      };
+      issue_student_link: { Args: { p_student_id: string }; Returns: string };
+      set_price_plan: {
+        Args: {
+          p_amount: number;
+          p_billing_day?: number;
+          p_lessons_per_package?: number;
+          p_mode: string;
+          p_student_id: string;
+        };
+        Returns: string;
+      };
+      student_by_token: {
+        Args: { p_token: string };
+        Returns: {
+          org_name: string;
+          student_name: string;
+          teacher_name: string;
+        }[];
       };
     };
     Enums: {

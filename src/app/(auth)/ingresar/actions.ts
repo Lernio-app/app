@@ -1,17 +1,12 @@
 "use server";
 
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import { siteOrigin } from "@/lib/site";
 import type { FormState } from "@/lib/validation/workspace";
 
 const emailSchema = z.email("Revisá el email: no parece válido.");
-
-async function siteOrigin() {
-  const h = await headers();
-  return h.get("origin") ?? process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
-}
 
 export async function sendMagicLink(_prev: FormState, formData: FormData): Promise<FormState> {
   const parsed = emailSchema.safeParse(String(formData.get("email") ?? "").trim());

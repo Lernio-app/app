@@ -75,12 +75,12 @@ export type WorkspaceDefaults = {
   lateCancelHours: number;
 };
 
-export type FormState = {
+export type FormState<V = WorkspaceDefaults> = {
   ok?: boolean;
   message?: string;
   fieldErrors?: Record<string, string>;
   // Lo que escribió el profe, para no perderlo cuando React reinicia el formulario tras un error.
-  values?: WorkspaceDefaults;
+  values?: V;
 };
 
 // Valores del formulario tal como se escribieron (sin validar), para volver a mostrarlos.
