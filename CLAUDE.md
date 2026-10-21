@@ -24,14 +24,14 @@ Next.js (App Router), TypeScript, Tailwind, shadcn/ui, Supabase (Postgres con RL
 ## UI
 
 - El profe trabaja desde el celular.
-- El alumno nunca crea cuenta.
+- El alumno tiene una cuenta única en la plataforma: la activa desde la invitación del profe o se registra solo, con el mismo ingreso que el profe (ADR-0003 en `../producto/docs/adr/`).
 - Pesos con formato argentino.
 - Voseo en todos los textos.
 
 ## Seguridad
 
 - La clave de servicio de Supabase nunca llega al navegador.
-- Los tokens de link del alumno se guardan hasheados.
+- Los tokens de invitación del alumno se guardan hasheados.
 - Nunca se commitean secretos.
 
 ## Git

@@ -4,6 +4,10 @@ Registro de cambios del repo. Cada PR agrega una línea con la referencia a su i
 
 ## Sin publicar
 
+### Cambiado
+
+- `CLAUDE.md`: el alumno tiene una cuenta única en la plataforma, por invitación o registro propio (ADR-0003 en `producto`).
+
 ### Agregado
 
 - Convenciones de git, bitácora y gestión de issues en `CLAUDE.md` y este `CHANGELOG.md` (#19).
