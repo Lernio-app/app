@@ -9,7 +9,10 @@ Next.js (App Router), TypeScript, Tailwind, shadcn/ui, Supabase (Postgres con RL
 ## Forma de trabajo
 
 - Una pieza por vez (una tabla o una pantalla), con el diff a la vista antes de aplicar.
+<!-- Desactivado mientras se trabaja en solitario directo sobre main:
 - Cada cambio sale de un issue. Branch `tipo/numero-slug` y PR con squash.
+-->
+- Por ahora se trabaja directo sobre `main`, sin branches por feature.
 
 ## Datos
 
