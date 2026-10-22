@@ -4,6 +4,8 @@ import { useActionState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { FormError } from "@/components/ui/field";
+import { SectionTitle } from "@/components/ui/page-header";
 import {
   LEVEL_OPTIONS,
   SUBJECT_OPTIONS,
@@ -30,12 +32,8 @@ function Field({
     <div className="space-y-2">
       <Label htmlFor={id}>{label}</Label>
       {children}
-      {hint && !error && <p className="text-muted-foreground text-sm">{hint}</p>}
-      {error && (
-        <p role="alert" className="text-status-error text-sm">
-          {error}
-        </p>
-      )}
+      {hint && !error && <p className="text-ink-3 text-sm">{hint}</p>}
+      {error && <FormError>{error}</FormError>}
     </div>
   );
 }
@@ -64,7 +62,7 @@ function CheckGroup({
         {options.map((option) => (
           <label
             key={option}
-            className="bg-card has-[:checked]:border-primary has-[:checked]:bg-accent flex min-h-11 cursor-pointer items-center gap-2 rounded-lg border px-3 text-sm"
+            className="bg-card has-[:checked]:border-primary has-[:checked]:bg-indigo-soft rounded-control flex min-h-11 cursor-pointer items-center gap-2 border px-3 text-sm"
           >
             <input
               type="checkbox"
@@ -82,7 +80,6 @@ function CheckGroup({
         defaultValue={otherDefault}
         placeholder={otherPlaceholder}
         aria-label={`${legend}: otras`}
-        className="h-11"
       />
     </fieldset>
   );
@@ -120,7 +117,7 @@ export function WorkspaceForm({
   return (
     <form action={formAction} className="space-y-8" noValidate>
       <section className="space-y-5">
-        <h2 className="text-lg">Sobre vos</h2>
+        <SectionTitle>Sobre vos</SectionTitle>
         <Field id="displayName" label="¿Cómo te llamás?" error={errors.displayName}>
           <Input
             id="displayName"
@@ -128,7 +125,6 @@ export function WorkspaceForm({
             defaultValue={current.displayName}
             autoComplete="name"
             required
-            className="h-11"
           />
         </Field>
         <Field
@@ -145,7 +141,6 @@ export function WorkspaceForm({
             defaultValue={current.phone}
             autoComplete="tel"
             placeholder="11 5555 1234"
-            className="h-11"
           />
         </Field>
         <CheckGroup
@@ -169,7 +164,7 @@ export function WorkspaceForm({
       </section>
 
       <section className="space-y-5">
-        <h2 className="text-lg">Cobros</h2>
+        <SectionTitle>Cobros</SectionTitle>
         <Field
           id="paymentAlias"
           label="Alias o CBU"
@@ -183,7 +178,6 @@ export function WorkspaceForm({
             autoCapitalize="none"
             autoCorrect="off"
             placeholder="tu.alias.mp"
-            className="h-11"
           />
         </Field>
         <Field
@@ -199,7 +193,6 @@ export function WorkspaceForm({
             inputMode="url"
             defaultValue={current.paymentLink}
             placeholder="https://mpago.la/…"
-            className="h-11"
           />
         </Field>
         <Field
@@ -216,21 +209,21 @@ export function WorkspaceForm({
             min={0}
             max={168}
             defaultValue={current.lateCancelHours}
-            className="tabular h-11 w-28"
+            className="num w-28"
           />
         </Field>
       </section>
 
-      {state.message && (
-        <p
-          role={state.ok ? "status" : "alert"}
-          className={state.ok ? "text-status-ok text-sm" : "text-status-error text-sm"}
-        >
-          {state.message}
-        </p>
-      )}
+      {state.message &&
+        (state.ok ? (
+          <p role="status" className="text-ok text-sm">
+            {state.message}
+          </p>
+        ) : (
+          <FormError>{state.message}</FormError>
+        ))}
 
-      <Button type="submit" size="lg" className="h-11 w-full sm:w-auto sm:px-8" disabled={pending}>
+      <Button type="submit" className="w-full sm:w-auto sm:px-8" disabled={pending}>
         {pending ? pendingLabel : submitLabel}
       </Button>
     </form>

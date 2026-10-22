@@ -27,7 +27,7 @@ export function BottomNav() {
   return (
     <nav
       aria-label="Principal"
-      className="bg-card fixed inset-x-0 bottom-0 z-20 border-t pb-[env(safe-area-inset-bottom)] md:hidden"
+      className="fixed inset-x-0 bottom-0 z-20 border-t bg-white pb-[max(env(safe-area-inset-bottom),--spacing(3))] md:hidden"
     >
       <ul className="grid grid-cols-5">
         {ITEMS.map(({ href, label, icon: Icon }) => {
@@ -38,11 +38,19 @@ export function BottomNav() {
                 href={href}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "flex min-h-14 flex-col items-center justify-center gap-1 text-xs font-medium",
-                  active ? "text-primary" : "text-muted-foreground",
+                  "flex min-h-14 flex-col items-center justify-center gap-0.5 text-xs font-semibold",
+                  active ? "text-indigo-strong" : "text-ink-2",
                 )}
               >
-                <Icon className="size-5" aria-hidden />
+                {/* El activo lleva una píldora de 52×28 detrás del ícono. */}
+                <span
+                  className={cn(
+                    "flex h-7 w-13 items-center justify-center rounded-full",
+                    active && "bg-indigo-soft",
+                  )}
+                >
+                  <Icon className="size-5" strokeWidth={1.8} aria-hidden />
+                </span>
                 {label}
               </Link>
             </li>
@@ -67,13 +75,13 @@ export function SideNav() {
                 href={href}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "flex min-h-10 items-center gap-3 rounded-lg px-3 text-sm font-medium",
+                  "rounded-control flex h-9 items-center gap-3 px-3 text-sm font-medium",
                   active
-                    ? "bg-accent text-foreground"
-                    : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                    ? "bg-indigo-soft text-indigo-strong font-semibold"
+                    : "text-ink-2 hover:bg-paper hover:text-ink",
                 )}
               >
-                <Icon className="size-4" aria-hidden />
+                <Icon className="size-4" strokeWidth={1.8} aria-hidden />
                 {label}
               </Link>
             </li>

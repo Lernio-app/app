@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { LinkShareData } from "./actions";
+import { SectionTitle } from "@/components/ui/page-header";
 
 // El link completo solo se ve una vez: acá el profe lo manda por WhatsApp o lo copia.
 export function LinkShare({ share }: { share: LinkShareData }) {
@@ -26,16 +27,16 @@ export function LinkShare({ share }: { share: LinkShareData }) {
   }
 
   return (
-    <div ref={container} className="bg-card scroll-mt-4 space-y-4 rounded-xl border p-5">
+    <div ref={container} className="bg-card rounded-card scroll-mt-4 space-y-4 border p-5">
       <div className="space-y-1">
-        <h2 className="text-lg">Link de {share.studentName}</h2>
-        <p className="text-muted-foreground text-sm">
+        <SectionTitle>Link de {share.studentName}</SectionTitle>
+        <p className="text-ink-3 text-sm">
           Mandáselo ahora: por seguridad no lo podés volver a ver. Si lo perdés, generás uno nuevo y
           el anterior deja de funcionar.
         </p>
       </div>
-      <p className="bg-muted rounded-lg p-3 text-sm break-all select-all">{share.link}</p>
-      <pre className="text-muted-foreground font-sans text-sm [overflow-wrap:anywhere] whitespace-pre-wrap">
+      <p className="bg-paper rounded-control p-3 text-sm break-all select-all">{share.link}</p>
+      <pre className="text-ink-3 font-sans text-sm [overflow-wrap:anywhere] whitespace-pre-wrap">
         {share.message}
       </pre>
       <div className="flex flex-col gap-2 sm:flex-row">
@@ -43,11 +44,11 @@ export function LinkShare({ share }: { share: LinkShareData }) {
           href={share.whatsappUrl}
           target="_blank"
           rel="noreferrer"
-          className={cn(buttonVariants({ size: "lg" }), "h-11 flex-1")}
+          className={cn(buttonVariants(), "flex-1")}
         >
           Mandar por WhatsApp
         </a>
-        <Button type="button" variant="outline" size="lg" className="h-11 flex-1" onClick={copy}>
+        <Button type="button" variant="secondary" className="flex-1" onClick={copy}>
           {copied ? "Link copiado" : "Copiar link"}
         </Button>
       </div>

@@ -1,23 +1,17 @@
 import Link from "next/link";
 import { formatTime } from "@/lib/format";
 import { attendeesOf, lessonTitle, needsAttendance, type LessonWithAttendees } from "@/lib/lessons";
+import { StatusChip, type Status } from "@/components/ui/status-chip";
 import { cn } from "@/lib/utils";
 import { ATTENDANCE_LABELS, type Attendance } from "@/lib/validation/lesson";
 
-function Chip({ tone, children }: { tone: "ok" | "owed" | "muted"; children: React.ReactNode }) {
-  return (
-    <span
-      className={cn(
-        "rounded-full border px-2 py-0.5 text-xs font-medium",
-        tone === "ok" && "text-status-ok",
-        tone === "owed" && "text-status-owed",
-        tone === "muted" && "text-status-pending",
-      )}
-    >
-      {children}
-    </span>
-  );
-}
+// Vino o llegó tarde: al día. Faltó sin avisar: ámbar con x. Avisó: pendiente (§2.3).
+const ATTENDANCE_STATUS: Record<Attendance, { status: Status; cross?: boolean }> = {
+  present: { status: "ok" },
+  late: { status: "ok" },
+  absent: { status: "debt", cross: true },
+  excused: { status: "pending" },
+};
 
 // Resumen de la asistencia de una clase para la lista: "Vino", "2 de 3 vinieron", etc.
 function attendanceChip(lesson: LessonWithAttendees) {
@@ -26,17 +20,13 @@ function attendanceChip(lesson: LessonWithAttendees) {
   if (marked.length === 0) return null;
   if (attendees.length === 1) {
     const value = marked[0].attendance as Attendance;
-    return (
-      <Chip tone={value === "present" || value === "late" ? "ok" : "muted"}>
-        {ATTENDANCE_LABELS[value]}
-      </Chip>
-    );
+    return <StatusChip {...ATTENDANCE_STATUS[value]}>{ATTENDANCE_LABELS[value]}</StatusChip>;
   }
   const came = marked.filter((a) => a.attendance === "present" || a.attendance === "late").length;
   return (
-    <Chip tone={marked.length === attendees.length ? "ok" : "owed"}>
+    <StatusChip status={marked.length === attendees.length ? "ok" : "pending"}>
       {came} de {attendees.length} vinieron
-    </Chip>
+    </StatusChip>
   );
 }
 
@@ -60,22 +50,27 @@ export function LessonItem({
   return (
     <Link
       href={`/agenda/${lesson.id}`}
-      className="bg-card hover:bg-muted/50 flex gap-4 rounded-xl border p-4"
+      className="bg-card hover:bg-paper rounded-card flex gap-4 border p-4"
     >
-      <div className="tabular w-12 shrink-0 text-sm">
+      <div className="num w-12 shrink-0 text-sm">
         <p className="font-medium">{formatTime(lesson.starts_at, timeZone)}</p>
-        <p className="text-muted-foreground">{formatTime(lesson.ends_at, timeZone)}</p>
+        <p className="text-ink-3">{formatTime(lesson.ends_at, timeZone)}</p>
       </div>
       <div className="min-w-0 flex-1 space-y-1">
-        <p className={cn("font-medium", cancelled && "text-muted-foreground line-through")}>
+        <p className={cn("font-medium", cancelled && "text-ink-3 line-through")}>
           {lessonTitle(lesson)}
         </p>
-        {detail && <p className="text-muted-foreground truncate text-sm">{detail}</p>}
-        <div className="flex flex-wrap gap-1.5 empty:hidden">
-          {cancelled && <Chip tone="muted">Cancelada</Chip>}
-          {missing && <Chip tone="owed">Falta marcar asistencia</Chip>}
+        {detail && <p className="text-ink-3 truncate text-sm">{detail}</p>}
+        <div className="flex flex-wrap items-center gap-1.5 empty:hidden">
+          {cancelled && (
+            <StatusChip status="pending" cross>
+              Cancelada
+            </StatusChip>
+          )}
+          {missing && <StatusChip status="pending">Falta marcar asistencia</StatusChip>}
           {!cancelled && !missing && attendanceChip(lesson)}
-          {lesson.series_id && !cancelled && <Chip tone="muted">Fija</Chip>}
+          {/* "Fija" no es un estado: va como metadato, sin chip. */}
+          {lesson.series_id && !cancelled && <span className="label-mono text-ink-3">Fija</span>}
         </div>
       </div>
     </Link>

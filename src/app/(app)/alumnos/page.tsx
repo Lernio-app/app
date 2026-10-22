@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import Link from "next/link";
-import { EmptyState, PageContainer, PageHeader } from "@/components/page-header";
+import { EmptyState, PageContainer, PageHeader } from "@/components/ui/page-header";
 import { buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { debtors } from "@/lib/billing";
@@ -43,7 +43,6 @@ async function StudentList({
           defaultValue={query}
           placeholder="Buscar por nombre"
           aria-label="Buscar alumno por nombre"
-          className="h-11"
         />
         {archived && <input type="hidden" name="archivados" value="1" />}
       </form>
@@ -54,7 +53,7 @@ async function StudentList({
           aria-current={!archived ? "page" : undefined}
           className={cn(
             "rounded-full border px-3 py-1.5",
-            !archived ? "border-primary bg-accent font-medium" : "text-muted-foreground",
+            !archived ? "border-primary bg-indigo-soft font-medium" : "text-ink-3",
           )}
         >
           Activos
@@ -64,7 +63,7 @@ async function StudentList({
           aria-current={archived ? "page" : undefined}
           className={cn(
             "rounded-full border px-3 py-1.5",
-            archived ? "border-primary bg-accent font-medium" : "text-muted-foreground",
+            archived ? "border-primary bg-indigo-soft font-medium" : "text-ink-3",
           )}
         >
           Archivados
@@ -90,15 +89,13 @@ async function StudentList({
               <li key={student.id}>
                 <Link
                   href={`/alumnos/${student.id}`}
-                  className="bg-card hover:bg-muted/50 block rounded-xl border p-4"
+                  className="bg-card hover:bg-paper rounded-card block border p-4"
                 >
                   <p className="font-medium">{student.full_name}</p>
-                  {detail && <p className="text-muted-foreground text-sm">{detail}</p>}
-                  <p className="tabular text-muted-foreground text-sm">
-                    {priceSummary(plan, formatARS)}
-                  </p>
+                  {detail && <p className="text-ink-3 text-sm">{detail}</p>}
+                  <p className="num text-ink-3 text-sm">{priceSummary(plan, formatARS)}</p>
                   {owed.has(student.id) && (
-                    <p className="tabular text-status-owed text-sm font-medium">
+                    <p className="num text-debt text-sm font-medium">
                       Debe {formatARS(owed.get(student.id) ?? 0)}
                     </p>
                   )}
@@ -117,7 +114,7 @@ export default function AlumnosPage(props: PageProps<"/alumnos">) {
     <PageContainer>
       <div className="flex items-start justify-between gap-3">
         <PageHeader title="Alumnos" description="Todos tus alumnos, con su precio." />
-        <Link href="/alumnos/nuevo" className={cn(buttonVariants({ size: "lg" }), "h-11 shrink-0")}>
+        <Link href="/alumnos/nuevo" className={cn(buttonVariants(), "shrink-0")}>
           Nuevo
         </Link>
       </div>

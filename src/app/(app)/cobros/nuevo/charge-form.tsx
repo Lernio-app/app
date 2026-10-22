@@ -1,8 +1,8 @@
 "use client";
 
 import { useActionState } from "react";
-import { Field } from "@/components/field";
-import { NativeSelect } from "@/components/native-select";
+import { Field, FormError } from "@/components/ui/field";
+import { NativeSelect } from "@/components/ui/native-select";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { createCharge } from "../actions";
@@ -48,7 +48,7 @@ export function ChargeForm({
           defaultValue={current.amount}
           placeholder="18.000"
           autoFocus
-          className="tabular h-11"
+          className="num"
         />
       </Field>
 
@@ -58,12 +58,7 @@ export function ChargeForm({
         hint="Opcional: material, inscripción, clase de apoyo…"
         error={errors.description}
       >
-        <Input
-          id="description"
-          name="description"
-          defaultValue={current.description}
-          className="h-11"
-        />
+        <Input id="description" name="description" defaultValue={current.description} />
       </Field>
 
       <Field
@@ -72,23 +67,12 @@ export function ChargeForm({
         hint="Con una fecha futura queda como cuenta a cobrar y pasa a vencida cuando llega ese día."
         error={errors.dueOn}
       >
-        <Input
-          id="dueOn"
-          name="dueOn"
-          type="date"
-          defaultValue={current.dueOn}
-          required
-          className="h-11"
-        />
+        <Input id="dueOn" name="dueOn" type="date" defaultValue={current.dueOn} required />
       </Field>
 
-      {state.message && (
-        <p role="alert" className="text-status-error text-sm">
-          {state.message}
-        </p>
-      )}
+      {state.message && <FormError>{state.message}</FormError>}
 
-      <Button type="submit" size="lg" className="h-11 w-full sm:w-auto sm:px-8" disabled={pending}>
+      <Button type="submit" className="w-full sm:w-auto sm:px-8" disabled={pending}>
         {pending ? "Guardando…" : "Guardar cargo"}
       </Button>
     </form>

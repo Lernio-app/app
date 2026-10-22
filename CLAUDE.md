@@ -9,10 +9,8 @@ Next.js (App Router), TypeScript, Tailwind, shadcn/ui, Supabase (Postgres con RL
 ## Forma de trabajo
 
 - Una pieza por vez (una tabla o una pantalla), con el diff a la vista antes de aplicar.
-<!-- Desactivado mientras se trabaja en solitario directo sobre main:
-- Cada cambio sale de un issue. Branch `tipo/numero-slug` y PR con squash.
--->
-- Por ahora se trabaja directo sobre `main`, sin branches por feature.
+- Se trabaja directo sobre `main`, sin branches por feature ni PR.
+- Todo cambio de UI se verifica en el navegador con Claude in Chrome (`npm run dev`), con la ventana en ancho de celular, antes de darlo por terminado. El lint y los tests no alcanzan.
 
 ## Datos
 
@@ -28,6 +26,15 @@ Next.js (App Router), TypeScript, Tailwind, shadcn/ui, Supabase (Postgres con RL
 - Pesos con formato argentino.
 - Voseo en todos los textos.
 
+## Sistema de diseño
+
+Leer `docs/sistema-de-diseno.md` antes de tocar cualquier pantalla. Lo hacen cumplir las reglas `lernio/*` de ESLint, los tests de `src/design/` y `eslint-rules/`, y un hook que lintea cada archivo editado.
+
+- Cada pantalla vive en un grupo de rutas con su superficie (`<Surface>` en el layout del grupo).
+- Se construye con las primitivas de `components/ui`. Colores, radios y tamaños, solo por token.
+- No se desactivan reglas `lernio/*` ni se agregan excepciones para pasar el lint: se corrige el código. Si una regla parece estar mal, se avisa en vez de esquivarla.
+- Los tokens y las reglas cambian solo con una decisión en `producto`, en el mismo PR que su test.
+
 ## Seguridad
 
 - La clave de servicio de Supabase nunca llega al navegador.
@@ -37,9 +44,8 @@ Next.js (App Router), TypeScript, Tailwind, shadcn/ui, Supabase (Postgres con RL
 ## Git
 
 - Antes de empezar a trabajar y antes de pushear: `git pull --rebase origin main`. Si el push es rechazado, hacer pull y rebase de nuevo; nunca `push --force` sobre `main`.
-- `main` está protegida por un ruleset: no hay force-push ni borrado y la historia es lineal (hacer `git pull --rebase`, nunca merge commits). Por ahora se puede pushear directo a `main`; los PR, cuando se usen, se mergean con squash.
-- Branch `tipo/numero-slug` con tipo `feat`, `fix`, `chore`, `docs` o `refactor` (ej.: `feat/21-ficha-alumno`).
-- Commits en español, con formato `tipo: descripción`.
+- `main` está protegida por un ruleset: no hay force-push ni borrado y la historia es lineal (hacer `git pull --rebase`, nunca merge commits). Se pushea directo a `main`.
+- Commits en español, con formato `tipo: descripción`, con tipo `feat`, `fix`, `chore`, `docs` o `refactor`.
 - Al empezar una fase, hacer también `git pull --rebase` en `../producto`.
 
 ## Issues y Project
@@ -49,18 +55,18 @@ Next.js (App Router), TypeScript, Tailwind, shadcn/ui, Supabase (Postgres con RL
   - Tomar un issue: `gh issue edit N --add-assignee @me` y pasarlo a `In Progress` en el Project (`gh project item-edit`).
   - Comentar o cerrar: `gh issue comment N`, `gh issue close N`.
 - Para crear un issue con su issue type (`Feature`, `Task` o `Bug`): `gh api repos/Lernio-app/app/issues -f title=... -f type=Task`. Lleva una etiqueta `area:*`, una `prioridad:*`, el milestone de su fase y se agrega al Project con Fase y Prioridad.
-- El PR cierra su issue con `Closes #N`.
+- El commit que termina un issue lo cierra con `Closes #N` en el mensaje.
 - Al terminar una tarea, o si el código ya cubre los criterios de aceptación de un issue, proponer pasarlo a `In Review` en el Project (`gh project item-edit`) y esperar la confirmación antes de moverlo.
 - Los issues de `app` son públicos: lo sensible o de negocio va como issue en `Lernio-app/producto`.
 
 ## Bitácora
 
-- Cada PR agrega una línea a `CHANGELOG.md`, bajo "Sin publicar" y en la sección `Agregado`, `Cambiado` o `Corregido`, con la referencia al issue (`#N`).
+- Cada cambio agrega una línea a `CHANGELOG.md`, bajo "Sin publicar" y en la sección `Agregado`, `Cambiado` o `Corregido`, con la referencia al issue (`#N`) si lo hay.
 - Las decisiones y novedades de producto o negocio no van acá: se registran en `../producto/docs/bitacora.md`.
 
 ## Este repo es público
 
-Nada de precios, métricas de negocio, estrategia ni datos de personas en código, issues o PRs.
+Nada de precios, métricas de negocio, estrategia ni datos de personas en código, commits ni issues.
 
 ## Documentar funcionalidades
 

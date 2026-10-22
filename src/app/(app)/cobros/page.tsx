@@ -1,8 +1,8 @@
 import { Suspense } from "react";
 import Link from "next/link";
-import { ChargeItem } from "@/components/charge-item";
-import { ConfirmForm } from "@/components/confirm-form";
-import { EmptyState, PageContainer, PageHeader } from "@/components/page-header";
+import { ChargeItem } from "@/components/app/charge-item";
+import { ConfirmForm } from "@/components/ui/confirm-form";
+import { EmptyState, PageContainer, PageHeader, SectionTitle } from "@/components/ui/page-header";
 import { buttonVariants } from "@/components/ui/button";
 import {
   collected,
@@ -38,17 +38,12 @@ function Stat({
   tone?: "owed";
 }) {
   return (
-    <div className="bg-card rounded-xl border p-4">
-      <p className="text-muted-foreground text-sm">{label}</p>
-      <p
-        className={cn(
-          "tabular text-2xl font-bold",
-          tone === "owed" && value > 0 && "text-status-owed",
-        )}
-      >
+    <div className="bg-card rounded-card border p-4">
+      <p className="text-ink-3 text-sm">{label}</p>
+      <p className={cn("num-kpi", tone === "owed" && value > 0 && "text-debt")}>
         {formatARS(value)}
       </p>
-      {note && <p className="text-muted-foreground tabular text-sm">{note}</p>}
+      {note && <p className="text-ink-3 num text-sm">{note}</p>}
     </div>
   );
 }
@@ -65,8 +60,8 @@ function Section({
   return (
     <section className="space-y-3">
       <div className="space-y-1">
-        <h2 className="text-lg">{title}</h2>
-        {description && <p className="text-muted-foreground text-sm">{description}</p>}
+        <SectionTitle>{title}</SectionTitle>
+        {description && <p className="text-ink-3 text-sm">{description}</p>}
       </div>
       {children}
     </section>
@@ -118,19 +113,13 @@ async function Cobros() {
       </div>
 
       <div className="flex flex-wrap gap-2">
-        <Link href="/cobros/pago" className={cn(buttonVariants({ size: "lg" }), "h-11")}>
+        <Link href="/cobros/pago" className={buttonVariants()}>
           Registrar pago
         </Link>
-        <Link
-          href="/cobros/nuevo"
-          className={cn(buttonVariants({ variant: "outline", size: "lg" }), "h-11")}
-        >
+        <Link href="/cobros/nuevo" className={buttonVariants({ variant: "secondary" })}>
           Nuevo cargo
         </Link>
-        <Link
-          href="/cobros/aumento"
-          className={cn(buttonVariants({ variant: "outline", size: "lg" }), "h-11")}
-        >
+        <Link href="/cobros/aumento" className={buttonVariants({ variant: "secondary" })}>
           Aumentar precios
         </Link>
       </div>
@@ -147,7 +136,7 @@ async function Cobros() {
               const student = students.get(debtor.studentId);
               return (
                 <li key={debtor.studentId} className="space-y-3">
-                  <div className="bg-card space-y-3 rounded-xl border p-4">
+                  <div className="bg-card rounded-card space-y-3 border p-4">
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
                         <Link
@@ -156,13 +145,11 @@ async function Cobros() {
                         >
                           {nameOf(debtor.studentId)}
                         </Link>
-                        <p className="text-status-owed text-sm">
+                        <p className="text-debt text-sm">
                           Debe desde el {dayLabel(debtor.since, { weekday: undefined })}
                         </p>
                       </div>
-                      <p className="tabular text-status-owed text-lg font-bold">
-                        {formatARS(debtor.owed)}
-                      </p>
+                      <p className="num text-debt text-lg">{formatARS(debtor.owed)}</p>
                     </div>
                     {student && (
                       <a
@@ -176,17 +163,14 @@ async function Cobros() {
                         })}
                         target="_blank"
                         rel="noreferrer"
-                        className={cn(
-                          buttonVariants({ variant: "outline", size: "lg" }),
-                          "h-11 w-full",
-                        )}
+                        className={cn(buttonVariants({ variant: "secondary" }), "w-full")}
                       >
                         Avisar por WhatsApp
                       </a>
                     )}
                   </div>
                   <details className="group">
-                    <summary className="text-muted-foreground flex min-h-11 cursor-pointer list-none items-center gap-2 px-1 text-sm [&::-webkit-details-marker]:hidden">
+                    <summary className="text-ink-3 flex min-h-11 cursor-pointer list-none items-center gap-2 px-1 text-sm [&::-webkit-details-marker]:hidden">
                       <span aria-hidden className="transition-transform group-open:rotate-90">
                         ›
                       </span>
@@ -223,7 +207,7 @@ async function Cobros() {
               <li key={charge.id} className="space-y-1">
                 <Link
                   href={`/alumnos/${charge.student_id}`}
-                  className="text-muted-foreground px-1 text-sm hover:underline"
+                  className="text-ink-3 px-1 text-sm hover:underline"
                 >
                   {nameOf(charge.student_id)}
                 </Link>
@@ -235,14 +219,14 @@ async function Cobros() {
       </Section>
 
       <Section title="Cobrado por mes">
-        <ul className="bg-card divide-y rounded-xl border">
+        <ul className="bg-card rounded-card divide-y border">
           {[...stats.byMonth].reverse().map((entry) => (
             <li key={entry.month} className="space-y-2 p-4">
               <div className="flex items-center justify-between gap-3">
                 <span className="first-letter:uppercase">{monthName(entry.month, thisYear)}</span>
-                <span className="tabular font-medium">{formatARS(entry.amount)}</span>
+                <span className="num font-medium">{formatARS(entry.amount)}</span>
               </div>
-              <div className="bg-muted h-1.5 overflow-hidden rounded-full" aria-hidden>
+              <div className="bg-paper h-1.5 overflow-hidden rounded-full" aria-hidden>
                 <div
                   className="bg-primary h-full rounded-full"
                   style={{ width: `${Math.round((entry.amount / maxMonth) * 100)}%` }}
@@ -257,13 +241,13 @@ async function Cobros() {
         {stats.byStudent.length === 0 ? (
           <EmptyState title="Todavía no registraste cobros" />
         ) : (
-          <ul className="bg-card divide-y rounded-xl border">
+          <ul className="bg-card rounded-card divide-y border">
             {stats.byStudent.map((entry) => (
               <li key={entry.studentId} className="flex items-center justify-between gap-3 p-4">
                 <Link href={`/alumnos/${entry.studentId}`} className="hover:underline">
                   {nameOf(entry.studentId)}
                 </Link>
-                <span className="tabular font-medium">{formatARS(entry.amount)}</span>
+                <span className="num font-medium">{formatARS(entry.amount)}</span>
               </li>
             ))}
           </ul>
@@ -283,25 +267,20 @@ async function Cobros() {
               return (
                 <li
                   key={payment.id}
-                  className="bg-card flex items-center justify-between gap-3 rounded-xl border p-4"
+                  className="bg-card rounded-card flex items-center justify-between gap-3 border p-4"
                 >
-                  <div className={cn("min-w-0", voided && "text-muted-foreground")}>
+                  <div className={cn("min-w-0", voided && "text-ink-3")}>
                     <p className={cn("truncate font-medium", voided && "line-through")}>
                       {nameOf(payment.student_id)}
                     </p>
-                    <p className="text-muted-foreground text-sm">
+                    <p className="text-ink-3 text-sm">
                       {methodLabel(payment.method)} ·{" "}
                       {dayLabel(payment.paid_on, { weekday: undefined })}
                       {voided && " · Anulado"}
                     </p>
                   </div>
                   <div className="flex items-center gap-1">
-                    <span
-                      className={cn(
-                        "tabular font-semibold",
-                        voided && "text-muted-foreground line-through",
-                      )}
-                    >
+                    <span className={cn("num font-semibold", voided && "text-ink-3 line-through")}>
                       {formatARS(payment.amount)}
                     </span>
                     {!voided && (

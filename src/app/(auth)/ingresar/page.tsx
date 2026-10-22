@@ -1,5 +1,7 @@
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
+import { Logo } from "@/components/ui/logo";
+import { PageTitle } from "@/components/ui/page-header";
 import { getUser } from "@/lib/workspace";
 import { LoginForm } from "./login-form";
 
@@ -32,10 +34,10 @@ async function LoginContent({
 export default function IngresarPage(props: PageProps<"/ingresar">) {
   return (
     <main className="mx-auto flex min-h-dvh w-full max-w-sm flex-col justify-center gap-8 px-5 py-10">
-      <header className="space-y-2">
-        <p className="text-primary text-sm font-medium">Lernio</p>
-        <h1 className="text-3xl">Ingresá a tu espacio</h1>
-        <p className="text-muted-foreground">
+      <header className="space-y-3">
+        <Logo />
+        <PageTitle>Ingresá a tu espacio</PageTitle>
+        <p className="text-ink-2">
           Alumnos, clases y cobros en un solo lugar. Sin contraseñas: te mandamos un link por email.
         </p>
       </header>

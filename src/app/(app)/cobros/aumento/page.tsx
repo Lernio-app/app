@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import Link from "next/link";
-import { PageContainer, PageHeader } from "@/components/page-header";
+import { PageContainer, PageHeader } from "@/components/ui/page-header";
 import { formatARS } from "@/lib/format";
 import { currentPlan, listStudents } from "@/lib/students";
 import { requireWorkspace } from "@/lib/workspace";
@@ -39,7 +39,7 @@ export default function AumentoPage() {
   return (
     <PageContainer>
       <div className="space-y-1">
-        <Link href="/cobros" className="text-muted-foreground text-sm hover:underline">
+        <Link href="/cobros" className="text-ink-3 text-sm hover:underline">
           ← Cobros
         </Link>
         <PageHeader

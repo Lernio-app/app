@@ -1,9 +1,9 @@
 "use client";
 
 import { useActionState } from "react";
-import { Field } from "@/components/field";
-import { MethodPicker } from "@/components/method-picker";
-import { NativeSelect } from "@/components/native-select";
+import { Field, FormError } from "@/components/ui/field";
+import { MethodPicker } from "@/components/app/method-picker";
+import { NativeSelect } from "@/components/ui/native-select";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { recordPayment } from "../actions";
@@ -55,29 +55,18 @@ export function PaymentForm({
           defaultValue={current.amount}
           placeholder="18.000"
           autoFocus
-          className="tabular h-11"
+          className="num"
         />
       </Field>
 
       <div className="space-y-2">
         <p className="text-sm font-medium">Cómo te pagó</p>
         <MethodPicker defaultValue={current.method} />
-        {errors.method && (
-          <p role="alert" className="text-status-error text-sm">
-            {errors.method}
-          </p>
-        )}
+        {errors.method && <FormError>{errors.method}</FormError>}
       </div>
 
       <Field id="paidOn" label="Fecha del pago" error={errors.paidOn}>
-        <Input
-          id="paidOn"
-          name="paidOn"
-          type="date"
-          defaultValue={current.paidOn}
-          required
-          className="h-11"
-        />
+        <Input id="paidOn" name="paidOn" type="date" defaultValue={current.paidOn} required />
       </Field>
 
       <Field
@@ -86,16 +75,12 @@ export function PaymentForm({
         hint="Opcional: número de operación, por ejemplo."
         error={errors.reference}
       >
-        <Input id="reference" name="reference" defaultValue={current.reference} className="h-11" />
+        <Input id="reference" name="reference" defaultValue={current.reference} />
       </Field>
 
-      {state.message && (
-        <p role="alert" className="text-status-error text-sm">
-          {state.message}
-        </p>
-      )}
+      {state.message && <FormError>{state.message}</FormError>}
 
-      <Button type="submit" size="lg" className="h-11 w-full sm:w-auto sm:px-8" disabled={pending}>
+      <Button type="submit" className="w-full sm:w-auto sm:px-8" disabled={pending}>
         {pending ? "Guardando…" : "Registrar pago"}
       </Button>
     </form>

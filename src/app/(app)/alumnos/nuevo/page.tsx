@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { PageContainer, PageHeader } from "@/components/page-header";
+import { PageContainer, PageHeader } from "@/components/ui/page-header";
 import { requireWorkspace } from "@/lib/workspace";
 import { NewStudent } from "./new-student";
 

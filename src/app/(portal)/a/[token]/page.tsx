@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
+import { PageTitle } from "@/components/ui/page-header";
 import { firstName } from "@/lib/messages";
 import { createClient } from "@/lib/supabase/server";
 
@@ -24,8 +25,8 @@ async function Welcome({ params }: { params: PageProps<"/a/[token]">["params"] }
 
   return (
     <>
-      <h1 className="text-3xl">Hola, {firstName(access.student_name)}</h1>
-      <p className="text-muted-foreground">
+      <PageTitle>Hola, {firstName(access.student_name)}</PageTitle>
+      <p className="text-ink-2">
         {firstName(access.teacher_name)} está preparando tu espacio de clases. Guardá este link: acá
         vas a ver tus próximas clases, tus tareas y cómo pagar.
       </p>
@@ -35,8 +36,8 @@ async function Welcome({ params }: { params: PageProps<"/a/[token]">["params"] }
 
 export default function AlumnoPage(props: PageProps<"/a/[token]">) {
   return (
+    // En el portal el profe va primero; Lernio, a lo sumo en un pie (§8, pendiente en §14).
     <main className="mx-auto flex min-h-dvh w-full max-w-sm flex-col justify-center gap-4 px-5 py-10">
-      <p className="text-primary text-sm font-medium">Lernio</p>
       <Suspense fallback={<div className="h-32" aria-hidden />}>
         <Welcome params={props.params} />
       </Suspense>

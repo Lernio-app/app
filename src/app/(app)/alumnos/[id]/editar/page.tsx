@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
-import { PageContainer, PageHeader } from "@/components/page-header";
+import { PageContainer, PageHeader } from "@/components/ui/page-header";
 import { formatARS } from "@/lib/format";
 import { currentPlan, getStudent, payerContact } from "@/lib/students";
 import type { StudentValues } from "@/lib/validation/student";

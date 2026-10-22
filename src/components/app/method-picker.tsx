@@ -15,7 +15,7 @@ export function MethodPicker({
         {METHODS.map((method: Method) => (
           <label
             key={method}
-            className="bg-card has-[:checked]:border-primary has-[:checked]:bg-accent flex min-h-11 cursor-pointer items-center justify-center rounded-lg border px-2 text-center text-sm has-[:checked]:font-medium"
+            className="bg-card has-[:checked]:border-primary has-[:checked]:bg-indigo-soft rounded-control flex min-h-11 cursor-pointer items-center justify-center border px-2 text-center text-sm has-[:checked]:font-medium"
           >
             <input
               type="radio"

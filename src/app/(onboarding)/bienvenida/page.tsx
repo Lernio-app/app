@@ -1,6 +1,8 @@
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
-import { WorkspaceForm } from "@/components/workspace-form";
+import { WorkspaceForm } from "@/components/app/workspace-form";
+import { Logo } from "@/components/ui/logo";
+import { PageTitle } from "@/components/ui/page-header";
 import { getUser, getWorkspace } from "@/lib/workspace";
 import { createWorkspace } from "./actions";
 
@@ -31,12 +33,10 @@ async function Welcome() {
 export default function BienvenidaPage() {
   return (
     <main className="mx-auto w-full max-w-lg space-y-8 px-5 py-10">
-      <header className="space-y-2">
-        <p className="text-primary text-sm font-medium">Lernio</p>
-        <h1 className="text-3xl">Armemos tu espacio</h1>
-        <p className="text-muted-foreground">
-          Son unos minutos. Después podés cambiar todo desde Ajustes.
-        </p>
+      <header className="space-y-3">
+        <Logo />
+        <PageTitle>Armemos tu espacio</PageTitle>
+        <p className="text-ink-2">Son unos minutos. Después podés cambiar todo desde Ajustes.</p>
       </header>
       <Suspense fallback={<div className="h-96" aria-hidden />}>
         <Welcome />

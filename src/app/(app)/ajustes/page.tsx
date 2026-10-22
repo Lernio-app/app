@@ -1,6 +1,6 @@
 import { Suspense } from "react";
-import { PageContainer, PageHeader } from "@/components/page-header";
-import { WorkspaceForm } from "@/components/workspace-form";
+import { PageContainer, PageHeader, SectionTitle } from "@/components/ui/page-header";
+import { WorkspaceForm } from "@/components/app/workspace-form";
 import { Button } from "@/components/ui/button";
 import { signOut } from "@/lib/auth-actions";
 import { requireWorkspace } from "@/lib/workspace";
@@ -28,10 +28,10 @@ async function Settings() {
         }}
       />
       <section className="space-y-3 border-t pt-6">
-        <h2 className="text-lg">Tu cuenta</h2>
-        {email && <p className="text-muted-foreground text-sm">Ingresaste con {email}.</p>}
+        <SectionTitle>Tu cuenta</SectionTitle>
+        {email && <p className="text-ink-3 text-sm">Ingresaste con {email}.</p>}
         <form action={signOut}>
-          <Button type="submit" variant="outline" className="h-11">
+          <Button type="submit" variant="secondary">
             Cerrar sesión
           </Button>
         </form>

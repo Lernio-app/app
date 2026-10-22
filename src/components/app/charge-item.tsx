@@ -1,6 +1,6 @@
 import { CobradoButton } from "@/app/(app)/cobros/cobrado-button";
 import { voidCharge } from "@/app/(app)/cobros/actions";
-import { ConfirmForm } from "@/components/confirm-form";
+import { ConfirmForm } from "@/components/ui/confirm-form";
 import { chargeLabel, chargeState, dueLabel, type ChargeRow } from "@/lib/billing";
 import { formatARS } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -20,26 +20,26 @@ export function ChargeItem({
   const partial = charge.paid > 0 && charge.remaining > 0;
 
   return (
-    <div className="bg-card space-y-3 rounded-xl border p-4">
+    <div className="bg-card rounded-card space-y-3 border p-4">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="font-medium">{chargeLabel(charge)}</p>
           <p
             className={cn(
               "text-sm",
-              state === "overdue" || state === "due" ? "text-status-owed" : "text-muted-foreground",
-              state === "paid" && "text-status-ok",
+              state === "overdue" || state === "due" ? "text-debt" : "text-ink-3",
+              state === "paid" && "text-ok",
             )}
           >
             {state === "paid" ? "Cobrado" : dueLabel(charge.due_on, today)}
           </p>
         </div>
         <div className="text-right">
-          <p className="tabular font-semibold">
+          <p className="num font-semibold">
             {formatARS(state === "paid" ? charge.amount : charge.remaining)}
           </p>
           {partial && (
-            <p className="text-muted-foreground tabular text-xs">
+            <p className="text-ink-3 num text-xs">
               Pagó {formatARS(charge.paid)} de {formatARS(charge.amount)}
             </p>
           )}

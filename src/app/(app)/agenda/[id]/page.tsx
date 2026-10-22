@@ -1,8 +1,7 @@
 import { Suspense } from "react";
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import { PageContainer } from "@/components/page-header";
-import { ReminderLink } from "@/components/reminder-link";
+import { PageContainer, PageHeader, SectionTitle } from "@/components/ui/page-header";
+import { ReminderLink } from "@/components/app/reminder-link";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { lessonCharges } from "@/lib/billing-data";
 import { dayLabel, localDate, localTime, spokenDay } from "@/lib/dates";
@@ -21,13 +20,10 @@ export const metadata = { title: "Clase" };
 
 function Collapsible({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <details className="group bg-card rounded-xl border">
+    <details className="group bg-card rounded-card border">
       <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between px-4 font-medium [&::-webkit-details-marker]:hidden">
         {title}
-        <span
-          aria-hidden
-          className="text-muted-foreground transition-transform group-open:rotate-90"
-        >
+        <span aria-hidden className="text-ink-3 transition-transform group-open:rotate-90">
           ›
         </span>
       </summary>
@@ -60,33 +56,27 @@ async function Clase({ params }: { params: PageProps<"/agenda/[id]">["params"] }
 
   return (
     <>
-      <header className="space-y-1">
-        <Link
-          href={`/agenda?semana=${day}`}
-          className="text-muted-foreground text-sm hover:underline"
-        >
-          ← Agenda
-        </Link>
-        <h1 className="text-2xl md:text-3xl">{lessonTitle(lesson)}</h1>
-        <p className="text-muted-foreground first-letter:uppercase">
+      <PageHeader
+        title={lessonTitle(lesson)}
+        back={{ href: `/agenda?semana=${day}`, label: "Agenda" }}
+      >
+        <p className="text-ink-2 first-letter:uppercase">
           {dayLabel(day)} ·{" "}
-          <span className="tabular">
+          <span className="num">
             {start} a {formatTime(lesson.ends_at, tz)}
           </span>
         </p>
         {lesson.topic && <p>{lesson.topic}</p>}
-      </header>
+      </PageHeader>
 
       {cancelled && (
-        <section className="bg-card space-y-3 rounded-xl border p-4">
+        <section className="bg-card rounded-card space-y-3 border p-4">
           <p className="font-medium">
             Clase cancelada por {lesson.cancelled_by === "student" ? "el alumno" : "vos"}.
           </p>
-          {lesson.cancel_reason && (
-            <p className="text-muted-foreground text-sm">{lesson.cancel_reason}</p>
-          )}
+          {lesson.cancel_reason && <p className="text-ink-3 text-sm">{lesson.cancel_reason}</p>}
           {lesson.cancelled_by === "student" && (
-            <p className="text-muted-foreground text-sm">
+            <p className="text-ink-3 text-sm">
               {attendees.some((a) => a.billable)
                 ? "Avisó fuera de tu regla, así que se cobra."
                 : "Avisó a tiempo, así que no se cobra."}
@@ -94,7 +84,7 @@ async function Clase({ params }: { params: PageProps<"/agenda/[id]">["params"] }
           )}
           <form action={restoreLesson}>
             <input type="hidden" name="lessonId" value={lesson.id} />
-            <Button type="submit" variant="outline" size="lg" className="h-11">
+            <Button type="submit" variant="secondary">
               Deshacer cancelación
             </Button>
           </form>
@@ -106,7 +96,7 @@ async function Clase({ params }: { params: PageProps<"/agenda/[id]">["params"] }
           href={lesson.meeting_url}
           target="_blank"
           rel="noreferrer"
-          className={cn(buttonVariants({ size: "lg" }), "h-12 w-full")}
+          className={cn(buttonVariants(), "w-full")}
         >
           Entrar a la clase
         </a>
@@ -114,7 +104,7 @@ async function Clase({ params }: { params: PageProps<"/agenda/[id]">["params"] }
 
       {!cancelled && (
         <section className="space-y-3">
-          <h2 className="text-lg">Asistencia</h2>
+          <SectionTitle>Asistencia</SectionTitle>
           <AttendanceList
             lessonId={lesson.id}
             rows={attendees.map((a) => ({
@@ -131,8 +121,8 @@ async function Clase({ params }: { params: PageProps<"/agenda/[id]">["params"] }
       {upcoming && (
         <section className="space-y-3">
           <div className="space-y-1">
-            <h2 className="text-lg">Recordatorio</h2>
-            <p className="text-muted-foreground text-sm">
+            <SectionTitle>Recordatorio</SectionTitle>
+            <p className="text-ink-3 text-sm">
               Se abre WhatsApp con el mensaje escrito; vos lo enviás.
             </p>
           </div>
@@ -156,7 +146,7 @@ async function Clase({ params }: { params: PageProps<"/agenda/[id]">["params"] }
                     label={`${sent ? "Mandar de nuevo a" : "Recordar a"} ${firstName(a.students.full_name)}`}
                     sent={sent}
                   />
-                  {sent && <span className="text-status-ok text-sm">Ya se lo mandaste.</span>}
+                  {sent && <span className="text-ok text-sm">Ya se lo mandaste.</span>}
                 </li>
               );
             })}
@@ -165,7 +155,7 @@ async function Clase({ params }: { params: PageProps<"/agenda/[id]">["params"] }
       )}
 
       <section className="space-y-3">
-        <h2 className="text-lg">Detalles</h2>
+        <SectionTitle>Detalles</SectionTitle>
         <NotesForm
           lessonId={lesson.id}
           topic={lesson.topic ?? ""}
@@ -198,7 +188,7 @@ async function Clase({ params }: { params: PageProps<"/agenda/[id]">["params"] }
           </Collapsible>
         )}
         {lesson.series_id && (
-          <p className="text-muted-foreground px-1 pt-1 text-sm">
+          <p className="text-ink-3 px-1 pt-1 text-sm">
             Es parte de un horario fijo. Moverla o cancelarla afecta solo a esta clase.
           </p>
         )}

@@ -18,7 +18,7 @@ export function EndSeriesButton({ seriesId }: { seriesId: string }) {
       }}
     >
       <input type="hidden" name="seriesId" value={seriesId} />
-      <Button type="submit" variant="ghost" size="sm" className="h-9 shrink-0">
+      <Button type="submit" variant="ghost" className="shrink-0">
         Terminar
       </Button>
     </form>

@@ -1,8 +1,8 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { EmptyState, PageContainer } from "@/components/page-header";
-import { StudentBilling } from "@/components/student-billing";
+import { EmptyState, PageContainer, PageHeader, SectionTitle } from "@/components/ui/page-header";
+import { StudentBilling } from "@/components/app/student-billing";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { dayLabel, localDate } from "@/lib/dates";
 import { formatARS, formatDate, formatTime } from "@/lib/format";
@@ -11,7 +11,6 @@ import { currentPlan, getStudent } from "@/lib/students";
 import { ATTENDANCE_LABELS, type Attendance } from "@/lib/validation/lesson";
 import { priceSummary } from "@/lib/validation/student";
 import { requireWorkspace } from "@/lib/workspace";
-import { cn } from "@/lib/utils";
 import { archiveStudent, restoreStudent } from "../actions";
 import { RegenerateLink } from "./regenerate-link";
 
@@ -20,7 +19,7 @@ export const metadata = { title: "Alumno" };
 function Detail({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <dt className="text-muted-foreground text-sm">{label}</dt>
+      <dt className="text-ink-3 text-sm">{label}</dt>
       <dd>{children}</dd>
     </div>
   );
@@ -50,13 +49,13 @@ async function Clases({
       <li key={lesson.id}>
         <Link
           href={`/agenda/${lesson.id}`}
-          className="bg-card hover:bg-muted/50 flex items-center justify-between gap-3 rounded-xl border p-4"
+          className="bg-card hover:bg-paper rounded-card flex items-center justify-between gap-3 border p-4"
         >
-          <span className="tabular first-letter:uppercase">
+          <span className="num first-letter:uppercase">
             {dayLabel(day, { weekday: "short", month: "short" })} ·{" "}
             {formatTime(lesson.starts_at, timeZone)}
           </span>
-          {status && <span className="text-muted-foreground text-sm">{status}</span>}
+          {status && <span className="text-ink-3 text-sm">{status}</span>}
         </Link>
       </li>
     );
@@ -65,7 +64,7 @@ async function Clases({
   return (
     <section className="space-y-3">
       <div className="flex items-center justify-between gap-3">
-        <h2 className="text-lg">Clases</h2>
+        <SectionTitle>Clases</SectionTitle>
         {!archived && (
           <Link
             href={`/agenda/nueva?alumno=${studentId}`}
@@ -81,13 +80,13 @@ async function Clases({
         <>
           {upcoming.length > 0 && (
             <div className="space-y-2">
-              <h3 className="text-muted-foreground text-sm">Próximas</h3>
+              <h3 className="text-ink-3 text-sm">Próximas</h3>
               <ul className="space-y-2">{upcoming.map(row)}</ul>
             </div>
           )}
           {past.length > 0 && (
             <div className="space-y-2">
-              <h3 className="text-muted-foreground text-sm">Anteriores</h3>
+              <h3 className="text-ink-3 text-sm">Anteriores</h3>
               <ul className="space-y-2">{past.map(row)}</ul>
             </div>
           )}
@@ -110,32 +109,30 @@ async function Ficha({ params }: { params: PageProps<"/alumnos/[id]">["params"] 
 
   return (
     <>
-      <header className="space-y-1">
-        <Link href="/alumnos" className="text-muted-foreground text-sm hover:underline">
-          ← Alumnos
-        </Link>
-        <h1 className="text-2xl md:text-3xl">{student.full_name}</h1>
-        {detail && <p className="text-muted-foreground">{detail}</p>}
+      <PageHeader
+        title={student.full_name}
+        description={detail || undefined}
+        back={{ href: "/alumnos", label: "Alumnos" }}
+        actions={
+          <Link
+            href={`/alumnos/${student.id}/editar`}
+            className={buttonVariants({ variant: "secondary" })}
+          >
+            Editar
+          </Link>
+        }
+      >
         {archived && (
-          <p className="text-status-pending text-sm font-medium">
+          <p className="text-pending text-sm font-medium">
             Archivado el{" "}
             {formatDate(student.archived_at!, { day: "numeric", month: "long" }, org.timezone)}
           </p>
         )}
-      </header>
-
-      <div className="flex gap-2">
-        <Link
-          href={`/alumnos/${student.id}/editar`}
-          className={cn(buttonVariants({ variant: "outline", size: "lg" }), "h-11")}
-        >
-          Editar
-        </Link>
-      </div>
+      </PageHeader>
 
       <section className="space-y-3">
-        <h2 className="text-lg">Datos</h2>
-        <dl className="bg-card space-y-3 rounded-xl border p-4">
+        <SectionTitle>Datos</SectionTitle>
+        <dl className="bg-card rounded-card space-y-3 border p-4">
           <Detail label="WhatsApp">{student.phone ?? "—"}</Detail>
           <Detail label="Email">{student.email ?? "—"}</Detail>
           {student.notes && <Detail label="Notas">{student.notes}</Detail>}
@@ -143,10 +140,10 @@ async function Ficha({ params }: { params: PageProps<"/alumnos/[id]">["params"] 
       </section>
 
       <section className="space-y-3">
-        <h2 className="text-lg">Precio</h2>
-        <dl className="bg-card space-y-3 rounded-xl border p-4">
+        <SectionTitle>Precio</SectionTitle>
+        <dl className="bg-card rounded-card space-y-3 border p-4">
           <Detail label="Precio">
-            <span className="tabular">{priceSummary(plan, formatARS)}</span>
+            <span className="num">{priceSummary(plan, formatARS)}</span>
           </Detail>
           <Detail label="Quién paga">
             {payer ? (
@@ -175,7 +172,7 @@ async function Ficha({ params }: { params: PageProps<"/alumnos/[id]">["params"] 
       <Clases studentId={student.id} timeZone={org.timezone} archived={archived} />
 
       <section className="space-y-3">
-        <h2 className="text-lg">Historial</h2>
+        <SectionTitle>Historial</SectionTitle>
         <EmptyState title="Todavía no hay nada para mostrar">
           Pronto vas a ver acá sus pagos, tareas y exámenes.
         </EmptyState>
@@ -183,11 +180,11 @@ async function Ficha({ params }: { params: PageProps<"/alumnos/[id]">["params"] 
 
       <form action={archived ? restoreStudent : archiveStudent} className="border-t pt-6">
         <input type="hidden" name="studentId" value={student.id} />
-        <Button type="submit" variant="outline" size="lg" className="h-11">
+        <Button type="submit" variant="secondary">
           {archived ? "Restaurar alumno" : "Archivar alumno"}
         </Button>
         {!archived && (
-          <p className="text-muted-foreground mt-2 text-sm">
+          <p className="text-ink-3 mt-2 text-sm">
             Deja de aparecer en tu lista y su link deja de abrirse. No se borra nada.
           </p>
         )}

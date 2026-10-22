@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useId, useState } from "react";
-import { Field } from "@/components/field";
+import { Field, FormError } from "@/components/ui/field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -13,6 +13,7 @@ import {
 } from "@/lib/validation/student";
 import { LinkShare } from "./link-share";
 import type { StudentFormState } from "./actions";
+import { SectionTitle } from "@/components/ui/page-header";
 
 type Action = (prev: StudentFormState, formData: FormData) => Promise<StudentFormState>;
 
@@ -71,13 +72,7 @@ export function StudentForm({
       <div className="space-y-4">
         <LinkShare share={state.created} />
         {onAnother && (
-          <Button
-            type="button"
-            variant="outline"
-            size="lg"
-            className="h-11 w-full"
-            onClick={onAnother}
-          >
+          <Button type="button" variant="secondary" className="w-full" onClick={onAnother}>
             Cargar otro alumno
           </Button>
         )}
@@ -90,7 +85,7 @@ export function StudentForm({
       {studentId && <input type="hidden" name="studentId" value={studentId} />}
 
       <section className="space-y-5">
-        <h2 className="text-lg">Alumno</h2>
+        <SectionTitle>Alumno</SectionTitle>
         <Field id="fullName" label="Nombre y apellido" error={errors.fullName}>
           <Input
             id="fullName"
@@ -99,7 +94,6 @@ export function StudentForm({
             autoComplete="off"
             autoFocus={!studentId}
             required
-            className="h-11"
           />
         </Field>
         <Field id="phone" label="WhatsApp" hint="Ahí le mandás su link." error={errors.phone}>
@@ -110,7 +104,6 @@ export function StudentForm({
             inputMode="tel"
             defaultValue={current.phone}
             placeholder="11 5555 1234"
-            className="h-11"
           />
         </Field>
         <div className="grid grid-cols-2 gap-3">
@@ -120,7 +113,6 @@ export function StudentForm({
               name="subject"
               list={subjectListId}
               defaultValue={current.subject}
-              className="h-11"
             />
             <datalist id={subjectListId}>
               {subjects.map((subject) => (
@@ -129,13 +121,7 @@ export function StudentForm({
             </datalist>
           </Field>
           <Field id="level" label="Nivel" error={errors.level}>
-            <Input
-              id="level"
-              name="level"
-              list={levelListId}
-              defaultValue={current.level}
-              className="h-11"
-            />
+            <Input id="level" name="level" list={levelListId} defaultValue={current.level} />
             <datalist id={levelListId}>
               {levels.map((level) => (
                 <option key={level} value={level} />
@@ -150,15 +136,14 @@ export function StudentForm({
             type="email"
             inputMode="email"
             defaultValue={current.email}
-            className="h-11"
           />
         </Field>
       </section>
 
       <section className="space-y-5">
         <div className="space-y-1">
-          <h2 className="text-lg">Precio</h2>
-          <p className="text-muted-foreground text-sm">
+          <SectionTitle>Precio</SectionTitle>
+          <p className="text-ink-3 text-sm">
             Opcional. Sin precio no se le generan cobros; lo podés definir cuando quieras.
           </p>
         </div>
@@ -168,7 +153,7 @@ export function StudentForm({
             {PRICE_CHOICES.map((option) => (
               <label
                 key={option}
-                className="bg-card has-[:checked]:border-primary has-[:checked]:bg-accent flex min-h-11 cursor-pointer items-center justify-center rounded-lg border px-2 text-center text-sm has-[:checked]:font-medium"
+                className="bg-card has-[:checked]:border-primary has-[:checked]:bg-indigo-soft rounded-control flex min-h-11 cursor-pointer items-center justify-center border px-2 text-center text-sm has-[:checked]:font-medium"
               >
                 <input
                   type="radio"
@@ -182,11 +167,7 @@ export function StudentForm({
               </label>
             ))}
           </div>
-          {errors.mode && (
-            <p role="alert" className="text-status-error text-sm">
-              {errors.mode}
-            </p>
-          )}
+          {errors.mode && <FormError>{errors.mode}</FormError>}
         </fieldset>
         {mode !== "none" && (
           <Field
@@ -206,7 +187,7 @@ export function StudentForm({
               inputMode="decimal"
               defaultValue={current.amount}
               placeholder="18.000"
-              className="tabular h-11"
+              className="num"
             />
           </Field>
         )}
@@ -220,7 +201,7 @@ export function StudentForm({
               min={1}
               max={100}
               defaultValue={current.lessonsPerPackage}
-              className="tabular h-11 w-28"
+              className="num w-28"
             />
           </Field>
         )}
@@ -239,7 +220,7 @@ export function StudentForm({
               min={1}
               max={28}
               defaultValue={current.billingDay}
-              className="tabular h-11 w-28"
+              className="num w-28"
             />
           </Field>
         )}
@@ -247,19 +228,14 @@ export function StudentForm({
 
       <section className="space-y-5">
         <div className="space-y-1">
-          <h2 className="text-lg">Quién paga</h2>
-          <p className="text-muted-foreground text-sm">
+          <SectionTitle>Quién paga</SectionTitle>
+          <p className="text-ink-3 text-sm">
             Si paga otra persona (madre, padre), cargala acá. Recibe los avisos de pago y el reporte
             del mes.
           </p>
         </div>
         <Field id="payerName" label="Nombre" error={errors.payerName}>
-          <Input
-            id="payerName"
-            name="payerName"
-            defaultValue={current.payerName}
-            className="h-11"
-          />
+          <Input id="payerName" name="payerName" defaultValue={current.payerName} />
         </Field>
         <div className="grid grid-cols-2 gap-3">
           <Field id="payerRelation" label="Vínculo" error={errors.payerRelation}>
@@ -268,7 +244,6 @@ export function StudentForm({
               name="payerRelation"
               defaultValue={current.payerRelation}
               placeholder="Madre"
-              className="h-11"
             />
           </Field>
           <Field id="payerPhone" label="WhatsApp" error={errors.payerPhone}>
@@ -278,7 +253,6 @@ export function StudentForm({
               type="tel"
               inputMode="tel"
               defaultValue={current.payerPhone}
-              className="h-11"
             />
           </Field>
         </div>
@@ -289,13 +263,12 @@ export function StudentForm({
             type="email"
             inputMode="email"
             defaultValue={current.payerEmail}
-            className="h-11"
           />
         </Field>
       </section>
 
       <section className="space-y-3">
-        <h2 className="text-lg">Notas</h2>
+        <SectionTitle>Notas</SectionTitle>
         <Textarea
           name="notes"
           aria-label="Notas sobre el alumno"
@@ -303,20 +276,12 @@ export function StudentForm({
           placeholder="Solo las ves vos."
           rows={3}
         />
-        {errors.notes && (
-          <p role="alert" className="text-status-error text-sm">
-            {errors.notes}
-          </p>
-        )}
+        {errors.notes && <FormError>{errors.notes}</FormError>}
       </section>
 
-      {state.message && (
-        <p role="alert" className="text-status-error text-sm">
-          {state.message}
-        </p>
-      )}
+      {state.message && <FormError>{state.message}</FormError>}
 
-      <Button type="submit" size="lg" className="h-11 w-full sm:w-auto sm:px-8" disabled={pending}>
+      <Button type="submit" className="w-full sm:w-auto sm:px-8" disabled={pending}>
         {pending ? pendingLabel : submitLabel}
       </Button>
     </form>

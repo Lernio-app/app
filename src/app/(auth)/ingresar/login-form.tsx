@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { sendMagicLink, signInWithGoogle } from "./actions";
+import { FormError } from "@/components/ui/field";
+import { SectionTitle } from "@/components/ui/page-header";
 
 export function LoginForm({
   initialError,
@@ -17,9 +19,9 @@ export function LoginForm({
 
   if (state.ok) {
     return (
-      <div role="status" className="bg-card space-y-2 rounded-xl border p-5">
-        <h2 className="text-lg">Revisá tu email</h2>
-        <p className="text-muted-foreground">
+      <div role="status" className="bg-card rounded-card space-y-2 border p-5">
+        <SectionTitle>Revisá tu email</SectionTitle>
+        <p className="text-ink-3">
           Te mandamos un link a <strong className="text-foreground">{state.message}</strong>. Tocalo
           desde este mismo dispositivo para entrar.
         </p>
@@ -44,25 +46,20 @@ export function LoginForm({
             required
             aria-invalid={Boolean(state.fieldErrors?.email)}
             aria-describedby="email-error"
-            className="h-11"
           />
-          <p id="email-error" role="alert" className="text-status-error min-h-5 text-sm">
+          <FormError id="email-error" className="min-h-5">
             {state.fieldErrors?.email}
-          </p>
+          </FormError>
         </div>
-        {error && !state.fieldErrors && (
-          <p role="alert" className="text-status-error text-sm">
-            {error}
-          </p>
-        )}
-        <Button type="submit" size="lg" className="h-11 w-full" disabled={pending}>
+        {error && !state.fieldErrors && <FormError>{error}</FormError>}
+        <Button type="submit" className="w-full" disabled={pending}>
           {pending ? "Mandando…" : "Mandame el link"}
         </Button>
       </form>
 
       {googleEnabled && (
         <form action={signInWithGoogle}>
-          <Button type="submit" variant="outline" size="lg" className="h-11 w-full">
+          <Button type="submit" variant="secondary" className="w-full">
             Continuar con Google
           </Button>
         </form>

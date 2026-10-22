@@ -3,9 +3,9 @@
 import { useTransition } from "react";
 import { markReminded } from "@/app/(app)/agenda/actions";
 import { buttonVariants } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 
 // Abre WhatsApp con el recordatorio escrito y anota que ya se mandó para no volver a mostrarlo.
+// Va en filas de lista: nunca es el primario de la vista.
 export function ReminderLink({
   href,
   lessonId,
@@ -33,7 +33,7 @@ export function ReminderLink({
         data.set("studentId", studentId);
         startTransition(() => markReminded(data));
       }}
-      className={cn(buttonVariants({ variant: sent ? "outline" : "default", size: "lg" }), "h-11")}
+      className={buttonVariants({ variant: sent ? "ghost" : "secondary" })}
     >
       {label}
     </a>

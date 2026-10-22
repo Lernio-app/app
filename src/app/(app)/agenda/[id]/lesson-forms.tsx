@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { Field } from "@/components/field";
+import { Field, FormError } from "@/components/ui/field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -15,13 +15,9 @@ import {
 
 function Status({ state, doneLabel }: { state: SimpleState; doneLabel: string }) {
   if (state.message) {
-    return (
-      <p role="alert" className="text-status-error text-sm">
-        {state.message}
-      </p>
-    );
+    return <FormError>{state.message}</FormError>;
   }
-  if (state.ok) return <p className="text-status-ok text-sm">{doneLabel}</p>;
+  if (state.ok) return <p className="text-ok text-sm">{doneLabel}</p>;
   return null;
 }
 
@@ -45,7 +41,7 @@ export function NotesForm({
     <form action={action} className="space-y-5" noValidate>
       <input type="hidden" name="lessonId" value={lessonId} />
       <Field id="topic" label="Tema" error={errors.topic}>
-        <Input id="topic" name="topic" defaultValue={topic} className="h-11" />
+        <Input id="topic" name="topic" defaultValue={topic} />
       </Field>
       <Field id="meetingUrl" label="Link de la clase" error={errors.meetingUrl}>
         <Input
@@ -55,7 +51,6 @@ export function NotesForm({
           inputMode="url"
           defaultValue={meetingUrl}
           placeholder="https://meet.google.com/…"
-          className="h-11"
         />
       </Field>
       <Field
@@ -75,7 +70,7 @@ export function NotesForm({
         <Textarea id="privateNotes" name="privateNotes" defaultValue={privateNotes} rows={3} />
       </Field>
       <Status state={state} doneLabel="Guardado." />
-      <Button type="submit" size="lg" className="h-11" disabled={pending}>
+      <Button type="submit" variant="secondary" disabled={pending}>
         {pending ? "Guardando…" : "Guardar"}
       </Button>
     </form>
@@ -101,24 +96,10 @@ export function MoveForm({
       <input type="hidden" name="lessonId" value={lessonId} />
       <div className="grid grid-cols-2 gap-3">
         <Field id="move-date" label="Día" error={errors.date}>
-          <Input
-            id="move-date"
-            name="date"
-            type="date"
-            defaultValue={date}
-            required
-            className="h-11"
-          />
+          <Input id="move-date" name="date" type="date" defaultValue={date} required />
         </Field>
         <Field id="move-start" label="Hora" error={errors.start}>
-          <Input
-            id="move-start"
-            name="start"
-            type="time"
-            defaultValue={start}
-            required
-            className="h-11"
-          />
+          <Input id="move-start" name="start" type="time" defaultValue={start} required />
         </Field>
       </div>
       <Field id="move-duration" label="Duración (minutos)" error={errors.durationMin}>
@@ -130,11 +111,11 @@ export function MoveForm({
           min={5}
           max={480}
           defaultValue={durationMin}
-          className="tabular h-11 w-28"
+          className="num w-28"
         />
       </Field>
       <Status state={state} doneLabel="Clase movida." />
-      <Button type="submit" size="lg" className="h-11" disabled={pending}>
+      <Button type="submit" variant="secondary" disabled={pending}>
         {pending ? "Moviendo…" : "Mover clase"}
       </Button>
     </form>
@@ -158,7 +139,7 @@ export function CancelForm({
       <input type="hidden" name="lessonId" value={lessonId} />
       <fieldset className="space-y-2">
         <legend className="sr-only">Quién cancela</legend>
-        <label className="bg-card has-[:checked]:border-primary has-[:checked]:bg-accent flex min-h-12 cursor-pointer items-center gap-3 rounded-xl border px-4">
+        <label className="bg-card has-[:checked]:border-primary has-[:checked]:bg-indigo-soft rounded-card flex min-h-12 cursor-pointer items-center gap-3 border px-4">
           <input
             type="radio"
             name="by"
@@ -168,15 +149,15 @@ export function CancelForm({
           />
           <span>
             <span className="block font-medium">Cancelo yo</span>
-            <span className="text-muted-foreground block text-sm">No se cobra.</span>
+            <span className="text-ink-3 block text-sm">No se cobra.</span>
           </span>
         </label>
         {canStudentCancel && (
-          <label className="bg-card has-[:checked]:border-primary has-[:checked]:bg-accent flex min-h-12 cursor-pointer items-center gap-3 rounded-xl border px-4">
+          <label className="bg-card has-[:checked]:border-primary has-[:checked]:bg-indigo-soft rounded-card flex min-h-12 cursor-pointer items-center gap-3 border px-4">
             <input type="radio" name="by" value="student" className="accent-primary size-5" />
             <span>
               <span className="block font-medium">Cancela el alumno</span>
-              <span className="text-muted-foreground block text-sm">
+              <span className="text-ink-3 block text-sm">
                 {lateCancelHours > 0
                   ? `Se cobra si avisa con menos de ${lateCancelHours} horas.`
                   : "Se cobra siempre: no tenés una regla de aviso."}
@@ -184,17 +165,13 @@ export function CancelForm({
             </span>
           </label>
         )}
-        {errors.by && (
-          <p role="alert" className="text-status-error text-sm">
-            {errors.by}
-          </p>
-        )}
+        {errors.by && <FormError>{errors.by}</FormError>}
       </fieldset>
       <Field id="cancel-reason" label="Motivo" hint="Opcional." error={errors.reason}>
-        <Input id="cancel-reason" name="reason" className="h-11" />
+        <Input id="cancel-reason" name="reason" />
       </Field>
       <Status state={state} doneLabel="Clase cancelada." />
-      <Button type="submit" variant="destructive" size="lg" className="h-11" disabled={pending}>
+      <Button type="submit" variant="secondary" disabled={pending}>
         {pending ? "Cancelando…" : "Cancelar clase"}
       </Button>
     </form>
@@ -220,7 +197,7 @@ export function StudentsForm({
         {options.map((option) => (
           <label
             key={option.id}
-            className="bg-card has-[:checked]:border-primary has-[:checked]:bg-accent flex min-h-12 cursor-pointer items-center gap-3 rounded-xl border px-4"
+            className="bg-card has-[:checked]:border-primary has-[:checked]:bg-indigo-soft rounded-card flex min-h-12 cursor-pointer items-center gap-3 border px-4"
           >
             <input
               type="checkbox"
@@ -233,16 +210,12 @@ export function StudentsForm({
           </label>
         ))}
       </fieldset>
-      {state.fieldErrors?.studentIds && (
-        <p role="alert" className="text-status-error text-sm">
-          {state.fieldErrors.studentIds}
-        </p>
-      )}
-      <p className="text-muted-foreground text-sm">
+      {state.fieldErrors?.studentIds && <FormError>{state.fieldErrors.studentIds}</FormError>}
+      <p className="text-ink-3 text-sm">
         A quien ya tiene la asistencia marcada no se lo saca de la clase.
       </p>
       <Status state={state} doneLabel="Alumnos actualizados." />
-      <Button type="submit" size="lg" className="h-11" disabled={pending}>
+      <Button type="submit" variant="secondary" disabled={pending}>
         {pending ? "Guardando…" : "Guardar alumnos"}
       </Button>
     </form>

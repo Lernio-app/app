@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { useActionState, useEffect, useState } from "react";
-import { Field } from "@/components/field";
+import { Field, FormError } from "@/components/ui/field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DURATION_OPTIONS, type LessonValues } from "@/lib/validation/lesson";
 import { createLesson } from "../actions";
+import { SectionTitle } from "@/components/ui/page-header";
 
 export type StudentOption = { id: string; name: string; detail: string };
 
@@ -33,9 +34,9 @@ export function LessonForm({
   return (
     <form action={formAction} className="space-y-8" noValidate>
       <section className="space-y-3">
-        <h2 className="text-lg">Alumnos</h2>
+        <SectionTitle>Alumnos</SectionTitle>
         {students.length === 0 ? (
-          <p className="text-muted-foreground text-sm">
+          <p className="text-ink-3 text-sm">
             Todavía no tenés alumnos.{" "}
             <Link href="/alumnos/nuevo" className="text-primary underline">
               Cargá el primero
@@ -44,13 +45,13 @@ export function LessonForm({
           </p>
         ) : (
           <fieldset className="space-y-2">
-            <legend className="text-muted-foreground mb-2 text-sm">
+            <legend className="text-ink-3 mb-2 text-sm">
               Elegí uno, o varios si es una clase grupal.
             </legend>
             {students.map((student) => (
               <label
                 key={student.id}
-                className="bg-card has-[:checked]:border-primary has-[:checked]:bg-accent flex min-h-14 cursor-pointer items-center gap-3 rounded-xl border px-4"
+                className="bg-card has-[:checked]:border-primary has-[:checked]:bg-indigo-soft rounded-card flex min-h-14 cursor-pointer items-center gap-3 border px-4"
               >
                 <input
                   type="checkbox"
@@ -62,44 +63,24 @@ export function LessonForm({
                 <span className="min-w-0">
                   <span className="block font-medium">{student.name}</span>
                   {student.detail && (
-                    <span className="text-muted-foreground block truncate text-sm">
-                      {student.detail}
-                    </span>
+                    <span className="text-ink-3 block truncate text-sm">{student.detail}</span>
                   )}
                 </span>
               </label>
             ))}
           </fieldset>
         )}
-        {errors.studentIds && (
-          <p role="alert" className="text-status-error text-sm">
-            {errors.studentIds}
-          </p>
-        )}
+        {errors.studentIds && <FormError>{errors.studentIds}</FormError>}
       </section>
 
       <section className="space-y-5">
-        <h2 className="text-lg">Cuándo</h2>
+        <SectionTitle>Cuándo</SectionTitle>
         <div className="grid grid-cols-2 gap-3">
           <Field id="date" label="Día" error={errors.date}>
-            <Input
-              id="date"
-              name="date"
-              type="date"
-              defaultValue={current.date}
-              required
-              className="h-11"
-            />
+            <Input id="date" name="date" type="date" defaultValue={current.date} required />
           </Field>
           <Field id="start" label="Hora" error={errors.start}>
-            <Input
-              id="start"
-              name="start"
-              type="time"
-              defaultValue={current.start}
-              required
-              className="h-11"
-            />
+            <Input id="start" name="start" type="time" defaultValue={current.start} required />
           </Field>
         </div>
 
@@ -111,7 +92,7 @@ export function LessonForm({
                 type="button"
                 onClick={() => setDuration(String(option))}
                 aria-pressed={duration === String(option)}
-                className="bg-card aria-pressed:border-primary aria-pressed:bg-accent tabular min-h-11 rounded-lg border px-4 text-sm aria-pressed:font-medium"
+                className="bg-card aria-pressed:border-primary aria-pressed:bg-indigo-soft num rounded-control min-h-11 border px-4 text-sm aria-pressed:font-medium"
               >
                 {option}
               </button>
@@ -125,12 +106,12 @@ export function LessonForm({
               max={480}
               value={duration}
               onChange={(event) => setDuration(event.target.value)}
-              className="tabular h-11 w-24"
+              className="num w-24"
             />
           </div>
         </Field>
 
-        <label className="bg-card has-[:checked]:border-primary has-[:checked]:bg-accent flex min-h-14 cursor-pointer items-center gap-3 rounded-xl border px-4">
+        <label className="bg-card has-[:checked]:border-primary has-[:checked]:bg-indigo-soft rounded-card flex min-h-14 cursor-pointer items-center gap-3 border px-4">
           <input
             type="checkbox"
             name="repeat"
@@ -141,7 +122,7 @@ export function LessonForm({
           />
           <span>
             <span className="block font-medium">Se repite todas las semanas</span>
-            <span className="text-muted-foreground block text-sm">
+            <span className="text-ink-3 block text-sm">
               Es un horario fijo: se agendan las próximas 8 semanas.
             </span>
           </span>
@@ -153,19 +134,13 @@ export function LessonForm({
             hint="Opcional. Sin fecha sigue hasta que lo termines."
             error={errors.endsOn}
           >
-            <Input
-              id="endsOn"
-              name="endsOn"
-              type="date"
-              defaultValue={current.endsOn}
-              className="h-11"
-            />
+            <Input id="endsOn" name="endsOn" type="date" defaultValue={current.endsOn} />
           </Field>
         )}
       </section>
 
       <section className="space-y-5">
-        <h2 className="text-lg">Detalles</h2>
+        <SectionTitle>Detalles</SectionTitle>
         <Field
           id="meetingUrl"
           label="Link de la clase"
@@ -179,26 +154,20 @@ export function LessonForm({
             inputMode="url"
             defaultValue={current.meetingUrl}
             placeholder="https://meet.google.com/…"
-            className="h-11"
           />
         </Field>
         {!repeat && (
           <Field id="topic" label="Tema" hint="Opcional." error={errors.topic}>
-            <Input id="topic" name="topic" defaultValue={current.topic} className="h-11" />
+            <Input id="topic" name="topic" defaultValue={current.topic} />
           </Field>
         )}
       </section>
 
-      {state.message && (
-        <p role="alert" className="text-status-error text-sm">
-          {state.message}
-        </p>
-      )}
+      {state.message && <FormError>{state.message}</FormError>}
 
       <Button
         type="submit"
-        size="lg"
-        className="h-11 w-full sm:w-auto sm:px-8"
+        className="w-full sm:w-auto sm:px-8"
         disabled={pending || students.length === 0}
       >
         {pending ? "Guardando…" : repeat ? "Crear horario fijo" : "Agendar clase"}

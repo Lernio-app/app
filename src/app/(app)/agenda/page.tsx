@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import Link from "next/link";
-import { EmptyState, PageContainer, PageHeader } from "@/components/page-header";
-import { LessonItem } from "@/components/lesson-item";
+import { EmptyState, PageContainer, PageHeader, SectionTitle } from "@/components/ui/page-header";
+import { LessonItem } from "@/components/app/lesson-item";
 import { buttonVariants } from "@/components/ui/button";
 import {
   addDays,
@@ -21,7 +21,7 @@ import { EndSeriesButton } from "./end-series-button";
 export const metadata = { title: "Agenda" };
 
 const nav =
-  "rounded-lg border px-3 py-2 text-sm font-medium hover:bg-muted min-h-11 flex items-center";
+  "rounded-control border px-3 py-2 text-sm font-medium hover:bg-paper min-h-11 flex items-center";
 
 async function Week({ searchParams }: { searchParams: PageProps<"/agenda">["searchParams"] }) {
   const { org } = await requireWorkspace();
@@ -83,13 +83,13 @@ async function Week({ searchParams }: { searchParams: PageProps<"/agenda">["sear
                 </h2>
                 <Link
                   href={`/agenda/nueva?fecha=${day}`}
-                  className="text-muted-foreground hover:text-foreground flex min-h-11 items-center text-sm"
+                  className="text-ink-3 hover:text-foreground flex min-h-11 items-center text-sm"
                 >
                   + Clase
                 </Link>
               </div>
               {items.length === 0 ? (
-                <p className="text-muted-foreground text-sm">Sin clases.</p>
+                <p className="text-ink-3 text-sm">Sin clases.</p>
               ) : (
                 <ul className="space-y-2">
                   {items.map((lesson) => (
@@ -106,8 +106,8 @@ async function Week({ searchParams }: { searchParams: PageProps<"/agenda">["sear
 
       <section className="space-y-3 border-t pt-6">
         <div className="space-y-1">
-          <h2 className="text-lg">Horarios fijos</h2>
-          <p className="text-muted-foreground text-sm">
+          <SectionTitle>Horarios fijos</SectionTitle>
+          <p className="text-ink-3 text-sm">
             Clases que se repiten todas las semanas. Se agendan las próximas 8 semanas solas.
           </p>
         </div>
@@ -121,12 +121,15 @@ async function Week({ searchParams }: { searchParams: PageProps<"/agenda">["sear
               const names = item.series_students.map((s) => s.students.full_name).join(", ");
               const start = item.start_time.slice(0, 5);
               return (
-                <li key={item.id} className="bg-card flex items-center gap-3 rounded-xl border p-4">
+                <li
+                  key={item.id}
+                  className="bg-card rounded-card flex items-center gap-3 border p-4"
+                >
                   <div className="min-w-0 flex-1">
                     <p className="font-medium first-letter:uppercase">
-                      {weekdayName(item.weekday)} <span className="tabular">{start}</span>
+                      {weekdayName(item.weekday)} <span className="num">{start}</span>
                     </p>
-                    <p className="text-muted-foreground truncate text-sm">
+                    <p className="text-ink-3 truncate text-sm">
                       {names} · {item.duration_min} min
                     </p>
                   </div>
@@ -146,7 +149,7 @@ export default function AgendaPage(props: PageProps<"/agenda">) {
     <PageContainer>
       <div className="flex items-start justify-between gap-3">
         <PageHeader title="Agenda" description="Tus clases de la semana." />
-        <Link href="/agenda/nueva" className={cn(buttonVariants({ size: "lg" }), "h-11 shrink-0")}>
+        <Link href="/agenda/nueva" className={cn(buttonVariants(), "shrink-0")}>
           Nueva clase
         </Link>
       </div>

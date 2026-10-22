@@ -3,106 +3,305 @@
 @import "shadcn/tailwind.css";
 
 /*
-  Tokens de diseño — dirección B · Pizarrón.
-  Los estados de cobro tienen el mismo significado en todas las pantallas:
-  al día (acento), pendiente, debe (ocre) y error (rojo, solo errores).
+  Sistema de diseño · dirección D (Resaltador). Fuente: docs/sistema-de-diseno.md.
+  Los colores viven solo en los bloques de tokens de este archivo. Cambiar o sumar uno
+  rompe src/design/tokens.test.ts a propósito: va con su decisión en `producto`.
 */
 
 @theme inline {
+  /* base */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-figtree), ui-sans-serif, system-ui, sans-serif;
-  --font-heading: var(--font-figtree), ui-sans-serif, system-ui, sans-serif;
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
-  --color-ring: var(--ring);
-  --color-input: var(--input);
-  --color-border: var(--border);
-  --color-destructive: var(--destructive);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-accent: var(--accent);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-muted: var(--muted);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-secondary: var(--secondary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-primary: var(--primary);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-popover: var(--popover);
-  --color-card-foreground: var(--card-foreground);
+  --color-paper: var(--paper);
+  --color-grid: var(--grid);
+  --color-line: var(--line);
+  --color-line-soft: var(--line-soft);
+  --color-border-control: var(--border-control);
+  --color-border-input: var(--border-input);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+
+  /* marca */
+  --color-indigo: var(--indigo);
+  --color-indigo-strong: var(--indigo-strong);
+  --color-indigo-soft: var(--indigo-soft);
+  --color-indigo-muted: var(--indigo-muted);
+  --color-indigo-muted-2: var(--indigo-muted-2);
+  --color-indigo-next: var(--indigo-next);
+  --color-indigo-grid: var(--indigo-grid);
+  --color-indigo-outline: var(--indigo-outline);
+  --color-highlighter: var(--highlighter);
+  --color-ai-bg: var(--ai-bg);
+  --color-ai-border: var(--ai-border);
+
+  /* estados */
+  --color-ok: var(--ok);
+  --color-ok-bg: var(--ok-bg);
+  --color-ok-solid: var(--ok-solid);
+  --color-pending: var(--pending);
+  --color-pending-bg: var(--pending-bg);
+  --color-pending-solid: var(--pending-solid);
+  --color-debt: var(--debt);
+  --color-debt-bg: var(--debt-bg);
+  --color-debt-solid: var(--debt-solid);
+  --color-error: var(--error);
+  --color-error-bg: var(--error-bg);
+
+  /* áreas */
+  --color-subj-lang: var(--subj-lang);
+  --color-subj-lang-bg: var(--subj-lang-bg);
+  --color-subj-lang-ink: var(--subj-lang-ink);
+  --color-subj-uni: var(--subj-uni);
+  --color-subj-uni-bg: var(--subj-uni-bg);
+  --color-subj-uni-ink: var(--subj-uni-ink);
+  --color-subj-school: var(--subj-school);
+  --color-subj-school-bg: var(--subj-school-bg);
+  --color-subj-school-ink: var(--subj-school-ink);
+  --color-subj-music: var(--subj-music);
+  --color-subj-music-bg: var(--subj-music-bg);
+  --color-subj-music-ink: var(--subj-music-ink);
+
+  /* shadcn */
   --color-card: var(--card);
-  --color-status-ok: var(--status-ok);
-  --color-status-pending: var(--status-pending);
-  --color-status-owed: var(--status-owed);
-  --color-status-error: var(--status-error);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* familias */
+  --font-display: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+
+  /* radios con nombre (§4). Los de shadcn quedan para los componentes de ui. */
+  --radius-key: 0.25rem;
+  --radius-tag: 0.5rem;
+  --radius-control: var(--radius);
+  --radius-card: var(--card-radius);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
+  --radius-xl: var(--card-radius);
 }
 
 :root {
-  --background: #f4f6f3;
-  --foreground: #16201a;
+  /* base */
+  --background: #ffffff;
+  --paper: #f6f7fb;
+  --grid: #e4e8f5;
+  --line: #e3e5ee;
+  --line-soft: #eef0f5;
+  --border-control: #d5d8e3;
+  --border-input: #8f93a3;
+  --ink: #15131f;
+  --ink-2: #4b4d5c;
+  --ink-3: #5f6170;
+
+  /* marca */
+  --indigo: #4338f5;
+  --indigo-strong: #3328d9;
+  --indigo-soft: #eeedff;
+  --indigo-muted: #d6d3ff;
+  --indigo-muted-2: #e4e2ff;
+  --indigo-next: #f6f5ff;
+  --indigo-grid: #5247f7;
+  --indigo-outline: #8f88ff;
+  --highlighter: #ffe14d;
+  --ai-bg: #f3f2ff;
+  --ai-border: #7a72f7;
+
+  /* estados de cobro y asistencia */
+  --ok-bg: #ddf5e8;
+  --ok: #0f7b4a;
+  --ok-solid: #1f9d63;
+  --pending-bg: #eeeff4;
+  --pending: #4b4d5c;
+  --pending-solid: #8f93a3;
+  --debt-bg: #ffebd3;
+  --debt: #8f4700;
+  --debt-solid: #d97f14;
+  --error-bg: #fee4e2;
+  --error: #b42318;
+
+  /* carpetas por área */
+  --subj-lang: #2f6bff;
+  --subj-lang-bg: #e3ecff;
+  --subj-lang-ink: #1e40af;
+  --subj-uni: #7c4dff;
+  --subj-uni-bg: #eee6ff;
+  --subj-uni-ink: #5b21b6;
+  --subj-school: #d6336c;
+  --subj-school-bg: #ffe4f1;
+  --subj-school-ink: #9d174d;
+  --subj-music: #0b7f96;
+  --subj-music-bg: #ddf6fb;
+  --subj-music-ink: #0e6577;
+
+  /* shadcn */
+  --foreground: var(--ink);
   --card: #ffffff;
-  --card-foreground: #16201a;
+  --card-foreground: var(--ink);
   --popover: #ffffff;
-  --popover-foreground: #16201a;
-  --primary: #1f5a44;
+  --popover-foreground: var(--ink);
+  --primary: var(--indigo);
   --primary-foreground: #ffffff;
-  --secondary: #e7ede8;
-  --secondary-foreground: #16201a;
-  --muted: #eaeeea;
-  --muted-foreground: #5e6862;
-  --accent: #e2ebe5;
-  --accent-foreground: #16201a;
-  --destructive: #a3271b;
-  --border: #dce2dc;
-  --input: #dce2dc;
-  --ring: #1f5a44;
-  --radius: 0.875rem;
-  --sidebar: #ffffff;
-  --sidebar-foreground: #16201a;
-  --sidebar-primary: #1f5a44;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #e2ebe5;
-  --sidebar-accent-foreground: #16201a;
-  --sidebar-border: #dce2dc;
-  --sidebar-ring: #1f5a44;
-  --status-ok: #1f5a44;
-  --status-pending: #4f5a54;
-  --status-owed: #7a5200;
-  --status-error: #a3271b;
+  --secondary: var(--paper);
+  --secondary-foreground: var(--ink);
+  --muted: var(--paper);
+  --muted-foreground: var(--ink-3);
+  --accent: var(--paper);
+  --accent-foreground: var(--ink);
+  --destructive: var(--error);
+  --border: var(--line);
+  --input: var(--border-input);
+  --ring: var(--indigo);
+
+  /* medidas por superficie (§1.1). Los valores de abajo son los de app. */
+  --radius: 0.625rem;
+  --card-radius: 0.875rem;
+  --control-h: 2.75rem;
+  --grid-size: 20px;
+}
+
+/* Superficies: cada grupo de rutas marca la suya con <Surface>. Los componentes no deciden. */
+[data-surface="marketing"],
+[data-surface="marketplace"] {
+  --radius: 0.75rem;
+  --control-h: 3rem;
+  --grid-size: 32px;
+}
+[data-surface="marketing"] {
+  --card-radius: 1.25rem;
+}
+[data-surface="marketplace"] {
+  --card-radius: 1.125rem;
+}
+[data-surface="app"],
+[data-surface="portal"],
+[data-surface="interno"] {
+  --radius: 0.625rem;
+  --card-radius: 0.875rem;
+  --control-h: 2.75rem;
+  --grid-size: 20px;
+}
+@media (min-width: 64rem) {
+  [data-surface="app"],
+  [data-surface="interno"] {
+    --control-h: 2.5rem;
+    --grid-size: 24px;
+  }
+}
+[data-surface="portal"] {
+  --primary: var(--subject-color, var(--indigo));
 }
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
-  }
-  body {
-    @apply bg-background text-foreground antialiased;
+    @apply border-line;
   }
   html {
     @apply font-sans;
   }
+  body {
+    @apply bg-background text-ink antialiased;
+    font-size: 0.9375rem;
+    line-height: 1.5;
+  }
   h1,
   h2,
-  h3 {
-    @apply font-bold tracking-tight;
+  h3,
+  h4 {
+    @apply font-semibold text-balance;
+  }
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+  .on-indigo :focus-visible {
+    outline-color: var(--primary-foreground);
   }
 }
 
-@layer utilities {
-  .tabular {
-    font-variant-numeric: tabular-nums;
+/* Escala tipográfica de la app (§3.2). Bricolage solo entra por estos títulos. */
+@utility title-page {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.875rem;
+  line-height: 1.1;
+  letter-spacing: -0.04em;
+  @media (min-width: 64rem) {
+    font-size: 2.125rem;
   }
+}
+@utility title-card {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.375rem;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+@utility title-section {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.0625rem;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+@utility stat {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.75rem;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+}
+@utility label-mono {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 400;
+}
+@utility num {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+@utility num-kpi {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 1.625rem;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Recursos gráficos (§5). Únicos gradientes permitidos: son patrones, no lavados de color. */
+@utility bg-cuadricula {
+  background-color: var(--paper);
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: var(--grid-size) var(--grid-size);
+}
+@utility resaltador {
+  background: linear-gradient(
+    180deg,
+    transparent 56%,
+    var(--highlighter) 56%,
+    var(--highlighter) 92%,
+    transparent 92%
+  );
+  padding-inline: 0.08em;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
 }

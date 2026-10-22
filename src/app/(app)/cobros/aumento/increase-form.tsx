@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { Field } from "@/components/field";
+import { Field, FormError } from "@/components/ui/field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { increasedAmount } from "@/lib/billing";
@@ -57,7 +57,7 @@ export function IncreaseForm({ students }: { students: IncreaseStudent[] }) {
               type="button"
               onClick={() => setPercent(option)}
               aria-pressed={percent === option}
-              className="bg-card aria-pressed:border-primary aria-pressed:bg-accent tabular min-h-11 rounded-lg border px-4 text-sm aria-pressed:font-medium"
+              className="bg-card aria-pressed:border-primary aria-pressed:bg-indigo-soft num rounded-control min-h-11 border px-4 text-sm aria-pressed:font-medium"
             >
               {option}%
             </button>
@@ -68,7 +68,7 @@ export function IncreaseForm({ students }: { students: IncreaseStudent[] }) {
             inputMode="decimal"
             value={percent}
             onChange={(event) => setPercent(event.target.value)}
-            className="tabular h-11 w-24"
+            className="num w-24"
             aria-label="Otro porcentaje"
           />
         </div>
@@ -77,7 +77,7 @@ export function IncreaseForm({ students }: { students: IncreaseStudent[] }) {
       <fieldset className="space-y-2">
         <legend className="mb-1 text-sm font-medium">A quiénes</legend>
         {students.length === 0 && (
-          <p className="text-muted-foreground text-sm">
+          <p className="text-ink-3 text-sm">
             Ninguno de tus alumnos tiene un precio cargado todavía.
           </p>
         )}
@@ -86,7 +86,7 @@ export function IncreaseForm({ students }: { students: IncreaseStudent[] }) {
           return (
             <label
               key={student.id}
-              className="bg-card has-[:checked]:border-primary has-[:checked]:bg-accent flex min-h-14 cursor-pointer items-center gap-3 rounded-xl border px-4 py-2"
+              className="bg-card has-[:checked]:border-primary has-[:checked]:bg-indigo-soft rounded-card flex min-h-14 cursor-pointer items-center gap-3 border px-4 py-2"
             >
               <input
                 type="checkbox"
@@ -98,7 +98,7 @@ export function IncreaseForm({ students }: { students: IncreaseStudent[] }) {
               />
               <span className="min-w-0 flex-1">
                 <span className="block font-medium">{student.name}</span>
-                <span className="text-muted-foreground tabular block text-sm">
+                <span className="text-ink-3 num block text-sm">
                   {formatARS(student.amount)} {student.unit}
                   {next !== null && (
                     <>
@@ -111,28 +111,19 @@ export function IncreaseForm({ students }: { students: IncreaseStudent[] }) {
             </label>
           );
         })}
-        {state.fieldErrors?.studentIds && (
-          <p role="alert" className="text-status-error text-sm">
-            {state.fieldErrors.studentIds}
-          </p>
-        )}
+        {state.fieldErrors?.studentIds && <FormError>{state.fieldErrors.studentIds}</FormError>}
       </fieldset>
 
-      <p className="text-muted-foreground text-sm">
+      <p className="text-ink-3 text-sm">
         Los precios nuevos se redondean a los $ 50 más cercanos y rigen desde hoy. Lo que ya
         cargaste a cada alumno no cambia, y el precio anterior queda en su historial.
       </p>
 
-      {state.message && (
-        <p role="alert" className="text-status-error text-sm">
-          {state.message}
-        </p>
-      )}
+      {state.message && <FormError>{state.message}</FormError>}
 
       <Button
         type="submit"
-        size="lg"
-        className="h-11 w-full sm:w-auto sm:px-8"
+        className="w-full sm:w-auto sm:px-8"
         disabled={pending || students.length === 0}
       >
         {pending ? "Aplicando…" : "Aplicar aumento"}

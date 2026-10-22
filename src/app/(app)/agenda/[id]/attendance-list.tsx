@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { formatARS } from "@/lib/format";
 import { ATTENDANCE_LABELS, ATTENDANCE_VALUES, type Attendance } from "@/lib/validation/lesson";
 import { setAttendance } from "../actions";
+import { FormError } from "@/components/ui/field";
 
 export type AttendanceRow = {
   studentId: string;
@@ -41,7 +42,7 @@ export function AttendanceList({ lessonId, rows }: { lessonId: string; rows: Att
     <div className="space-y-3">
       <ul className="space-y-3">
         {optimistic.map((row) => (
-          <li key={row.studentId} className="bg-card space-y-3 rounded-xl border p-4">
+          <li key={row.studentId} className="bg-card rounded-card space-y-3 border p-4">
             <p className="font-medium">{row.name}</p>
             <div
               role="group"
@@ -54,19 +55,17 @@ export function AttendanceList({ lessonId, rows }: { lessonId: string; rows: Att
                   type="button"
                   aria-pressed={row.attendance === value}
                   onClick={() => mark(row.studentId, row.attendance === value ? null : value)}
-                  className="bg-background aria-pressed:border-primary aria-pressed:bg-accent min-h-12 rounded-lg border px-1 text-sm aria-pressed:font-semibold"
+                  className="bg-background aria-pressed:border-primary aria-pressed:bg-indigo-soft rounded-control min-h-12 border px-1 text-sm aria-pressed:font-semibold"
                 >
                   {ATTENDANCE_LABELS[value]}
                 </button>
               ))}
             </div>
             {!pending && row.charge !== null && (
-              <p className="text-muted-foreground tabular text-sm">
-                Cargo generado: {formatARS(row.charge)}
-              </p>
+              <p className="text-ink-3 num text-sm">Cargo generado: {formatARS(row.charge)}</p>
             )}
             {!pending && (row.attendance === "absent" || row.attendance === "excused") && (
-              <p className="text-muted-foreground flex items-center justify-between gap-3 text-sm">
+              <p className="text-ink-3 flex items-center justify-between gap-3 text-sm">
                 <span>{row.billable ? "Se cobra la clase." : "No se cobra la clase."}</span>
                 <button
                   type="button"
@@ -84,9 +83,8 @@ export function AttendanceList({ lessonId, rows }: { lessonId: string; rows: Att
       {optimistic.length > 1 && unmarked.length > 0 && (
         <Button
           type="button"
-          variant="outline"
-          size="lg"
-          className="h-11 w-full"
+          variant="secondary"
+          className="w-full"
           disabled={pending}
           onClick={() => unmarked.forEach((row) => mark(row.studentId, "present"))}
         >
@@ -94,11 +92,7 @@ export function AttendanceList({ lessonId, rows }: { lessonId: string; rows: Att
         </Button>
       )}
 
-      {error && (
-        <p role="alert" className="text-status-error text-sm">
-          {error}
-        </p>
-      )}
+      {error && <FormError>{error}</FormError>}
     </div>
   );
 }

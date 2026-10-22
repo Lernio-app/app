@@ -1,10 +1,11 @@
 import { Suspense } from "react";
 import Link from "next/link";
-import { EmptyState, PageContainer } from "@/components/page-header";
-import { LessonItem } from "@/components/lesson-item";
-import { ReminderLink } from "@/components/reminder-link";
+import { EmptyState, PageContainer, PageHeader, SectionTitle } from "@/components/ui/page-header";
+import { Resaltador } from "@/components/ui/resaltador";
+import { LessonItem } from "@/components/app/lesson-item";
+import { ReminderLink } from "@/components/app/reminder-link";
 import { buttonVariants } from "@/components/ui/button";
-import { PACKAGE_WARNING } from "@/components/student-billing";
+import { PACKAGE_WARNING } from "@/components/app/student-billing";
 import { debtNoticeUrl, debtors } from "@/lib/billing";
 import {
   generateMonthlyCharges,
@@ -32,18 +33,15 @@ async function Greeting() {
   );
   const first = profile.display_name.split(" ")[0];
 
-  return (
-    <header className="space-y-1">
-      <p className="text-muted-foreground text-sm first-letter:uppercase">{today}</p>
-      <h1 className="text-2xl md:text-3xl">Buenas, {first}</h1>
-    </header>
-  );
+  // El inicio responde qué hay que hacer hoy: el título es la fecha (§3.2).
+  const title = today.charAt(0).toUpperCase() + today.slice(1).replace(",", "");
+  return <PageHeader label={`Buenas, ${first}`} title={<Resaltador>{title}</Resaltador>} />;
 }
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section className="space-y-3">
-      <h2 className="text-lg">{title}</h2>
+      <SectionTitle>{title}</SectionTitle>
       {children}
     </section>
   );
@@ -126,11 +124,11 @@ async function Agenda() {
               return (
                 <li
                   key={`${lesson.id}-${attendee.student_id}`}
-                  className="bg-card flex items-center justify-between gap-3 rounded-xl border p-4"
+                  className="bg-card rounded-card flex items-center justify-between gap-3 border p-4"
                 >
                   <div className="min-w-0">
                     <p className="truncate font-medium">{student.full_name}</p>
-                    <p className="text-muted-foreground tabular text-sm">Mañana · {time}</p>
+                    <p className="text-ink-3 num text-sm">Mañana · {time}</p>
                   </div>
                   <ReminderLink
                     href={waLink(reminderPhone(student), message)}
@@ -180,11 +178,11 @@ async function Cobros() {
           return (
             <li
               key={debtor.studentId}
-              className="bg-card flex items-center justify-between gap-3 rounded-xl border p-4"
+              className="bg-card rounded-card flex items-center justify-between gap-3 border p-4"
             >
               <div className="min-w-0">
                 <p className="truncate font-medium">{person?.full_name ?? "Alumno"}</p>
-                <p className="text-status-owed tabular text-sm">
+                <p className="text-debt num text-sm">
                   {formatARS(debtor.owed)} · desde el{" "}
                   {dayLabelOf(debtor.since, { weekday: undefined })}
                 </p>
@@ -201,10 +199,7 @@ async function Cobros() {
                   })}
                   target="_blank"
                   rel="noreferrer"
-                  className={cn(
-                    buttonVariants({ variant: "outline", size: "lg" }),
-                    "h-11 shrink-0",
-                  )}
+                  className={cn(buttonVariants({ variant: "secondary" }), "shrink-0")}
                 >
                   Avisar
                 </a>
@@ -218,10 +213,10 @@ async function Cobros() {
             <li key={student.id}>
               <Link
                 href={`/alumnos/${student.id}`}
-                className="bg-card hover:bg-muted/50 block rounded-xl border p-4"
+                className="bg-card hover:bg-paper rounded-card block border p-4"
               >
                 <p className="font-medium">{student.full_name}</p>
-                <p className="text-status-owed text-sm">
+                <p className="text-debt text-sm">
                   {left <= 0
                     ? "Se terminó el paquete"
                     : `Quedan ${left} ${left === 1 ? "clase" : "clases"} del paquete`}

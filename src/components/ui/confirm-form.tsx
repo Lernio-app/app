@@ -24,7 +24,7 @@ export function ConfirmForm({
       {Object.entries(fields).map(([name, value]) => (
         <input key={name} type="hidden" name={name} value={value} />
       ))}
-      <Button type="submit" variant="ghost" size="sm" className="text-muted-foreground h-9">
+      <Button type="submit" variant="ghost">
         {label}
       </Button>
     </form>

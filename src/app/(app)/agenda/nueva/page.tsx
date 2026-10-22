@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import Link from "next/link";
-import { PageContainer, PageHeader } from "@/components/page-header";
+import { PageContainer, PageHeader } from "@/components/ui/page-header";
 import { isYmd, localDate } from "@/lib/dates";
 import { listStudents } from "@/lib/students";
 import { DEFAULT_DURATION } from "@/lib/validation/lesson";
@@ -49,7 +49,7 @@ export default function NuevaClasePage(props: PageProps<"/agenda/nueva">) {
   return (
     <PageContainer>
       <div className="space-y-1">
-        <Link href="/agenda" className="text-muted-foreground text-sm hover:underline">
+        <Link href="/agenda" className="text-ink-3 text-sm hover:underline">
           ← Agenda
         </Link>
         <PageHeader title="Nueva clase" description="Individual, grupal o de horario fijo." />

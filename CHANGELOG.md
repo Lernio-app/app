@@ -6,6 +6,8 @@ Registro de cambios del repo. Cada PR agrega una línea con la referencia a su i
 
 ### Cambiado
 
+- Sistema de diseño de la dirección D · Resaltador: tokens, superficies, fuentes Bricolage, Geist y Geist Mono, primitivas en `components/ui` y pantallas migradas. Reglas `lernio/*` de ESLint, tests de tokens y contraste, lint con cero warnings y hook de Claude Code. Documentado en `docs/sistema-de-diseno.md`.
+- `CLAUDE.md`: los cambios de UI se verifican en el navegador con Claude in Chrome, en ancho de celular.
 - `CLAUDE.md`: el alumno tiene una cuenta única en la plataforma, por invitación o registro propio (ADR-0003 en `producto`).
 
 ### Agregado
