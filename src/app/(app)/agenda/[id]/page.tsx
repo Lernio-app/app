@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { PageContainer } from "@/components/page-header";
 import { ReminderLink } from "@/components/reminder-link";
 import { Button, buttonVariants } from "@/components/ui/button";
+import { lessonCharges } from "@/lib/billing-data";
 import { dayLabel, localDate, localTime, spokenDay } from "@/lib/dates";
 import { formatTime } from "@/lib/format";
 import { attendeesOf, getLesson, lessonTitle, reminderPhone } from "@/lib/lessons";
@@ -53,7 +54,7 @@ async function Clase({ params }: { params: PageProps<"/agenda/[id]">["params"] }
   const cancelled = lesson.status === "cancelled";
   const upcoming = !cancelled && new Date(lesson.starts_at).getTime() > now.getTime();
 
-  const active = await listStudents({});
+  const [active, charges] = await Promise.all([listStudents({}), lessonCharges(lesson.id)]);
   const options = new Map(active.map((s) => [s.id, s.full_name]));
   for (const a of attendees) options.set(a.student_id, a.students.full_name);
 
@@ -121,6 +122,7 @@ async function Clase({ params }: { params: PageProps<"/agenda/[id]">["params"] }
               name: a.students.full_name,
               attendance: a.attendance as Attendance | null,
               billable: a.billable,
+              charge: charges.get(a.student_id) ?? null,
             }))}
           />
         </section>

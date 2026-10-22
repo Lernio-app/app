@@ -52,6 +52,27 @@ export function addDays(ymd: string, days: number): string {
   return toYmd(new Date(Date.UTC(y, m - 1, d + days)));
 }
 
+// Días de diferencia entre dos días ("YYYY-MM-DD"): positivo si `to` es posterior.
+export function daysBetween(from: string, to: string): number {
+  const a = parts(from);
+  const b = parts(to);
+  return Math.round((Date.UTC(b.y, b.m - 1, b.d) - Date.UTC(a.y, a.m - 1, a.d)) / 86_400_000);
+}
+
+// Mes ("YYYY-MM") de un día.
+export function monthOf(ymd: string): string {
+  return ymd.slice(0, 7);
+}
+
+// Los últimos `count` meses terminando en el de `ymd`, del más viejo al más nuevo.
+export function monthsBack(ymd: string, count: number): string[] {
+  const { y, m } = parts(ymd);
+  return Array.from({ length: count }, (_, i) => {
+    const date = new Date(Date.UTC(y, m - 1 - (count - 1 - i), 1));
+    return toYmd(date).slice(0, 7);
+  });
+}
+
 // Día de la semana ISO: 1 lunes ... 7 domingo.
 export function isoWeekday(ymd: string): number {
   const { y, m, d } = parts(ymd);

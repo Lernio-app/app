@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
   addDays,
+  daysBetween,
+  monthOf,
+  monthsBack,
   dayLabel,
   isHm,
   isYmd,
@@ -113,5 +116,15 @@ describe("dayLabel", () => {
     expect(dayLabel("2026-11-02", { weekday: "short", day: "numeric", month: undefined })).toBe(
       "lun 2",
     );
+  });
+});
+
+describe("daysBetween, monthOf y monthsBack", () => {
+  it("cuenta días y meses", () => {
+    expect(daysBetween("2026-10-17", "2026-10-22")).toBe(5);
+    expect(daysBetween("2026-10-22", "2026-10-17")).toBe(-5);
+    expect(daysBetween("2026-12-31", "2027-01-01")).toBe(1);
+    expect(monthOf("2026-10-22")).toBe("2026-10");
+    expect(monthsBack("2026-02-10", 4)).toEqual(["2025-11", "2025-12", "2026-01", "2026-02"]);
   });
 });

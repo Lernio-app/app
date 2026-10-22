@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { EmptyState, PageContainer } from "@/components/page-header";
+import { StudentBilling } from "@/components/student-billing";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { dayLabel, localDate } from "@/lib/dates";
 import { formatARS, formatDate, formatTime } from "@/lib/format";
@@ -97,7 +98,7 @@ async function Clases({
 }
 
 async function Ficha({ params }: { params: PageProps<"/alumnos/[id]">["params"] }) {
-  const { org } = await requireWorkspace();
+  const { org, profile } = await requireWorkspace();
   const { id } = await params;
   const student = await getStudent(id);
   if (!student) notFound();
@@ -142,7 +143,7 @@ async function Ficha({ params }: { params: PageProps<"/alumnos/[id]">["params"] 
       </section>
 
       <section className="space-y-3">
-        <h2 className="text-lg">Cobro</h2>
+        <h2 className="text-lg">Precio</h2>
         <dl className="bg-card space-y-3 rounded-xl border p-4">
           <Detail label="Precio">
             <span className="tabular">{priceSummary(plan, formatARS)}</span>
@@ -162,6 +163,14 @@ async function Ficha({ params }: { params: PageProps<"/alumnos/[id]">["params"] 
       </section>
 
       {!archived && <RegenerateLink studentId={student.id} />}
+
+      <StudentBilling
+        student={student}
+        today={localDate(new Date(), org.timezone)}
+        teacherName={profile.display_name}
+        paymentAlias={org.payment_alias}
+        paymentLink={org.payment_link}
+      />
 
       <Clases studentId={student.id} timeZone={org.timezone} archived={archived} />
 

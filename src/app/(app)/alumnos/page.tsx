@@ -3,6 +3,9 @@ import Link from "next/link";
 import { EmptyState, PageContainer, PageHeader } from "@/components/page-header";
 import { buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { debtors } from "@/lib/billing";
+import { listOpenCharges } from "@/lib/billing-data";
+import { localDate } from "@/lib/dates";
 import { formatARS } from "@/lib/format";
 import { currentPlan, listStudents } from "@/lib/students";
 import { priceSummary } from "@/lib/validation/student";
@@ -16,11 +19,20 @@ async function StudentList({
 }: {
   searchParams: PageProps<"/alumnos">["searchParams"];
 }) {
-  await requireWorkspace();
+  const { org } = await requireWorkspace();
   const params = await searchParams;
   const query = typeof params.q === "string" ? params.q : "";
   const archived = params.archivados === "1";
-  const students = await listStudents({ query, archived });
+  const [students, charges] = await Promise.all([
+    listStudents({ query, archived }),
+    listOpenCharges(),
+  ]);
+  const owed = new Map(
+    debtors(charges, localDate(new Date(), org.timezone)).map((debtor) => [
+      debtor.studentId,
+      debtor.owed,
+    ]),
+  );
 
   return (
     <>
@@ -85,6 +97,11 @@ async function StudentList({
                   <p className="tabular text-muted-foreground text-sm">
                     {priceSummary(plan, formatARS)}
                   </p>
+                  {owed.has(student.id) && (
+                    <p className="tabular text-status-owed text-sm font-medium">
+                      Debe {formatARS(owed.get(student.id) ?? 0)}
+                    </p>
+                  )}
                 </Link>
               </li>
             );

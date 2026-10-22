@@ -47,6 +47,37 @@ export function lessonReminderMessage({
   return lines.join("\n");
 }
 
+// Aviso de deuda: el monto y cómo pagar ya escritos. `forStudent` va cuando el mensaje es para el
+// responsable de pago y no para el alumno. `amount` y `since` llegan ya formateados.
+export function debtMessage({
+  recipientName,
+  forStudent,
+  teacherName,
+  amount,
+  since,
+  paymentAlias,
+  paymentLink,
+}: {
+  recipientName: string;
+  forStudent: string | null;
+  teacherName: string;
+  amount: string;
+  since: string;
+  paymentAlias: string | null;
+  paymentLink: string | null;
+}) {
+  const lines = [
+    `Hola ${firstName(recipientName)}! Soy ${firstName(teacherName)}.`,
+    forStudent
+      ? `Te escribo por las clases de ${firstName(forStudent)}: quedan ${amount} pendientes desde el ${since}.`
+      : `Te escribo por las clases: quedan ${amount} pendientes desde el ${since}.`,
+  ];
+  if (paymentAlias) lines.push(`Podés transferir al alias ${paymentAlias}.`);
+  if (paymentLink) lines.push(`O pagar acá: ${paymentLink}`);
+  lines.push("Cuando lo hagas avisame así lo registro. ¡Gracias!");
+  return lines.join("\n");
+}
+
 // Teléfono argentino escrito de cualquier forma -> formato internacional de celular (549 + área + número).
 // Devuelve null si no se puede interpretar.
 export function normalizeArPhone(raw: string): string | null {

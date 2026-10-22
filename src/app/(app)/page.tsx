@@ -3,8 +3,20 @@ import Link from "next/link";
 import { EmptyState, PageContainer } from "@/components/page-header";
 import { LessonItem } from "@/components/lesson-item";
 import { ReminderLink } from "@/components/reminder-link";
+import { buttonVariants } from "@/components/ui/button";
+import { PACKAGE_WARNING } from "@/components/student-billing";
+import { debtNoticeUrl, debtors } from "@/lib/billing";
+import {
+  generateMonthlyCharges,
+  listBillingStudents,
+  listOpenCharges,
+  packageBalances,
+} from "@/lib/billing-data";
+import { listStudents, currentPlan } from "@/lib/students";
+import { cn } from "@/lib/utils";
 import { addDays, localDate, localTime, spokenDay, zonedToUtc } from "@/lib/dates";
-import { formatDate } from "@/lib/format";
+import { formatARS, formatDate } from "@/lib/format";
+import { dayLabel as dayLabelOf } from "@/lib/dates";
 import { extendSeries, listLessons, needsAttendance, reminderPhone } from "@/lib/lessons";
 import { firstName, lessonReminderMessage, waLink } from "@/lib/messages";
 import { requireWorkspace } from "@/lib/workspace";
@@ -136,6 +148,96 @@ async function Agenda() {
   );
 }
 
+// Lo que hay por cobrar: quién debe (con el aviso listo) y los paquetes que se están por acabar.
+async function Cobros() {
+  const { org, profile } = await requireWorkspace();
+  const today = localDate(new Date(), org.timezone);
+
+  await generateMonthlyCharges();
+  const [charges, people, students, balances] = await Promise.all([
+    listOpenCharges(),
+    listBillingStudents(),
+    listStudents({}),
+    packageBalances(),
+  ]);
+
+  const owing = debtors(charges, today);
+  const ending = students.filter((student) => {
+    const left = balances.get(student.id);
+    return (
+      currentPlan(student.price_plans)?.mode === "package" &&
+      left !== undefined &&
+      left <= PACKAGE_WARNING
+    );
+  });
+  if (owing.length === 0 && ending.length === 0) return null;
+
+  return (
+    <Section title="Para cobrar">
+      <ul className="space-y-2">
+        {owing.slice(0, 3).map((debtor) => {
+          const person = people.get(debtor.studentId);
+          return (
+            <li
+              key={debtor.studentId}
+              className="bg-card flex items-center justify-between gap-3 rounded-xl border p-4"
+            >
+              <div className="min-w-0">
+                <p className="truncate font-medium">{person?.full_name ?? "Alumno"}</p>
+                <p className="text-status-owed tabular text-sm">
+                  {formatARS(debtor.owed)} · desde el{" "}
+                  {dayLabelOf(debtor.since, { weekday: undefined })}
+                </p>
+              </div>
+              {person && (
+                <a
+                  href={debtNoticeUrl({
+                    student: person,
+                    owed: debtor.owed,
+                    since: debtor.since,
+                    teacherName: profile.display_name,
+                    paymentAlias: org.payment_alias,
+                    paymentLink: org.payment_link,
+                  })}
+                  target="_blank"
+                  rel="noreferrer"
+                  className={cn(
+                    buttonVariants({ variant: "outline", size: "lg" }),
+                    "h-11 shrink-0",
+                  )}
+                >
+                  Avisar
+                </a>
+              )}
+            </li>
+          );
+        })}
+        {ending.map((student) => {
+          const left = balances.get(student.id) ?? 0;
+          return (
+            <li key={student.id}>
+              <Link
+                href={`/alumnos/${student.id}`}
+                className="bg-card hover:bg-muted/50 block rounded-xl border p-4"
+              >
+                <p className="font-medium">{student.full_name}</p>
+                <p className="text-status-owed text-sm">
+                  {left <= 0
+                    ? "Se terminó el paquete"
+                    : `Quedan ${left} ${left === 1 ? "clase" : "clases"} del paquete`}
+                </p>
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
+      <Link href="/cobros" className="text-primary flex min-h-11 items-center text-sm font-medium">
+        Ver todos los cobros
+      </Link>
+    </Section>
+  );
+}
+
 export default function InicioPage() {
   return (
     <PageContainer>
@@ -143,13 +245,17 @@ export default function InicioPage() {
         <Greeting />
       </Suspense>
 
-      {/* Primero lo académico. Los cobros se suman con F3. */}
+      {/* Primero lo académico; después las clases del día y lo que hay por cobrar. */}
       <Section title="Para corregir">
         <EmptyState title="Nada para corregir" />
       </Section>
 
       <Suspense fallback={<div className="h-48" aria-hidden />}>
         <Agenda />
+      </Suspense>
+
+      <Suspense fallback={<div className="h-24" aria-hidden />}>
+        <Cobros />
       </Suspense>
     </PageContainer>
   );

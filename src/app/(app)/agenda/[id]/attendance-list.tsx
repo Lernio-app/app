@@ -2,6 +2,7 @@
 
 import { useOptimistic, useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
+import { formatARS } from "@/lib/format";
 import { ATTENDANCE_LABELS, ATTENDANCE_VALUES, type Attendance } from "@/lib/validation/lesson";
 import { setAttendance } from "../actions";
 
@@ -10,6 +11,7 @@ export type AttendanceRow = {
   name: string;
   attendance: Attendance | null;
   billable: boolean;
+  charge: number | null; // lo que se le cargó por esta clase, en centavos
 };
 
 // Asistencia en un toque: tocar un estado lo marca y tocarlo de nuevo lo deshace.
@@ -58,6 +60,11 @@ export function AttendanceList({ lessonId, rows }: { lessonId: string; rows: Att
                 </button>
               ))}
             </div>
+            {!pending && row.charge !== null && (
+              <p className="text-muted-foreground tabular text-sm">
+                Cargo generado: {formatARS(row.charge)}
+              </p>
+            )}
             {!pending && (row.attendance === "absent" || row.attendance === "excused") && (
               <p className="text-muted-foreground flex items-center justify-between gap-3 text-sm">
                 <span>{row.billable ? "Se cobra la clase." : "No se cobra la clase."}</span>

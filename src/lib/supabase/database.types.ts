@@ -23,6 +23,74 @@ export type Database = {
   };
   public: {
     Tables: {
+      charges: {
+        Row: {
+          amount: number;
+          created_at: string;
+          description: string | null;
+          due_on: string;
+          id: string;
+          lesson_id: string | null;
+          org_id: string;
+          period: string | null;
+          source: string;
+          status: string;
+          student_id: string;
+          voided_at: string | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          amount: number;
+          created_at?: string;
+          description?: string | null;
+          due_on: string;
+          id?: string;
+          lesson_id?: string | null;
+          org_id: string;
+          period?: string | null;
+          source: string;
+          status?: string;
+          student_id: string;
+          voided_at?: string | null;
+        };
+        Update: {
+          amount?: number;
+          created_at?: string;
+          description?: string | null;
+          due_on?: string;
+          id?: string;
+          lesson_id?: string | null;
+          org_id?: string;
+          period?: string | null;
+          source?: string;
+          status?: string;
+          student_id?: string;
+          voided_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "charges_lesson_id_fkey";
+            columns: ["lesson_id"];
+            isOneToOne: false;
+            referencedRelation: "lessons";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "charges_org_id_fkey";
+            columns: ["org_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "charges_student_id_fkey";
+            columns: ["student_id"];
+            isOneToOne: false;
+            referencedRelation: "students";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       events: {
         Row: {
           actor_id: string | null;
@@ -317,6 +385,195 @@ export type Database = {
           updated_at?: string;
         };
         Relationships: [];
+      };
+      package_ledger: {
+        Row: {
+          charge_id: string | null;
+          created_at: string;
+          delta: number;
+          id: string;
+          lesson_id: string | null;
+          org_id: string;
+          reason: string;
+          student_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          charge_id?: string | null;
+          created_at?: string;
+          delta: number;
+          id?: string;
+          lesson_id?: string | null;
+          org_id: string;
+          reason: string;
+          student_id: string;
+        };
+        Update: {
+          charge_id?: string | null;
+          created_at?: string;
+          delta?: number;
+          id?: string;
+          lesson_id?: string | null;
+          org_id?: string;
+          reason?: string;
+          student_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "package_ledger_charge_id_fkey";
+            columns: ["charge_id"];
+            isOneToOne: false;
+            referencedRelation: "charge_balances";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "package_ledger_charge_id_fkey";
+            columns: ["charge_id"];
+            isOneToOne: false;
+            referencedRelation: "charges";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "package_ledger_lesson_id_fkey";
+            columns: ["lesson_id"];
+            isOneToOne: false;
+            referencedRelation: "lessons";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "package_ledger_org_id_fkey";
+            columns: ["org_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "package_ledger_student_id_fkey";
+            columns: ["student_id"];
+            isOneToOne: false;
+            referencedRelation: "students";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      payment_allocations: {
+        Row: {
+          amount: number;
+          charge_id: string;
+          created_at: string;
+          id: string;
+          org_id: string;
+          payment_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          amount: number;
+          charge_id: string;
+          created_at?: string;
+          id?: string;
+          org_id: string;
+          payment_id: string;
+        };
+        Update: {
+          amount?: number;
+          charge_id?: string;
+          created_at?: string;
+          id?: string;
+          org_id?: string;
+          payment_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "payment_allocations_charge_id_fkey";
+            columns: ["charge_id"];
+            isOneToOne: false;
+            referencedRelation: "charge_balances";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "payment_allocations_charge_id_fkey";
+            columns: ["charge_id"];
+            isOneToOne: false;
+            referencedRelation: "charges";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "payment_allocations_org_id_fkey";
+            columns: ["org_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "payment_allocations_payment_id_fkey";
+            columns: ["payment_id"];
+            isOneToOne: false;
+            referencedRelation: "payment_balances";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "payment_allocations_payment_id_fkey";
+            columns: ["payment_id"];
+            isOneToOne: false;
+            referencedRelation: "payments";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      payments: {
+        Row: {
+          amount: number;
+          created_at: string;
+          id: string;
+          method: string;
+          org_id: string;
+          paid_on: string;
+          recorded_by: string;
+          reference: string | null;
+          student_id: string;
+          voided_at: string | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          amount: number;
+          created_at?: string;
+          id?: string;
+          method: string;
+          org_id: string;
+          paid_on: string;
+          recorded_by: string;
+          reference?: string | null;
+          student_id: string;
+          voided_at?: string | null;
+        };
+        Update: {
+          amount?: number;
+          created_at?: string;
+          id?: string;
+          method?: string;
+          org_id?: string;
+          paid_on?: string;
+          recorded_by?: string;
+          reference?: string | null;
+          student_id?: string;
+          voided_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "payments_org_id_fkey";
+            columns: ["org_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "payments_student_id_fkey";
+            columns: ["student_id"];
+            isOneToOne: false;
+            referencedRelation: "students";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       price_plans: {
         Row: {
@@ -628,12 +885,88 @@ export type Database = {
       };
     };
     Views: {
-      [_ in never]: never;
+      charge_balances: {
+        Row: {
+          amount: number | null;
+          created_at: string | null;
+          description: string | null;
+          due_on: string | null;
+          id: string | null;
+          lesson_id: string | null;
+          org_id: string | null;
+          paid: number | null;
+          period: string | null;
+          remaining: number | null;
+          source: string | null;
+          status: string | null;
+          student_id: string | null;
+        };
+        ComputedFields: never;
+        Relationships: [
+          {
+            foreignKeyName: "charges_lesson_id_fkey";
+            columns: ["lesson_id"];
+            isOneToOne: false;
+            referencedRelation: "lessons";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "charges_org_id_fkey";
+            columns: ["org_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "charges_student_id_fkey";
+            columns: ["student_id"];
+            isOneToOne: false;
+            referencedRelation: "students";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      payment_balances: {
+        Row: {
+          amount: number | null;
+          created_at: string | null;
+          id: string | null;
+          method: string | null;
+          org_id: string | null;
+          paid_on: string | null;
+          reference: string | null;
+          student_id: string | null;
+          unallocated: number | null;
+          voided_at: string | null;
+        };
+        ComputedFields: never;
+        Relationships: [
+          {
+            foreignKeyName: "payments_org_id_fkey";
+            columns: ["org_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "payments_student_id_fkey";
+            columns: ["student_id"];
+            isOneToOne: false;
+            referencedRelation: "students";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Functions: {
+      apply_price_changes: { Args: { p_changes: Json }; Returns: number };
       cancel_lesson: {
         Args: { p_by: string; p_lesson_id: string; p_reason?: string };
         Returns: undefined;
+      };
+      create_charge: {
+        Args: { p_amount: number; p_description: string; p_due_on: string; p_student_id: string };
+        Returns: string;
       };
       create_lesson: {
         Args: {
@@ -694,11 +1027,28 @@ export type Database = {
       };
       end_lesson_series: { Args: { p_series_id: string }; Returns: undefined };
       extend_lesson_series: { Args: Record<PropertyKey, never>; Returns: number };
+      generate_monthly_charges: { Args: Record<PropertyKey, never>; Returns: number };
       issue_student_link: { Args: { p_student_id: string }; Returns: string };
+      mark_charge_paid: {
+        Args: { p_charge_id: string; p_method: string; p_paid_on: string };
+        Returns: string;
+      };
       move_lesson: {
         Args: { p_date: string; p_duration_min?: number; p_lesson_id: string; p_start: string };
         Returns: undefined;
       };
+      record_payment: {
+        Args: {
+          p_amount: number;
+          p_charge_id?: string;
+          p_method: string;
+          p_paid_on: string;
+          p_reference?: string;
+          p_student_id: string;
+        };
+        Returns: string;
+      };
+      renew_package: { Args: { p_student_id: string }; Returns: undefined };
       restore_lesson: { Args: { p_lesson_id: string }; Returns: undefined };
       set_attendance: {
         Args: {
@@ -731,6 +1081,8 @@ export type Database = {
           teacher_name: string;
         }[];
       };
+      void_charge: { Args: { p_charge_id: string }; Returns: undefined };
+      void_payment: { Args: { p_payment_id: string }; Returns: undefined };
     };
     Enums: {
       [_ in never]: never;

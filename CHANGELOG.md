@@ -10,6 +10,9 @@ Registro de cambios del repo. Cada PR agrega una línea con la referencia a su i
 
 ### Agregado
 
+- F3 Cobros: migraciones `f3_cobros` y `f3_anular_pago` con `charges`, `payments`, `payment_allocations` y `package_ledger` (RLS por organización, solo lectura directa), las vistas `charge_balances` y `payment_balances`, y las funciones `create_charge`, `void_charge`, `record_payment`, `mark_charge_paid`, `void_payment`, `renew_package`, `generate_monthly_charges` y `apply_price_changes`. `set_attendance`, `cancel_lesson`, `restore_lesson` y `set_lesson_students` generan y ajustan el cargo de cada clase.
+- Pantallas `/cobros` (resumen, quién debe, cuentas a cobrar y estadísticas), `/cobros/pago`, `/cobros/nuevo` y `/cobros/aumento`; sección Cobros en la ficha del alumno, deuda en la lista de alumnos, "Para cobrar" en el Inicio y cargo generado en la clase.
+- Lógica de cobros en `src/lib/billing.ts` (deuda, vencido, estadísticas, aumento y aviso de deuda), con tests pgTAP y unitarios.
 - F2 Agenda y asistencia: migración `f2_agenda` con `lesson_series`, `series_students`, `lessons` y `lesson_attendees` (RLS por organización) y las funciones `create_lesson`, `create_lesson_series`, `extend_lesson_series`, `end_lesson_series`, `move_lesson`, `cancel_lesson`, `restore_lesson`, `set_attendance` y `set_lesson_students`. La regla de cancelación del espacio decide si cada clase se cobra (`billable`).
 - Pantallas `/agenda` (semana y horarios fijos), `/agenda/nueva` y `/agenda/[id]` (asistencia en un toque, mover, cancelar, notas y alumnos), clases de hoy, asistencia por marcar y recordatorios por WhatsApp en el Inicio, y sección de clases en la ficha del alumno.
 - Helpers de fechas por zona horaria (`src/lib/dates.ts`) y mensaje de recordatorio; tests pgTAP y unitarios.
