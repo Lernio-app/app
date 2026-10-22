@@ -3,8 +3,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { EmptyState, PageContainer } from "@/components/page-header";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { formatARS, formatDate } from "@/lib/format";
+import { dayLabel, localDate } from "@/lib/dates";
+import { formatARS, formatDate, formatTime } from "@/lib/format";
+import { listStudentLessons } from "@/lib/lessons";
 import { currentPlan, getStudent } from "@/lib/students";
+import { ATTENDANCE_LABELS, type Attendance } from "@/lib/validation/lesson";
 import { priceSummary } from "@/lib/validation/student";
 import { requireWorkspace } from "@/lib/workspace";
 import { cn } from "@/lib/utils";
@@ -19,6 +22,77 @@ function Detail({ label, children }: { label: string; children: React.ReactNode 
       <dt className="text-muted-foreground text-sm">{label}</dt>
       <dd>{children}</dd>
     </div>
+  );
+}
+
+// Próximas clases del alumno y las últimas con su asistencia.
+async function Clases({
+  studentId,
+  timeZone,
+  archived,
+}: {
+  studentId: string;
+  timeZone: string;
+  archived: boolean;
+}) {
+  const { upcoming, past } = await listStudentLessons(studentId, new Date());
+
+  const row = ({ attendee, lesson }: (typeof upcoming)[number]) => {
+    const day = localDate(lesson.starts_at, timeZone);
+    const status =
+      lesson.status === "cancelled"
+        ? "Cancelada"
+        : attendee.attendance
+          ? ATTENDANCE_LABELS[attendee.attendance as Attendance]
+          : null;
+    return (
+      <li key={lesson.id}>
+        <Link
+          href={`/agenda/${lesson.id}`}
+          className="bg-card hover:bg-muted/50 flex items-center justify-between gap-3 rounded-xl border p-4"
+        >
+          <span className="tabular first-letter:uppercase">
+            {dayLabel(day, { weekday: "short", month: "short" })} ·{" "}
+            {formatTime(lesson.starts_at, timeZone)}
+          </span>
+          {status && <span className="text-muted-foreground text-sm">{status}</span>}
+        </Link>
+      </li>
+    );
+  };
+
+  return (
+    <section className="space-y-3">
+      <div className="flex items-center justify-between gap-3">
+        <h2 className="text-lg">Clases</h2>
+        {!archived && (
+          <Link
+            href={`/agenda/nueva?alumno=${studentId}`}
+            className="text-primary flex min-h-11 items-center text-sm font-medium"
+          >
+            + Agendar clase
+          </Link>
+        )}
+      </div>
+      {upcoming.length === 0 && past.length === 0 ? (
+        <EmptyState title="Todavía no tiene clases" />
+      ) : (
+        <>
+          {upcoming.length > 0 && (
+            <div className="space-y-2">
+              <h3 className="text-muted-foreground text-sm">Próximas</h3>
+              <ul className="space-y-2">{upcoming.map(row)}</ul>
+            </div>
+          )}
+          {past.length > 0 && (
+            <div className="space-y-2">
+              <h3 className="text-muted-foreground text-sm">Anteriores</h3>
+              <ul className="space-y-2">{past.map(row)}</ul>
+            </div>
+          )}
+        </>
+      )}
+    </section>
   );
 }
 
@@ -89,10 +163,12 @@ async function Ficha({ params }: { params: PageProps<"/alumnos/[id]">["params"] 
 
       {!archived && <RegenerateLink studentId={student.id} />}
 
+      <Clases studentId={student.id} timeZone={org.timezone} archived={archived} />
+
       <section className="space-y-3">
         <h2 className="text-lg">Historial</h2>
         <EmptyState title="Todavía no hay nada para mostrar">
-          Pronto vas a ver acá sus clases, pagos, tareas y exámenes.
+          Pronto vas a ver acá sus pagos, tareas y exámenes.
         </EmptyState>
       </section>
 

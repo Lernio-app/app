@@ -20,6 +20,33 @@ export function welcomeMessage({
   ].join("\n");
 }
 
+// Recordatorio de una clase. `when` es "hoy", "mañana" o "el lunes 2 de noviembre".
+export function lessonReminderMessage({
+  studentName,
+  teacherName,
+  when,
+  time,
+  meetingUrl,
+  lateCancelHours,
+}: {
+  studentName: string;
+  teacherName: string;
+  when: string;
+  time: string;
+  meetingUrl: string | null;
+  lateCancelHours: number;
+}) {
+  const lines = [
+    `Hola ${firstName(studentName)}! Soy ${firstName(teacherName)}.`,
+    `Te recuerdo que ${when} tenemos clase a las ${time}.`,
+  ];
+  if (meetingUrl) lines.push(`Es por acá: ${meetingUrl}`);
+  if (lateCancelHours > 0) {
+    lines.push(`Si no podés, avisame con al menos ${lateCancelHours} horas de anticipación.`);
+  }
+  return lines.join("\n");
+}
+
 // Teléfono argentino escrito de cualquier forma -> formato internacional de celular (549 + área + número).
 // Devuelve null si no se puede interpretar.
 export function normalizeArPhone(raw: string): string | null {

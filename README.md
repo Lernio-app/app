@@ -35,7 +35,7 @@ El ingreso es por link mágico: el email llega a Mailpit, no a una casilla real.
 
 ## Estructura
 
-- `src/app/(auth)` ingreso · `src/app/(onboarding)` alta del espacio · `src/app/(app)` panel del profe (alumnos incluidos) · `src/app/a/[token]` link del alumno, sin cuenta.
+- `src/app/(auth)` ingreso · `src/app/(onboarding)` alta del espacio · `src/app/(app)` panel del profe (alumnos y agenda incluidos) · `src/app/a/[token]` link del alumno, sin cuenta.
 - `src/proxy.ts` refresca la sesión y manda a ingresar a quien no la tiene.
 - `src/lib/supabase` clientes y tipos · `src/lib/workspace.ts` sesión y espacio del profe.
 - `supabase/migrations` esquema y RLS · `supabase/tests` tests de la base.

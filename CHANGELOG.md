@@ -10,6 +10,9 @@ Registro de cambios del repo. Cada PR agrega una línea con la referencia a su i
 
 ### Agregado
 
+- F2 Agenda y asistencia: migración `f2_agenda` con `lesson_series`, `series_students`, `lessons` y `lesson_attendees` (RLS por organización) y las funciones `create_lesson`, `create_lesson_series`, `extend_lesson_series`, `end_lesson_series`, `move_lesson`, `cancel_lesson`, `restore_lesson`, `set_attendance` y `set_lesson_students`. La regla de cancelación del espacio decide si cada clase se cobra (`billable`).
+- Pantallas `/agenda` (semana y horarios fijos), `/agenda/nueva` y `/agenda/[id]` (asistencia en un toque, mover, cancelar, notas y alumnos), clases de hoy, asistencia por marcar y recordatorios por WhatsApp en el Inicio, y sección de clases en la ficha del alumno.
+- Helpers de fechas por zona horaria (`src/lib/dates.ts`) y mensaje de recordatorio; tests pgTAP y unitarios.
 - Convenciones de git, bitácora y gestión de issues en `CLAUDE.md` y este `CHANGELOG.md` (#19).
 - Estructura inicial del repo: `README.md`, `.gitignore`, `CLAUDE.md`, plantillas de issues y de PR.
 

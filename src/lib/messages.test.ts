@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { normalizeArPhone, waLink, welcomeMessage } from "./messages";
+import { lessonReminderMessage, normalizeArPhone, waLink, welcomeMessage } from "./messages";
 
 describe("normalizeArPhone", () => {
   it("entiende celulares escritos de distintas formas", () => {
@@ -38,5 +38,33 @@ describe("welcomeMessage", () => {
     expect(text).toContain("Soy Ana.");
     expect(text).toContain("https://app.test/a/abc");
     expect(text).toContain("Guardalo");
+  });
+});
+
+describe("lessonReminderMessage", () => {
+  const base = {
+    studentName: "Lucía Pérez",
+    teacherName: "Ana Gómez",
+    when: "mañana",
+    time: "17:00",
+    meetingUrl: null,
+    lateCancelHours: 24,
+  };
+
+  it("recuerda el día y la hora con voseo", () => {
+    const text = lessonReminderMessage(base);
+    expect(text).toContain("Hola Lucía! Soy Ana.");
+    expect(text).toContain("mañana tenemos clase a las 17:00");
+    expect(text).toContain("avisame con al menos 24 horas");
+    expect(text).not.toContain("Es por acá");
+  });
+
+  it("suma el link de la clase si lo hay", () => {
+    const text = lessonReminderMessage({ ...base, meetingUrl: "https://meet.test/abc" });
+    expect(text).toContain("Es por acá: https://meet.test/abc");
+  });
+
+  it("sin regla de cancelación no pide aviso", () => {
+    expect(lessonReminderMessage({ ...base, lateCancelHours: 0 })).not.toContain("avisame");
   });
 });

@@ -1,9 +1,9 @@
 "use client";
 
 import { useActionState, useEffect, useId, useState } from "react";
+import { Field } from "@/components/field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
   PRICE_CHOICES,
@@ -15,33 +15,6 @@ import { LinkShare } from "./link-share";
 import type { StudentFormState } from "./actions";
 
 type Action = (prev: StudentFormState, formData: FormData) => Promise<StudentFormState>;
-
-function Field({
-  id,
-  label,
-  hint,
-  error,
-  children,
-}: {
-  id: string;
-  label: string;
-  hint?: string;
-  error?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="space-y-2">
-      <Label htmlFor={id}>{label}</Label>
-      {children}
-      {hint && !error && <p className="text-muted-foreground text-sm">{hint}</p>}
-      {error && (
-        <p role="alert" className="text-status-error text-sm">
-          {error}
-        </p>
-      )}
-    </div>
-  );
-}
 
 export const EMPTY_STUDENT: StudentValues = {
   fullName: "",

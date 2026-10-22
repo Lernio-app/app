@@ -62,6 +62,192 @@ export type Database = {
           },
         ];
       };
+      lesson_attendees: {
+        Row: {
+          attendance: string | null;
+          billable: boolean;
+          lesson_id: string;
+          marked_at: string | null;
+          org_id: string;
+          reminded_at: string | null;
+          student_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          attendance?: string | null;
+          billable?: boolean;
+          lesson_id: string;
+          marked_at?: string | null;
+          org_id: string;
+          reminded_at?: string | null;
+          student_id: string;
+        };
+        Update: {
+          attendance?: string | null;
+          billable?: boolean;
+          lesson_id?: string;
+          marked_at?: string | null;
+          org_id?: string;
+          reminded_at?: string | null;
+          student_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "lesson_attendees_lesson_id_fkey";
+            columns: ["lesson_id"];
+            isOneToOne: false;
+            referencedRelation: "lessons";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "lesson_attendees_org_id_fkey";
+            columns: ["org_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "lesson_attendees_student_id_fkey";
+            columns: ["student_id"];
+            isOneToOne: false;
+            referencedRelation: "students";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      lesson_series: {
+        Row: {
+          archived_at: string | null;
+          created_at: string;
+          duration_min: number;
+          ends_on: string | null;
+          id: string;
+          meeting_url: string | null;
+          org_id: string;
+          start_time: string;
+          starts_on: string;
+          teacher_id: string;
+          updated_at: string;
+          weekday: number;
+        };
+        ComputedFields: never;
+        Insert: {
+          archived_at?: string | null;
+          created_at?: string;
+          duration_min: number;
+          ends_on?: string | null;
+          id?: string;
+          meeting_url?: string | null;
+          org_id: string;
+          start_time: string;
+          starts_on: string;
+          teacher_id: string;
+          updated_at?: string;
+          weekday: number;
+        };
+        Update: {
+          archived_at?: string | null;
+          created_at?: string;
+          duration_min?: number;
+          ends_on?: string | null;
+          id?: string;
+          meeting_url?: string | null;
+          org_id?: string;
+          start_time?: string;
+          starts_on?: string;
+          teacher_id?: string;
+          updated_at?: string;
+          weekday?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "lesson_series_org_id_fkey";
+            columns: ["org_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      lessons: {
+        Row: {
+          archived_at: string | null;
+          cancel_reason: string | null;
+          cancelled_at: string | null;
+          cancelled_by: string | null;
+          created_at: string;
+          ends_at: string;
+          id: string;
+          meeting_url: string | null;
+          org_id: string;
+          private_notes: string | null;
+          series_date: string | null;
+          series_id: string | null;
+          shared_notes: string | null;
+          starts_at: string;
+          status: string;
+          teacher_id: string;
+          topic: string | null;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          archived_at?: string | null;
+          cancel_reason?: string | null;
+          cancelled_at?: string | null;
+          cancelled_by?: string | null;
+          created_at?: string;
+          ends_at: string;
+          id?: string;
+          meeting_url?: string | null;
+          org_id: string;
+          private_notes?: string | null;
+          series_date?: string | null;
+          series_id?: string | null;
+          shared_notes?: string | null;
+          starts_at: string;
+          status?: string;
+          teacher_id: string;
+          topic?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          archived_at?: string | null;
+          cancel_reason?: string | null;
+          cancelled_at?: string | null;
+          cancelled_by?: string | null;
+          created_at?: string;
+          ends_at?: string;
+          id?: string;
+          meeting_url?: string | null;
+          org_id?: string;
+          private_notes?: string | null;
+          series_date?: string | null;
+          series_id?: string | null;
+          shared_notes?: string | null;
+          starts_at?: string;
+          status?: string;
+          teacher_id?: string;
+          topic?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "lessons_org_id_fkey";
+            columns: ["org_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "lessons_series_id_fkey";
+            columns: ["series_id"];
+            isOneToOne: false;
+            referencedRelation: "lesson_series";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       memberships: {
         Row: {
           created_at: string;
@@ -180,6 +366,47 @@ export type Database = {
           },
           {
             foreignKeyName: "price_plans_student_id_fkey";
+            columns: ["student_id"];
+            isOneToOne: false;
+            referencedRelation: "students";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      series_students: {
+        Row: {
+          org_id: string;
+          series_id: string;
+          student_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          org_id: string;
+          series_id: string;
+          student_id: string;
+        };
+        Update: {
+          org_id?: string;
+          series_id?: string;
+          student_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "series_students_org_id_fkey";
+            columns: ["org_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "series_students_series_id_fkey";
+            columns: ["series_id"];
+            isOneToOne: false;
+            referencedRelation: "lesson_series";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "series_students_student_id_fkey";
             columns: ["student_id"];
             isOneToOne: false;
             referencedRelation: "students";
@@ -404,6 +631,33 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      cancel_lesson: {
+        Args: { p_by: string; p_lesson_id: string; p_reason?: string };
+        Returns: undefined;
+      };
+      create_lesson: {
+        Args: {
+          p_date: string;
+          p_duration_min: number;
+          p_meeting_url?: string;
+          p_start: string;
+          p_student_ids: string[];
+          p_topic?: string;
+        };
+        Returns: string;
+      };
+      create_lesson_series: {
+        Args: {
+          p_duration_min: number;
+          p_ends_on?: string;
+          p_meeting_url?: string;
+          p_start: string;
+          p_starts_on: string;
+          p_student_ids: string[];
+          p_weekday: number;
+        };
+        Returns: string;
+      };
       create_student: {
         Args: {
           p_amount?: number;
@@ -438,7 +692,27 @@ export type Database = {
         };
         Returns: string;
       };
+      end_lesson_series: { Args: { p_series_id: string }; Returns: undefined };
+      extend_lesson_series: { Args: Record<PropertyKey, never>; Returns: number };
       issue_student_link: { Args: { p_student_id: string }; Returns: string };
+      move_lesson: {
+        Args: { p_date: string; p_duration_min?: number; p_lesson_id: string; p_start: string };
+        Returns: undefined;
+      };
+      restore_lesson: { Args: { p_lesson_id: string }; Returns: undefined };
+      set_attendance: {
+        Args: {
+          p_attendance?: string;
+          p_billable?: boolean;
+          p_lesson_id: string;
+          p_student_id: string;
+        };
+        Returns: boolean;
+      };
+      set_lesson_students: {
+        Args: { p_lesson_id: string; p_student_ids: string[] };
+        Returns: undefined;
+      };
       set_price_plan: {
         Args: {
           p_amount?: number;
