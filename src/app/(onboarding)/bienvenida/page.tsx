@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { WorkspaceForm } from "@/components/app/workspace-form";
 import { Logo } from "@/components/ui/logo";
 import { PageTitle } from "@/components/ui/page-header";
+import { getCatalog } from "@/lib/catalog-data";
 import { getUser, getWorkspace } from "@/lib/workspace";
 import { createWorkspace } from "./actions";
 
@@ -12,16 +13,18 @@ async function Welcome() {
   if (!(await getUser())) redirect("/ingresar");
   if (await getWorkspace()) redirect("/");
 
+  const catalog = await getCatalog();
+
   return (
     <WorkspaceForm
       action={createWorkspace}
+      catalog={catalog}
       submitLabel="Crear mi espacio"
       pendingLabel="Creando…"
       defaults={{
         displayName: "",
         phone: "",
-        subjects: [],
-        levels: [],
+        subjectIds: [],
         paymentAlias: "",
         paymentLink: "",
         lateCancelHours: 24,

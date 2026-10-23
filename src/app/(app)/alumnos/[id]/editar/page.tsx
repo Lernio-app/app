@@ -1,9 +1,10 @@
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { PageContainer, PageHeader } from "@/components/ui/page-header";
+import { getCatalog } from "@/lib/catalog-data";
 import { formatARS } from "@/lib/format";
 import { currentPlan, getStudent, payerContact } from "@/lib/students";
-import type { StudentValues } from "@/lib/validation/student";
+import { OTHER_SUBJECT, type StudentValues } from "@/lib/validation/student";
 import { requireWorkspace } from "@/lib/workspace";
 import { updateStudent } from "../../actions";
 import { StudentForm } from "../../student-form";
@@ -21,14 +22,17 @@ async function EditForm({ params }: { params: PageProps<"/alumnos/[id]/editar">[
   const student = await getStudent(id);
   if (!student) notFound();
 
+  const catalog = await getCatalog();
   const plan = currentPlan(student.price_plans);
   const payer = payerContact(student.student_contacts);
   const defaults: StudentValues = {
     fullName: student.full_name,
     phone: student.phone ?? "",
     email: student.email ?? "",
+    subjectChoice: student.subject_id ?? OTHER_SUBJECT,
+    areaId: student.area_id ?? "",
     subject: student.subject ?? "",
-    level: student.level ?? "",
+    levelId: student.level_id ?? "",
     notes: student.notes ?? "",
     payerName: payer?.name ?? "",
     payerRelation: payer?.relation ?? "",
@@ -47,8 +51,8 @@ async function EditForm({ params }: { params: PageProps<"/alumnos/[id]/editar">[
         action={updateStudent}
         defaults={defaults}
         studentId={student.id}
-        subjects={profile.subjects}
-        levels={profile.levels}
+        catalog={catalog}
+        mainAreaId={profile.main_area_id}
         submitLabel="Guardar cambios"
         pendingLabel="Guardando…"
       />

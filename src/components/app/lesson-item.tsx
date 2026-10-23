@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { formatTime } from "@/lib/format";
 import { attendeesOf, lessonTitle, needsAttendance, type LessonWithAttendees } from "@/lib/lessons";
+import { studentDetailLine } from "@/lib/students";
 import { StatusChip, type Status } from "@/components/ui/status-chip";
 import { cn } from "@/lib/utils";
 import { ATTENDANCE_LABELS, type Attendance } from "@/lib/validation/lesson";
@@ -43,9 +44,7 @@ export function LessonItem({
   const cancelled = lesson.status === "cancelled";
   const missing = needsAttendance(lesson, now);
   const attendees = attendeesOf(lesson);
-  const detail =
-    lesson.topic ??
-    [attendees[0]?.students.subject, attendees[0]?.students.level].filter(Boolean).join(" · ");
+  const detail = lesson.topic ?? (attendees[0] ? studentDetailLine(attendees[0].students) : "");
 
   return (
     <Link

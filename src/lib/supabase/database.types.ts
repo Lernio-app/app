@@ -23,6 +23,31 @@ export type Database = {
   };
   public: {
     Tables: {
+      areas: {
+        Row: {
+          code: string;
+          color: string;
+          id: string;
+          name: string;
+          position: number;
+        };
+        ComputedFields: never;
+        Insert: {
+          code: string;
+          color: string;
+          id?: string;
+          name: string;
+          position: number;
+        };
+        Update: {
+          code?: string;
+          color?: string;
+          id?: string;
+          name?: string;
+          position?: number;
+        };
+        Relationships: [];
+      };
       charges: {
         Row: {
           amount: number;
@@ -312,6 +337,39 @@ export type Database = {
             columns: ["series_id"];
             isOneToOne: false;
             referencedRelation: "lesson_series";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      levels: {
+        Row: {
+          area_id: string;
+          code: string;
+          id: string;
+          name: string;
+          position: number;
+        };
+        ComputedFields: never;
+        Insert: {
+          area_id: string;
+          code: string;
+          id?: string;
+          name: string;
+          position: number;
+        };
+        Update: {
+          area_id?: string;
+          code?: string;
+          id?: string;
+          name?: string;
+          position?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "levels_area_id_fkey";
+            columns: ["area_id"];
+            isOneToOne: false;
+            referencedRelation: "areas";
             referencedColumns: ["id"];
           },
         ];
@@ -775,51 +833,71 @@ export type Database = {
       students: {
         Row: {
           archived_at: string | null;
+          area_id: string | null;
           created_at: string;
           email: string | null;
           full_name: string;
           id: string;
-          level: string | null;
+          level_id: string | null;
           notes: string | null;
           org_id: string;
           phone: string | null;
           status: string;
           subject: string | null;
+          subject_id: string | null;
           teacher_id: string;
           updated_at: string;
         };
         ComputedFields: never;
         Insert: {
           archived_at?: string | null;
+          area_id?: string | null;
           created_at?: string;
           email?: string | null;
           full_name: string;
           id?: string;
-          level?: string | null;
+          level_id?: string | null;
           notes?: string | null;
           org_id: string;
           phone?: string | null;
           status?: string;
           subject?: string | null;
+          subject_id?: string | null;
           teacher_id: string;
           updated_at?: string;
         };
         Update: {
           archived_at?: string | null;
+          area_id?: string | null;
           created_at?: string;
           email?: string | null;
           full_name?: string;
           id?: string;
-          level?: string | null;
+          level_id?: string | null;
           notes?: string | null;
           org_id?: string;
           phone?: string | null;
           status?: string;
           subject?: string | null;
+          subject_id?: string | null;
           teacher_id?: string;
           updated_at?: string;
         };
         Relationships: [
+          {
+            foreignKeyName: "students_area_id_fkey";
+            columns: ["area_id"];
+            isOneToOne: false;
+            referencedRelation: "areas";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "students_level_area_fk";
+            columns: ["level_id", "area_id"];
+            isOneToOne: false;
+            referencedRelation: "levels";
+            referencedColumns: ["id", "area_id"];
+          },
           {
             foreignKeyName: "students_org_id_fkey";
             columns: ["org_id"];
@@ -827,7 +905,74 @@ export type Database = {
             referencedRelation: "organizations";
             referencedColumns: ["id"];
           },
+          {
+            foreignKeyName: "students_subject_area_fk";
+            columns: ["subject_id", "area_id"];
+            isOneToOne: false;
+            referencedRelation: "subject_areas";
+            referencedColumns: ["subject_id", "area_id"];
+          },
+          {
+            foreignKeyName: "students_subject_id_fkey";
+            columns: ["subject_id"];
+            isOneToOne: false;
+            referencedRelation: "subjects";
+            referencedColumns: ["id"];
+          },
         ];
+      };
+      subject_areas: {
+        Row: {
+          area_id: string;
+          subject_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          area_id: string;
+          subject_id: string;
+        };
+        Update: {
+          area_id?: string;
+          subject_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "subject_areas_area_id_fkey";
+            columns: ["area_id"];
+            isOneToOne: false;
+            referencedRelation: "areas";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "subject_areas_subject_id_fkey";
+            columns: ["subject_id"];
+            isOneToOne: false;
+            referencedRelation: "subjects";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      subjects: {
+        Row: {
+          code: string;
+          id: string;
+          name: string;
+          position: number;
+        };
+        ComputedFields: never;
+        Insert: {
+          code: string;
+          id?: string;
+          name: string;
+          position: number;
+        };
+        Update: {
+          code?: string;
+          id?: string;
+          name?: string;
+          position?: number;
+        };
+        Relationships: [];
       };
       teacher_profiles: {
         Row: {
@@ -835,12 +980,12 @@ export type Database = {
           created_at: string;
           display_name: string;
           id: string;
-          is_public: boolean;
-          levels: string[];
+          main_area_id: string | null;
           org_id: string;
           phone: string | null;
-          public_slug: string | null;
-          subjects: string[];
+          photo_path: string | null;
+          slug: string | null;
+          subject_ids: string[];
           updated_at: string;
           user_id: string;
         };
@@ -850,12 +995,12 @@ export type Database = {
           created_at?: string;
           display_name: string;
           id?: string;
-          is_public?: boolean;
-          levels?: string[];
+          main_area_id?: string | null;
           org_id: string;
           phone?: string | null;
-          public_slug?: string | null;
-          subjects?: string[];
+          photo_path?: string | null;
+          slug?: string | null;
+          subject_ids?: string[];
           updated_at?: string;
           user_id: string;
         };
@@ -864,16 +1009,23 @@ export type Database = {
           created_at?: string;
           display_name?: string;
           id?: string;
-          is_public?: boolean;
-          levels?: string[];
+          main_area_id?: string | null;
           org_id?: string;
           phone?: string | null;
-          public_slug?: string | null;
-          subjects?: string[];
+          photo_path?: string | null;
+          slug?: string | null;
+          subject_ids?: string[];
           updated_at?: string;
           user_id?: string;
         };
         Relationships: [
+          {
+            foreignKeyName: "teacher_profiles_main_area_id_fkey";
+            columns: ["main_area_id"];
+            isOneToOne: false;
+            referencedRelation: "areas";
+            referencedColumns: ["id"];
+          },
           {
             foreignKeyName: "teacher_profiles_org_id_fkey";
             columns: ["org_id"];
@@ -994,11 +1146,12 @@ export type Database = {
       create_student: {
         Args: {
           p_amount?: number;
+          p_area_id?: string;
           p_billing_day?: number;
           p_email?: string;
           p_full_name: string;
           p_lessons_per_package?: number;
-          p_level?: string;
+          p_level_id?: string;
           p_mode?: string;
           p_notes?: string;
           p_payer_email?: string;
@@ -1007,6 +1160,7 @@ export type Database = {
           p_payer_relation?: string;
           p_phone?: string;
           p_subject?: string;
+          p_subject_id?: string;
         };
         Returns: {
           student_id: string;
@@ -1017,11 +1171,10 @@ export type Database = {
         Args: {
           p_display_name: string;
           p_late_cancel_hours?: number;
-          p_levels?: string[];
           p_name: string;
           p_payment_alias?: string;
           p_payment_link?: string;
-          p_subjects?: string[];
+          p_subject_ids?: string[];
         };
         Returns: string;
       };

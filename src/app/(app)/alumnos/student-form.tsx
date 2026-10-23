@@ -1,11 +1,14 @@
 "use client";
 
-import { useActionState, useEffect, useId, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { Field, FormError } from "@/components/ui/field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { NativeSelect } from "@/components/ui/native-select";
 import { Textarea } from "@/components/ui/textarea";
+import { defaultAreaFor, groupSubjects, type Catalog } from "@/lib/catalog";
 import {
+  OTHER_SUBJECT,
   PRICE_CHOICES,
   PRICE_CHOICE_LABELS,
   type PriceChoice,
@@ -21,8 +24,10 @@ export const EMPTY_STUDENT: StudentValues = {
   fullName: "",
   phone: "",
   email: "",
+  subjectChoice: "",
+  areaId: "",
   subject: "",
-  level: "",
+  levelId: "",
   notes: "",
   payerName: "",
   payerRelation: "",
@@ -38,8 +43,8 @@ export function StudentForm({
   action,
   defaults,
   studentId,
-  subjects,
-  levels,
+  catalog,
+  mainAreaId,
   submitLabel,
   pendingLabel,
   onAnother,
@@ -47,8 +52,9 @@ export function StudentForm({
   action: Action;
   defaults: StudentValues;
   studentId?: string;
-  subjects: string[];
-  levels: string[];
+  catalog: Catalog;
+  // Área principal del profe: se propone cuando la materia se enseña en dos áreas.
+  mainAreaId: string | null;
   submitLabel: string;
   pendingLabel: string;
   onAnother?: () => void;
@@ -58,8 +64,30 @@ export function StudentForm({
   // Tras un error se vuelve a mostrar lo que escribió en vez de dejar el formulario vacío.
   const current = state.values ?? defaults;
   const [mode, setMode] = useState<PriceChoice>(current.mode);
-  const subjectListId = useId();
-  const levelListId = useId();
+  const [subjectChoice, setSubjectChoice] = useState(current.subjectChoice);
+  const [areaId, setAreaId] = useState(current.areaId);
+  const [levelId, setLevelId] = useState(current.levelId);
+
+  const isOther = subjectChoice === OTHER_SUBJECT;
+  const subject = catalog.subjects.find((item) => item.id === subjectChoice) ?? null;
+  const areaOptions = subject
+    ? catalog.areas.filter((area) => subject.areaIds.includes(area.id))
+    : [];
+  // Con una sola área posible no se pregunta: queda elegida.
+  const selectedAreaId =
+    areaOptions.length === 1
+      ? areaOptions[0].id
+      : areaOptions.some((area) => area.id === areaId)
+        ? areaId
+        : "";
+  const levelOptions = catalog.levels.filter((level) => level.areaId === selectedAreaId);
+  const selectedLevelId = levelOptions.some((level) => level.id === levelId) ? levelId : "";
+
+  function chooseSubject(value: string) {
+    setSubjectChoice(value);
+    const next = catalog.subjects.find((item) => item.id === value);
+    setAreaId(next ? defaultAreaFor(next, catalog, mainAreaId) : "");
+  }
 
   useEffect(() => {
     if (state.fieldErrors) {
@@ -106,29 +134,91 @@ export function StudentForm({
             placeholder="11 5555 1234"
           />
         </Field>
-        <div className="grid grid-cols-2 gap-3">
-          <Field id="subject" label="Materia" error={errors.subject}>
-            <Input
-              id="subject"
-              name="subject"
-              list={subjectListId}
-              defaultValue={current.subject}
-            />
-            <datalist id={subjectListId}>
-              {subjects.map((subject) => (
-                <option key={subject} value={subject} />
+        <Field id="subjectChoice" label="Materia" error={errors.subjectChoice}>
+          <NativeSelect
+            id="subjectChoice"
+            name="subjectChoice"
+            value={subjectChoice}
+            onChange={(event) => chooseSubject(event.target.value)}
+          >
+            <option value="">Elegí una materia</option>
+            {groupSubjects(catalog).map((group) => (
+              <optgroup key={group.label} label={group.label}>
+                {group.subjects.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.name}
+                  </option>
+                ))}
+              </optgroup>
+            ))}
+            <option value={OTHER_SUBJECT}>Otra (no está en la lista)</option>
+          </NativeSelect>
+        </Field>
+        {areaOptions.length > 1 && (
+          <fieldset className="space-y-2">
+            <legend className="text-sm font-medium">¿Para qué estudia?</legend>
+            <div className="grid grid-cols-2 gap-2">
+              {areaOptions.map((area) => (
+                <label
+                  key={area.id}
+                  className="bg-card has-[:checked]:border-primary has-[:checked]:bg-indigo-soft rounded-control flex min-h-11 cursor-pointer items-center justify-center border px-2 text-center text-sm has-[:checked]:font-medium"
+                >
+                  <input
+                    type="radio"
+                    name="areaChoice"
+                    value={area.id}
+                    checked={selectedAreaId === area.id}
+                    onChange={() => setAreaId(area.id)}
+                    className="sr-only"
+                  />
+                  {area.name}
+                </label>
               ))}
-            </datalist>
+            </div>
+            {errors.areaId && <FormError>{errors.areaId}</FormError>}
+          </fieldset>
+        )}
+        <input type="hidden" name="areaId" value={selectedAreaId} />
+        {isOther ? (
+          <Field id="subject" label="¿Qué materia es?" error={errors.subject}>
+            <Input id="subject" name="subject" defaultValue={current.subject} autoComplete="off" />
           </Field>
-          <Field id="level" label="Nivel" error={errors.level}>
-            <Input id="level" name="level" list={levelListId} defaultValue={current.level} />
-            <datalist id={levelListId}>
-              {levels.map((level) => (
-                <option key={level} value={level} />
-              ))}
-            </datalist>
-          </Field>
-        </div>
+        ) : (
+          subject && (
+            <>
+              {levelOptions.length > 0 && (
+                <Field id="levelId" label="Nivel" hint="Opcional." error={errors.levelId}>
+                  <NativeSelect
+                    id="levelId"
+                    name="levelId"
+                    value={selectedLevelId}
+                    onChange={(event) => setLevelId(event.target.value)}
+                  >
+                    <option value="">Sin nivel</option>
+                    {levelOptions.map((level) => (
+                      <option key={level.id} value={level.id}>
+                        {level.name}
+                      </option>
+                    ))}
+                  </NativeSelect>
+                </Field>
+              )}
+              <Field
+                id="subject"
+                label="Detalle"
+                hint="Opcional. Por ejemplo, First o Análisis I."
+                error={errors.subject}
+              >
+                <Input
+                  id="subject"
+                  name="subject"
+                  defaultValue={current.subject}
+                  autoComplete="off"
+                />
+              </Field>
+            </>
+          )
+        )}
         <Field id="email" label="Email" hint="Opcional." error={errors.email}>
           <Input
             id="email"

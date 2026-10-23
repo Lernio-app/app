@@ -3,11 +3,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { EmptyState, PageContainer, PageHeader, SectionTitle } from "@/components/ui/page-header";
 import { StudentBilling } from "@/components/app/student-billing";
+import { AreaTag } from "@/components/ui/area";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { dayLabel, localDate } from "@/lib/dates";
 import { formatARS, formatDate, formatTime } from "@/lib/format";
 import { listStudentLessons } from "@/lib/lessons";
-import { currentPlan, getStudent } from "@/lib/students";
+import { currentPlan, getStudent, studentAreaKey, studentDetailLine } from "@/lib/students";
 import { ATTENDANCE_LABELS, type Attendance } from "@/lib/validation/lesson";
 import { priceSummary } from "@/lib/validation/student";
 import { requireWorkspace } from "@/lib/workspace";
@@ -104,14 +105,13 @@ async function Ficha({ params }: { params: PageProps<"/alumnos/[id]">["params"] 
 
   const plan = currentPlan(student.price_plans);
   const payer = student.student_contacts.find((contact) => contact.is_payer);
-  const detail = [student.subject, student.level].filter(Boolean).join(" · ");
+  const detail = studentDetailLine(student);
   const archived = student.archived_at !== null;
 
   return (
     <>
       <PageHeader
         title={student.full_name}
-        description={detail || undefined}
         back={{ href: "/alumnos", label: "Alumnos" }}
         actions={
           <Link
@@ -133,6 +133,9 @@ async function Ficha({ params }: { params: PageProps<"/alumnos/[id]">["params"] 
       <section className="space-y-3">
         <SectionTitle>Datos</SectionTitle>
         <dl className="bg-card rounded-card space-y-3 border p-4">
+          <Detail label="Materia">
+            <AreaTag area={studentAreaKey(student)}>{detail}</AreaTag>
+          </Detail>
           <Detail label="WhatsApp">{student.phone ?? "—"}</Detail>
           <Detail label="Email">{student.email ?? "—"}</Detail>
           {student.notes && <Detail label="Notas">{student.notes}</Detail>}

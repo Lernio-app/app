@@ -13,7 +13,9 @@ grant all on ctx to authenticated;
 -- Profe A crea su espacio.
 set local role authenticated;
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000a1","role":"authenticated"}', true);
-insert into ctx select 'a', public.create_workspace('Ana Inglés', 'Ana', array['Inglés'], array['Secundario']);
+insert into ctx select 'a', public.create_workspace(
+  'Ana Inglés', 'Ana', array[(select id from public.subjects where code = 'ingles')]
+);
 
 select is((select count(*)::int from public.organizations), 1, 'A ve su organización');
 select is((select slug from public.organizations), 'ana-ingles', 'el slug sale del nombre, sin tildes');

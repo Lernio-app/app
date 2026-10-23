@@ -8,7 +8,13 @@ function form(entries: Record<string, string>) {
   return data;
 }
 
-const base = { fullName: "Lucía Pérez", mode: "per_lesson", amount: "18.000" };
+const INGLES = "11111111-1111-4111-8111-111111111111";
+const IDIOMAS = "33333333-3333-4333-8333-333333333333";
+const B2 = "44444444-4444-4444-8444-444444444444";
+
+// «Otra» con su nombre: la forma más corta de pasar la validación de la materia.
+const otra = { subjectChoice: "other", subject: "Ajedrez" };
+const base = { fullName: "Lucía Pérez", ...otra, mode: "per_lesson", amount: "18.000" };
 
 describe("parseStudentForm", () => {
   it("acepta un alumno mínimo con precio por clase", () => {
@@ -23,10 +29,10 @@ describe("parseStudentForm", () => {
   });
 
   it("el precio es opcional: sin precio no hace falta monto", () => {
-    const sinModo = parseStudentForm(form({ fullName: "Lucía Pérez" }));
+    const sinModo = parseStudentForm(form({ fullName: "Lucía Pérez", ...otra }));
     expect(sinModo.success && sinModo.data.mode).toBeNull();
 
-    const explicito = parseStudentForm(form({ fullName: "Lucía Pérez", mode: "none" }));
+    const explicito = parseStudentForm(form({ fullName: "Lucía Pérez", ...otra, mode: "none" }));
     expect(explicito.success).toBe(true);
     if (explicito.success) {
       expect(explicito.data.mode).toBeNull();
@@ -36,7 +42,7 @@ describe("parseStudentForm", () => {
 
   it("sin precio se ignora un monto que haya quedado escrito", () => {
     const result = parseStudentForm(
-      form({ fullName: "Lucía", mode: "none", amount: "mucho", lessonsPerPackage: "4" }),
+      form({ fullName: "Lucía", ...otra, mode: "none", amount: "mucho", lessonsPerPackage: "4" }),
     );
     expect(result.success).toBe(true);
     if (result.success) {
@@ -74,6 +80,59 @@ describe("parseStudentForm", () => {
   it("revisa el email del alumno y del responsable", () => {
     expect(parseStudentForm(form({ ...base, email: "no-es-un-mail" })).success).toBe(false);
     expect(parseStudentForm(form({ ...base, payerEmail: "no-es-un-mail" })).success).toBe(false);
+  });
+});
+
+describe("parseStudentForm: materia", () => {
+  const lista = { fullName: "Lucía", mode: "none", subjectChoice: INGLES, areaId: IDIOMAS };
+
+  it("acepta una materia de la lista con su área, un detalle y un nivel", () => {
+    const result = parseStudentForm(form({ ...lista, subject: " First ", levelId: B2 }));
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.subjectId).toBe(INGLES);
+      expect(result.data.areaId).toBe(IDIOMAS);
+      expect(result.data.subject).toBe("First");
+      expect(result.data.levelId).toBe(B2);
+    }
+  });
+
+  it("el nivel y el detalle son opcionales", () => {
+    const result = parseStudentForm(form(lista));
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.subject).toBeNull();
+      expect(result.data.levelId).toBeNull();
+    }
+  });
+
+  it("pide la materia", () => {
+    const result = parseStudentForm(form({ fullName: "Lucía", mode: "none" }));
+    expect(result.success).toBe(false);
+    if (!result.success) expect(result.error.issues[0].path[0]).toBe("subjectChoice");
+  });
+
+  it("una materia de la lista pide el área", () => {
+    const result = parseStudentForm(form({ ...lista, areaId: "" }));
+    expect(result.success).toBe(false);
+    if (!result.success) expect(result.error.issues[0].path[0]).toBe("areaId");
+  });
+
+  it("«Otra» pide el nombre de la materia y no lleva área ni nivel", () => {
+    expect(
+      parseStudentForm(form({ fullName: "Lucía", mode: "none", subjectChoice: "other" })).success,
+    ).toBe(false);
+
+    const result = parseStudentForm(
+      form({ ...lista, subjectChoice: "other", subject: "Ajedrez", levelId: B2 }),
+    );
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.subjectId).toBeNull();
+      expect(result.data.areaId).toBeNull();
+      expect(result.data.levelId).toBeNull();
+      expect(result.data.subject).toBe("Ajedrez");
+    }
   });
 });
 

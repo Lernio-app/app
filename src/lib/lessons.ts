@@ -6,7 +6,10 @@ export type Lesson = Tables<"lessons">;
 export type LessonAttendee = Tables<"lesson_attendees">;
 export type LessonSeries = Tables<"lesson_series">;
 
-type StudentRef = Pick<Tables<"students">, "id" | "full_name" | "phone" | "subject" | "level">;
+type StudentRef = Pick<Tables<"students">, "id" | "full_name" | "phone" | "subject"> & {
+  subjects: { name: string } | null;
+  levels: { name: string } | null;
+};
 type ContactRef = Pick<Tables<"student_contacts">, "phone" | "is_payer">;
 
 export type LessonWithAttendees = Lesson & {
@@ -20,7 +23,7 @@ export type SeriesWithStudents = LessonSeries & {
 };
 
 const LESSON_SELECT =
-  "*, lesson_attendees(*, students(id, full_name, phone, subject, level, student_contacts(phone, is_payer)))";
+  "*, lesson_attendees(*, students(id, full_name, phone, subject, subjects(name), levels(name), student_contacts(phone, is_payer)))";
 
 // Las pantallas llaman antes a requireWorkspace(), que fija el request como dinámico.
 

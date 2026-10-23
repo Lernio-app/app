@@ -24,8 +24,7 @@ export async function createWorkspace(_prev: FormState, formData: FormData): Pro
   const { error } = await supabase.rpc("create_workspace", {
     p_name: input.displayName,
     p_display_name: input.displayName,
-    p_subjects: input.subjects,
-    p_levels: input.levels,
+    p_subject_ids: input.subjectIds,
     p_payment_alias: input.paymentAlias ?? undefined,
     p_payment_link: input.paymentLink ?? undefined,
     p_late_cancel_hours: input.lateCancelHours,

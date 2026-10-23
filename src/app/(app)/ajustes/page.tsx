@@ -3,6 +3,7 @@ import { PageContainer, PageHeader, SectionTitle } from "@/components/ui/page-he
 import { WorkspaceForm } from "@/components/app/workspace-form";
 import { Button } from "@/components/ui/button";
 import { signOut } from "@/lib/auth-actions";
+import { getCatalog } from "@/lib/catalog-data";
 import { requireWorkspace } from "@/lib/workspace";
 import { saveSettings } from "./actions";
 
@@ -10,18 +11,19 @@ export const metadata = { title: "Ajustes" };
 
 async function Settings() {
   const { org, profile, email } = await requireWorkspace();
+  const catalog = await getCatalog();
 
   return (
     <>
       <WorkspaceForm
         action={saveSettings}
+        catalog={catalog}
         submitLabel="Guardar cambios"
         pendingLabel="Guardando…"
         defaults={{
           displayName: profile.display_name,
           phone: profile.phone ?? "",
-          subjects: profile.subjects,
-          levels: profile.levels,
+          subjectIds: profile.subject_ids,
           paymentAlias: org.payment_alias ?? "",
           paymentLink: org.payment_link ?? "",
           lateCancelHours: org.late_cancel_hours,

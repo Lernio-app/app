@@ -1,13 +1,14 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import { EmptyState, PageContainer, PageHeader } from "@/components/ui/page-header";
+import { AreaSwatch } from "@/components/ui/area";
 import { buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { debtors } from "@/lib/billing";
 import { listOpenCharges } from "@/lib/billing-data";
 import { localDate } from "@/lib/dates";
 import { formatARS } from "@/lib/format";
-import { currentPlan, listStudents } from "@/lib/students";
+import { currentPlan, listStudents, studentAreaKey, studentDetailLine } from "@/lib/students";
 import { priceSummary } from "@/lib/validation/student";
 import { requireWorkspace } from "@/lib/workspace";
 import { cn } from "@/lib/utils";
@@ -84,7 +85,7 @@ async function StudentList({
         <ul className="space-y-2">
           {students.map((student) => {
             const plan = currentPlan(student.price_plans);
-            const detail = [student.subject, student.level].filter(Boolean).join(" · ");
+            const detail = studentDetailLine(student);
             return (
               <li key={student.id}>
                 <Link
@@ -92,7 +93,12 @@ async function StudentList({
                   className="bg-card hover:bg-paper rounded-card block border p-4"
                 >
                   <p className="font-medium">{student.full_name}</p>
-                  {detail && <p className="text-ink-3 text-sm">{detail}</p>}
+                  {detail && (
+                    <p className="text-ink-3 flex items-center gap-2 text-sm">
+                      <AreaSwatch area={studentAreaKey(student)} />
+                      {detail}
+                    </p>
+                  )}
                   <p className="num text-ink-3 text-sm">{priceSummary(plan, formatARS)}</p>
                   {owed.has(student.id) && (
                     <p className="num text-debt text-sm font-medium">

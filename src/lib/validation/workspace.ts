@@ -1,24 +1,5 @@
 import { z } from "zod";
 
-export const SUBJECT_OPTIONS = [
-  "Inglés e idiomas",
-  "Ingreso y universidad",
-  "Apoyo escolar",
-  "Música",
-] as const;
-
-export const LEVEL_OPTIONS = ["Primaria", "Secundaria", "Universidad", "Adultos"] as const;
-
-// "Matemática, Física" -> ["Matemática", "Física"]. Sin vacíos ni repetidos.
-export function splitList(raw: string): string[] {
-  const seen = new Set<string>();
-  for (const item of raw.split(/[,;\n]/)) {
-    const value = item.trim();
-    if (value) seen.add(value);
-  }
-  return [...seen];
-}
-
 const optionalText = (max: number) =>
   z
     .string()
@@ -32,8 +13,7 @@ export const workspaceSchema = z.object({
     .trim()
     .min(1, "Contanos cómo te llamás.")
     .max(120, "Usá hasta 120 caracteres."),
-  subjects: z.array(z.string().trim().min(1).max(60)).max(20),
-  levels: z.array(z.string().trim().min(1).max(60)).max(20),
+  subjectIds: z.array(z.uuid()).max(30),
   phone: optionalText(40),
   paymentAlias: optionalText(120),
   paymentLink: optionalText(500).refine(
@@ -49,15 +29,14 @@ export const workspaceSchema = z.object({
 
 export type WorkspaceInput = z.infer<typeof workspaceSchema>;
 
-// Lee el FormData de onboarding/ajustes: casillas sugeridas + "otras" separadas por coma.
+// Lee el FormData de onboarding/ajustes: las materias son los ids de las casillas marcadas.
 export function parseWorkspaceForm(formData: FormData) {
   const read = (key: string) => String(formData.get(key) ?? "");
   const fromChecks = (key: string) => formData.getAll(key).map(String);
 
   return workspaceSchema.safeParse({
     displayName: read("displayName"),
-    subjects: [...new Set([...fromChecks("subjects"), ...splitList(read("subjectsOther"))])],
-    levels: [...new Set([...fromChecks("levels"), ...splitList(read("levelsOther"))])],
+    subjectIds: [...new Set(fromChecks("subjects"))],
     phone: read("phone"),
     paymentAlias: read("paymentAlias"),
     paymentLink: read("paymentLink"),
@@ -68,8 +47,7 @@ export function parseWorkspaceForm(formData: FormData) {
 export type WorkspaceDefaults = {
   displayName: string;
   phone: string;
-  subjects: string[];
-  levels: string[];
+  subjectIds: string[];
   paymentAlias: string;
   paymentLink: string;
   lateCancelHours: number;
@@ -90,8 +68,7 @@ export function submittedValues(formData: FormData): WorkspaceDefaults {
   return {
     displayName: read("displayName"),
     phone: read("phone"),
-    subjects: [...new Set([...checked("subjects"), ...splitList(read("subjectsOther"))])],
-    levels: [...new Set([...checked("levels"), ...splitList(read("levelsOther"))])],
+    subjectIds: [...new Set(checked("subjects"))],
     paymentAlias: read("paymentAlias"),
     paymentLink: read("paymentLink"),
     lateCancelHours: Number(read("lateCancelHours")) || 0,

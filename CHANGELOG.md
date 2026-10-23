@@ -6,6 +6,8 @@ Registro de cambios del repo. Cada PR agrega una línea con la referencia a su i
 
 ### Cambiado
 
+- Áreas, materias y niveles: migración `areas_materias_niveles` con el catálogo cerrado (`areas`, `subjects`, `subject_areas` y `levels`, 4 áreas, 30 materias y 13 niveles, de lectura pública y sin escritura desde el cliente). `students` pasa de `subject` y `level` en texto libre a `area_id`, `subject_id` y `level_id`, con «Otra» (sin área ni nivel) y `subject` como detalle o nombre; `teacher_profiles` cambia `subjects`, `levels` e `is_public` por `subject_ids`, `main_area_id` (derivada por trigger) y `photo_path`, y `public_slug` pasa a `slug`. `create_workspace` y `create_student` cambian de firma.
+- El alta del espacio y Ajustes ofrecen las 30 materias agrupadas por área y ya no piden niveles. El alta y la edición del alumno piden la materia de la lista (con área, nivel opcional y detalle) o «Otra»; la lista y la ficha muestran la materia con el color de su área. Catálogo en `src/lib/catalog.ts` y `src/lib/catalog-data.ts`, con tests pgTAP y unitarios.
 - Sistema de diseño de la dirección D · Resaltador: tokens, superficies, fuentes Bricolage, Geist y Geist Mono, primitivas en `components/ui` y pantallas migradas. Reglas `lernio/*` de ESLint, tests de tokens y contraste, lint con cero warnings y hook de Claude Code. Documentado en `docs/sistema-de-diseno.md`.
 - `CLAUDE.md`: los cambios de UI se verifican en el navegador con Claude in Chrome, en ancho de celular.
 - `CLAUDE.md`: el alumno tiene una cuenta única en la plataforma, por invitación o registro propio (ADR-0003 en `producto`).

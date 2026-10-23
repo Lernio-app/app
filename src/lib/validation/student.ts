@@ -16,6 +16,9 @@ export const PRICE_CHOICE_LABELS: Record<PriceChoice, string> = {
   monthly: "Por mes",
 };
 
+// Valor de la materia cuando el profe elige «Otra»: no es una materia de la lista.
+export const OTHER_SUBJECT = "other";
+
 const text = (max: number) =>
   z
     .string()
@@ -37,8 +40,10 @@ export const studentSchema = z
       .max(120, "Usá hasta 120 caracteres."),
     phone: text(40),
     email: optionalEmail,
+    subjectChoice: z.string().trim(),
+    areaId: z.string().trim(),
     subject: text(60),
-    level: text(60),
+    levelId: z.string().trim(),
     notes: text(2000),
     payerName: text(120),
     payerRelation: text(60),
@@ -49,11 +54,48 @@ export const studentSchema = z
     lessonsPerPackage: z.string().trim(),
     billingDay: z.string().trim(),
   })
-  .transform((value, ctx) => {
+  .transform((raw, ctx) => {
+    const { subjectChoice, areaId, levelId, ...value } = raw;
+
+    // Materia de la lista (con su área y, si quiere, su nivel) o «Otra» con su nombre.
+    let catalog: {
+      areaId: string | null;
+      subjectId: string | null;
+      levelId: string | null;
+      subject: string | null;
+    };
+    if (subjectChoice === OTHER_SUBJECT) {
+      if (value.subject === null) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["subject"],
+          message: "Contanos qué materia es.",
+        });
+      }
+      catalog = { areaId: null, subjectId: null, levelId: null, subject: value.subject };
+    } else {
+      if (!z.uuid().safeParse(subjectChoice).success) {
+        ctx.addIssue({ code: "custom", path: ["subjectChoice"], message: "Elegí la materia." });
+      } else if (!z.uuid().safeParse(areaId).success) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["areaId"],
+          message: "Elegí para qué estudia el alumno.",
+        });
+      }
+      catalog = {
+        areaId: areaId === "" ? null : areaId,
+        subjectId: subjectChoice === "" ? null : subjectChoice,
+        levelId: levelId === "" ? null : levelId,
+        subject: value.subject,
+      };
+    }
+
     // Sin precio: se ignoran monto, clases y día, aunque hayan quedado escritos.
     if (value.mode === "none") {
       return {
         ...value,
+        ...catalog,
         mode: null,
         amount: null,
         lessonsPerPackage: null,
@@ -98,7 +140,14 @@ export const studentSchema = z
         billingDay = n;
       }
     }
-    return { ...value, mode: value.mode as PlanMode, amount, lessonsPerPackage, billingDay };
+    return {
+      ...value,
+      ...catalog,
+      mode: value.mode as PlanMode,
+      amount,
+      lessonsPerPackage,
+      billingDay,
+    };
   });
 
 export type StudentInput = z.output<typeof studentSchema>;
@@ -108,8 +157,12 @@ export type StudentValues = {
   fullName: string;
   phone: string;
   email: string;
+  // Id de una materia de la lista, «other» o vacío.
+  subjectChoice: string;
+  areaId: string;
+  // Detalle de la materia (First, Análisis I) o el nombre cuando es «Otra».
   subject: string;
-  level: string;
+  levelId: string;
   notes: string;
   payerName: string;
   payerRelation: string;
@@ -128,8 +181,10 @@ export function submittedStudentValues(formData: FormData): StudentValues {
     fullName: read("fullName"),
     phone: read("phone"),
     email: read("email"),
+    subjectChoice: read("subjectChoice"),
+    areaId: read("areaId"),
     subject: read("subject"),
-    level: read("level"),
+    levelId: read("levelId"),
     notes: read("notes"),
     payerName: read("payerName"),
     payerRelation: read("payerRelation"),

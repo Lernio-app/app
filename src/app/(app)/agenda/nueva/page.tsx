@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { PageContainer, PageHeader } from "@/components/ui/page-header";
 import { isYmd, localDate } from "@/lib/dates";
-import { listStudents } from "@/lib/students";
+import { listStudents, studentDetailLine } from "@/lib/students";
 import { DEFAULT_DURATION } from "@/lib/validation/lesson";
 import { requireWorkspace } from "@/lib/workspace";
 import { LessonForm } from "./lesson-form";
@@ -39,7 +39,7 @@ async function NewLesson({
       students={students.map((student) => ({
         id: student.id,
         name: student.full_name,
-        detail: [student.subject, student.level].filter(Boolean).join(" · "),
+        detail: studentDetailLine(student),
       }))}
     />
   );

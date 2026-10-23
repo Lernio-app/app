@@ -27,8 +27,7 @@ export async function saveSettings(_prev: FormState, formData: FormData): Promis
     .update({
       display_name: input.displayName,
       phone: input.phone,
-      subjects: input.subjects,
-      levels: input.levels,
+      subject_ids: input.subjectIds,
     })
     .eq("id", profile.id);
 

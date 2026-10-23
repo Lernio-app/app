@@ -21,9 +21,12 @@ select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000
 insert into ctx
 select 'a', r.student_id, r.token
 from public.create_student(
-  'Lucía Pérez', '1155551234', null, 'Inglés', 'Secundaria', null,
-  'Marta Pérez', 'Madre', '1155550000', null,
-  'package', 4000000, 4, null
+  'Lucía Pérez', '1155551234', null,
+  p_area_id => (select id from public.areas where code = 'apoyo'),
+  p_subject_id => (select id from public.subjects where code = 'matematica'),
+  p_level_id => (select id from public.levels where code = 'secundaria'),
+  p_payer_name => 'Marta Pérez', p_payer_relation => 'Madre', p_payer_phone => '1155550000',
+  p_mode => 'package', p_amount => 4000000, p_lessons_per_package => 4
 ) r;
 
 select is((select count(*)::int from public.students), 1, 'A ve a su alumno');
@@ -66,11 +69,11 @@ select throws_ok(
 -- Restricciones del plan.
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000a1","role":"authenticated"}', true);
 select throws_ok(
-  $$select * from public.create_student('X', p_mode => 'package', p_amount => 100)$$,
+  $$select * from public.create_student('X', p_subject => 'Otra', p_mode => 'package', p_amount => 100)$$,
   '23514', null, 'un paquete exige cantidad de clases'
 );
 select throws_ok(
-  $$select * from public.create_student('X', p_mode => 'monthly', p_amount => 100)$$,
+  $$select * from public.create_student('X', p_subject => 'Otra', p_mode => 'monthly', p_amount => 100)$$,
   '23514', null, 'un plan mensual exige día de facturación'
 );
 
@@ -113,7 +116,7 @@ select is(
   (select count(*)::int from public.price_plans where ended_on is null and student_id = (select student_id from ctx where name = 'a')),
   0, 'quitar el precio deja al alumno sin precio vigente'
 );
-insert into ctx select 'sin_precio', r.student_id, r.token from public.create_student('Sin Precio') r;
+insert into ctx select 'sin_precio', r.student_id, r.token from public.create_student('Sin Precio', p_subject => 'Otra') r;
 select is(
   (select count(*)::int from public.price_plans where student_id = (select student_id from ctx where name = 'sin_precio')),
   0, 'un alumno cargado sin precio no tiene precio'

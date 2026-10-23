@@ -6,12 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { FormError } from "@/components/ui/field";
 import { SectionTitle } from "@/components/ui/page-header";
-import {
-  LEVEL_OPTIONS,
-  SUBJECT_OPTIONS,
-  type FormState,
-  type WorkspaceDefaults,
-} from "@/lib/validation/workspace";
+import { groupSubjects, type Catalog } from "@/lib/catalog";
+import { type FormState, type WorkspaceDefaults } from "@/lib/validation/workspace";
 
 type Action = (prev: FormState, formData: FormData) => Promise<FormState>;
 
@@ -38,60 +34,49 @@ function Field({
   );
 }
 
-function CheckGroup({
-  name,
-  legend,
-  options,
-  selected,
-  otherName,
-  otherDefault,
-  otherPlaceholder,
-}: {
-  name: string;
-  legend: string;
-  options: readonly string[];
-  selected: string[];
-  otherName: string;
-  otherDefault: string;
-  otherPlaceholder: string;
-}) {
+// Materias de la lista cerrada, agrupadas por las áreas en que se enseñan. Cada casilla manda el id.
+function SubjectChecks({ catalog, selected }: { catalog: Catalog; selected: string[] }) {
   return (
-    <fieldset className="space-y-3">
-      <legend className="text-sm font-medium">{legend}</legend>
-      <div className="grid grid-cols-2 gap-2">
-        {options.map((option) => (
-          <label
-            key={option}
-            className="bg-card has-[:checked]:border-primary has-[:checked]:bg-indigo-soft rounded-control flex min-h-11 cursor-pointer items-center gap-2 border px-3 text-sm"
-          >
-            <input
-              type="checkbox"
-              name={name}
-              value={option}
-              defaultChecked={selected.includes(option)}
-              className="accent-primary size-4"
-            />
-            {option}
-          </label>
-        ))}
-      </div>
-      <Input
-        name={otherName}
-        defaultValue={otherDefault}
-        placeholder={otherPlaceholder}
-        aria-label={`${legend}: otras`}
-      />
+    <fieldset className="space-y-4">
+      <legend className="text-sm font-medium">¿Qué materias das?</legend>
+      {groupSubjects(catalog).map((group) => (
+        <div key={group.label} className="space-y-2">
+          <p className="text-ink-3 text-sm">{group.label}</p>
+          <div className="grid grid-cols-2 gap-2">
+            {group.subjects.map((subject) => (
+              <label
+                key={subject.id}
+                className="bg-card has-[:checked]:border-primary has-[:checked]:bg-indigo-soft rounded-control flex min-h-11 cursor-pointer items-center gap-2 border px-3 text-sm"
+              >
+                <input
+                  type="checkbox"
+                  name="subjects"
+                  value={subject.id}
+                  defaultChecked={selected.includes(subject.id)}
+                  className="accent-primary size-4"
+                />
+                {subject.name}
+              </label>
+            ))}
+          </div>
+        </div>
+      ))}
+      <p className="text-ink-3 text-sm">
+        Es opcional. Si das otra materia, igual la podés cargar con cada alumno como «Otra».
+      </p>
     </fieldset>
   );
 }
 
 export function WorkspaceForm({
   action,
+  catalog,
   defaults,
   submitLabel,
   pendingLabel,
 }: {
   action: Action;
+  catalog: Catalog;
   defaults: WorkspaceDefaults;
   submitLabel: string;
   pendingLabel: string;
@@ -106,13 +91,6 @@ export function WorkspaceForm({
       document.querySelector("[role=alert]")?.scrollIntoView({ block: "center" });
     }
   }, [state]);
-
-  const otherSubjects = current.subjects.filter(
-    (s) => !(SUBJECT_OPTIONS as readonly string[]).includes(s),
-  );
-  const otherLevels = current.levels.filter(
-    (l) => !(LEVEL_OPTIONS as readonly string[]).includes(l),
-  );
 
   return (
     <form action={formAction} className="space-y-8" noValidate>
@@ -143,24 +121,7 @@ export function WorkspaceForm({
             placeholder="11 5555 1234"
           />
         </Field>
-        <CheckGroup
-          name="subjects"
-          legend="¿Qué materias das?"
-          options={SUBJECT_OPTIONS}
-          selected={current.subjects}
-          otherName="subjectsOther"
-          otherDefault={otherSubjects.join(", ")}
-          otherPlaceholder="Otras, separadas por coma"
-        />
-        <CheckGroup
-          name="levels"
-          legend="¿Qué niveles?"
-          options={LEVEL_OPTIONS}
-          selected={current.levels}
-          otherName="levelsOther"
-          otherDefault={otherLevels.join(", ")}
-          otherPlaceholder="Otros, separados por coma"
-        />
+        <SubjectChecks catalog={catalog} selected={current.subjectIds} />
       </section>
 
       <section className="space-y-5">

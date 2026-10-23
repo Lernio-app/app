@@ -66,8 +66,10 @@ export async function createStudent(
     p_full_name: input.fullName,
     p_phone: input.phone ?? undefined,
     p_email: input.email ?? undefined,
+    p_area_id: input.areaId ?? undefined,
+    p_subject_id: input.subjectId ?? undefined,
     p_subject: input.subject ?? undefined,
-    p_level: input.level ?? undefined,
+    p_level_id: input.levelId ?? undefined,
     p_notes: input.notes ?? undefined,
     p_payer_name: input.payerName ?? undefined,
     p_payer_relation: input.payerRelation ?? undefined,
@@ -129,8 +131,10 @@ export async function updateStudent(
       full_name: input.fullName,
       phone: input.phone,
       email: input.email,
+      area_id: input.areaId,
+      subject_id: input.subjectId,
       subject: input.subject,
-      level: input.level,
+      level_id: input.levelId,
       notes: input.notes,
     })
     .eq("id", student.id);
