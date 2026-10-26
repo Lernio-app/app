@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  consentMessage,
   debtMessage,
   lessonReminderMessage,
   normalizeArPhone,
@@ -34,16 +35,34 @@ describe("waLink", () => {
 });
 
 describe("welcomeMessage", () => {
-  it("saluda con voseo y trae el link", () => {
+  it("saluda con voseo e invita a activar la cuenta", () => {
     const text = welcomeMessage({
       studentName: "Lucía Pérez",
       teacherName: "Ana Gómez",
-      link: "https://app.test/a/abc",
+      link: "https://app.test/invitacion/abc",
     });
     expect(text).toContain("Hola Lucía!");
     expect(text).toContain("Soy Ana.");
-    expect(text).toContain("https://app.test/a/abc");
-    expect(text).toContain("Guardalo");
+    expect(text).toContain("https://app.test/invitacion/abc");
+    expect(text).toContain("Entrás con tu email");
+    expect(text).toContain("vale 7 días");
+    expect(text).not.toContain("ninguna cuenta");
+  });
+});
+
+describe("consentMessage", () => {
+  it("le pide el consentimiento al responsable con voseo y trae el link", () => {
+    const text = consentMessage({
+      payerName: "Marta Pérez",
+      studentName: "Teo Pérez",
+      teacherName: "Ana Gómez",
+      link: "https://app.test/consentimiento/abc",
+    });
+    expect(text).toContain("Hola Marta! Soy Ana.");
+    expect(text).toContain("que Teo tenga su cuenta");
+    expect(text).toContain("https://app.test/consentimiento/abc");
+    expect(text).toContain("lo podés retirar");
+    expect(text).toContain("Vale 7 días");
   });
 });
 

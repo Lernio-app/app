@@ -33,7 +33,7 @@ async function EditForm({ params }: { params: PageProps<"/alumnos/[id]/editar">[
     areaId: student.area_id ?? "",
     subject: student.subject ?? "",
     levelId: student.level_id ?? "",
-    notes: student.notes ?? "",
+    notes: student.student_notes?.body ?? "",
     payerName: payer?.name ?? "",
     payerRelation: payer?.relation ?? "",
     payerPhone: payer?.phone ?? "",
@@ -42,6 +42,8 @@ async function EditForm({ params }: { params: PageProps<"/alumnos/[id]/editar">[
     amount: plan ? amountField(plan.amount) : "",
     lessonsPerPackage: plan?.lessons_per_package?.toString() ?? "",
     billingDay: plan?.billing_day?.toString() ?? "",
+    isMinor: student.is_minor,
+    minorAge: student.is_minor ? (student.minor_13_plus ? "13_plus" : "under_13") : "",
   };
 
   return (

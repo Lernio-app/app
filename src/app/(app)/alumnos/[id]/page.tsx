@@ -10,10 +10,11 @@ import { formatARS, formatDate, formatTime } from "@/lib/format";
 import { listStudentLessons } from "@/lib/lessons";
 import { currentPlan, getStudent, studentAreaKey, studentDetailLine } from "@/lib/students";
 import { ATTENDANCE_LABELS, type Attendance } from "@/lib/validation/lesson";
+import { createClient } from "@/lib/supabase/server";
 import { priceSummary } from "@/lib/validation/student";
 import { requireWorkspace } from "@/lib/workspace";
 import { archiveStudent, restoreStudent } from "../actions";
-import { RegenerateLink } from "./regenerate-link";
+import { StudentAccount, type AccountInfo, type MinorInfo } from "./student-account";
 
 export const metadata = { title: "Alumno" };
 
@@ -97,6 +98,45 @@ async function Clases({
   );
 }
 
+// Cómo está la cuenta del alumno: vinculada (y con qué email) o pendiente de activación y, si es
+// menor, cómo está el consentimiento de quien paga.
+async function accountInfo(studentId: string, timeZone: string): Promise<AccountInfo | null> {
+  const supabase = await createClient();
+  const [{ data: link }, { data: consent }] = await Promise.all([
+    supabase.rpc("student_link_info", { p_student_id: studentId }),
+    supabase.rpc("student_consent_info", { p_student_id: studentId }),
+  ]);
+  const info = link?.[0];
+  if (!info) return null;
+
+  const day = (value: string) => formatDate(value, { day: "numeric", month: "long" }, timeZone);
+  let invitation: AccountInfo["invitation"];
+  if (info.linked_at) {
+    invitation = { state: "linked", email: info.linked_email, since: day(info.linked_at) };
+  } else {
+    const until = info.pending_expires_at;
+    invitation = {
+      state: "pending",
+      expired: until !== null && new Date(until).getTime() <= Date.now(),
+      until: until ? day(until) : null,
+    };
+  }
+
+  const minor = consent?.[0];
+  if (!minor?.is_minor) return { invitation, minor: null };
+  const status = minor.consent_status as MinorInfo["consent"];
+  const date = status === "given" ? minor.given_at : status === "pending" ? minor.expires_at : null;
+  return {
+    invitation,
+    minor: {
+      under13: !minor.minor_13_plus,
+      payerName: minor.payer_name,
+      consent: status,
+      on: date ? day(date) : null,
+    },
+  };
+}
+
 async function Ficha({ params }: { params: PageProps<"/alumnos/[id]">["params"] }) {
   const { org, profile } = await requireWorkspace();
   const { id } = await params;
@@ -107,6 +147,7 @@ async function Ficha({ params }: { params: PageProps<"/alumnos/[id]">["params"] 
   const payer = student.student_contacts.find((contact) => contact.is_payer);
   const detail = studentDetailLine(student);
   const archived = student.archived_at !== null;
+  const account = await accountInfo(student.id, org.timezone);
 
   return (
     <>
@@ -138,7 +179,9 @@ async function Ficha({ params }: { params: PageProps<"/alumnos/[id]">["params"] 
           </Detail>
           <Detail label="WhatsApp">{student.phone ?? "—"}</Detail>
           <Detail label="Email">{student.email ?? "—"}</Detail>
-          {student.notes && <Detail label="Notas">{student.notes}</Detail>}
+          {student.student_notes?.body && (
+            <Detail label="Notas">{student.student_notes.body}</Detail>
+          )}
         </dl>
       </section>
 
@@ -162,7 +205,7 @@ async function Ficha({ params }: { params: PageProps<"/alumnos/[id]">["params"] 
         </dl>
       </section>
 
-      {!archived && <RegenerateLink studentId={student.id} />}
+      {!archived && account && <StudentAccount studentId={student.id} info={account} />}
 
       <StudentBilling
         student={student}
@@ -188,7 +231,7 @@ async function Ficha({ params }: { params: PageProps<"/alumnos/[id]">["params"] 
         </Button>
         {!archived && (
           <p className="text-ink-3 mt-2 text-sm">
-            Deja de aparecer en tu lista y su link deja de abrirse. No se borra nada.
+            Deja de aparecer en tu lista y su invitación deja de abrirse. No se borra nada.
           </p>
         )}
       </form>

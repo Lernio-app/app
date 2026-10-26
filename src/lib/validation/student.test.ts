@@ -136,6 +136,34 @@ describe("parseStudentForm: materia", () => {
   });
 });
 
+describe("parseStudentForm: menores", () => {
+  it("un alumno adulto no es menor ni tiene franja de edad", () => {
+    const result = parseStudentForm(form(base));
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.isMinor).toBe(false);
+      expect(result.data.minor13Plus).toBeNull();
+    }
+  });
+
+  it("un menor tiene que decir si tiene 13 años o más", () => {
+    const sinEdad = parseStudentForm(form({ ...base, isMinor: "on" }));
+    expect(sinEdad.success).toBe(false);
+    if (!sinEdad.success) expect(sinEdad.error.issues[0].path).toEqual(["minorAge"]);
+
+    const con13 = parseStudentForm(form({ ...base, isMinor: "on", minorAge: "13_plus" }));
+    expect(con13.success && con13.data.minor13Plus).toBe(true);
+
+    const menos = parseStudentForm(form({ ...base, isMinor: "on", minorAge: "under_13" }));
+    expect(menos.success && menos.data.minor13Plus).toBe(false);
+  });
+
+  it("ignora la franja de edad si no está marcado como menor", () => {
+    const result = parseStudentForm(form({ ...base, minorAge: "under_13" }));
+    expect(result.success && result.data.minor13Plus).toBeNull();
+  });
+});
+
 describe("priceSummary", () => {
   it("resume cada modalidad de cobro", () => {
     const f = formatARS;

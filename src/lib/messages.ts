@@ -15,8 +15,27 @@ export function welcomeMessage({
 }) {
   return [
     `Hola ${firstName(studentName)}! Soy ${firstName(teacherName)}.`,
-    `Este es tu link personal para ver tus clases y cómo pagar: ${link}`,
-    "Guardalo, es solo tuyo y no necesitás crear ninguna cuenta.",
+    `Te invito a Lernio para que veas tus clases, tus tareas y cómo pagar: ${link}`,
+    "Entrás con tu email, sin contraseña. La invitación es solo tuya y vale 7 días.",
+  ].join("\n");
+}
+
+// Pedido de consentimiento al responsable de pago de un menor (ADR-0009): lo da desde el link, sin cuenta.
+export function consentMessage({
+  payerName,
+  studentName,
+  teacherName,
+  link,
+}: {
+  payerName: string;
+  studentName: string;
+  teacherName: string;
+  link: string;
+}) {
+  return [
+    `Hola ${firstName(payerName)}! Soy ${firstName(teacherName)}.`,
+    `Para que ${firstName(studentName)} tenga su cuenta de Lernio (ahí ve sus clases y sus tareas) necesito tu consentimiento: ${link}`,
+    "Lo das desde ese link, sin crear ninguna cuenta, y lo podés retirar cuando quieras. Vale 7 días.",
   ].join("\n");
 }
 

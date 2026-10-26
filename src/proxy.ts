@@ -3,7 +3,14 @@ import { NextResponse, type NextRequest } from "next/server";
 import type { Database } from "@/lib/supabase/database.types";
 
 // Rutas que se pueden ver sin sesión. Todo lo demás pide ingresar.
-const PUBLIC_PREFIXES = ["/ingresar", "/auth", "/a/"];
+const PUBLIC_PREFIXES = [
+  "/ingresar",
+  "/auth",
+  "/invitacion/",
+  "/consentimiento/",
+  "/terminos",
+  "/privacidad",
+];
 
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });

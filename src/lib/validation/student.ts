@@ -16,6 +16,9 @@ export const PRICE_CHOICE_LABELS: Record<PriceChoice, string> = {
   monthly: "Por mes",
 };
 
+// Franja de edad del menor: desde los 13 años tiene cuenta propia, con el consentimiento de un adulto.
+export const MINOR_AGES = ["13_plus", "under_13"] as const;
+
 // Valor de la materia cuando el profe elige «Otra»: no es una materia de la lista.
 export const OTHER_SUBJECT = "other";
 
@@ -53,9 +56,21 @@ export const studentSchema = z
     amount: z.string().trim(),
     lessonsPerPackage: z.string().trim(),
     billingDay: z.string().trim(),
+    isMinor: z.boolean(),
+    minorAge: z.string().trim(),
   })
   .transform((raw, ctx) => {
-    const { subjectChoice, areaId, levelId, ...value } = raw;
+    const { subjectChoice, areaId, levelId, isMinor, minorAge, ...value } = raw;
+
+    // Un menor dice si tiene 13 años o más: define si puede tener cuenta (ADR-0009). Sin fecha de nacimiento.
+    if (isMinor && !(MINOR_AGES as readonly string[]).includes(minorAge)) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["minorAge"],
+        message: "Contanos si tiene 13 años o más.",
+      });
+    }
+    const minor = { isMinor, minor13Plus: isMinor ? minorAge === "13_plus" : null };
 
     // Materia de la lista (con su área y, si quiere, su nivel) o «Otra» con su nombre.
     let catalog: {
@@ -96,6 +111,7 @@ export const studentSchema = z
       return {
         ...value,
         ...catalog,
+        ...minor,
         mode: null,
         amount: null,
         lessonsPerPackage: null,
@@ -143,6 +159,7 @@ export const studentSchema = z
     return {
       ...value,
       ...catalog,
+      ...minor,
       mode: value.mode as PlanMode,
       amount,
       lessonsPerPackage,
@@ -172,6 +189,9 @@ export type StudentValues = {
   amount: string;
   lessonsPerPackage: string;
   billingDay: string;
+  isMinor: boolean;
+  // «13_plus», «under_13» o vacío.
+  minorAge: string;
 };
 
 export function submittedStudentValues(formData: FormData): StudentValues {
@@ -194,6 +214,8 @@ export function submittedStudentValues(formData: FormData): StudentValues {
     amount: read("amount"),
     lessonsPerPackage: read("lessonsPerPackage"),
     billingDay: read("billingDay"),
+    isMinor: read("isMinor") === "on",
+    minorAge: read("minorAge"),
   };
 }
 

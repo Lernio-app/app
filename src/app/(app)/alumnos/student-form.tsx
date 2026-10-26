@@ -15,10 +15,29 @@ import {
   type StudentValues,
 } from "@/lib/validation/student";
 import { LinkShare } from "./link-share";
-import type { StudentFormState } from "./actions";
+import type { NoLinkData, StudentFormState } from "./actions";
 import { SectionTitle } from "@/components/ui/page-header";
 
 type Action = (prev: StudentFormState, formData: FormData) => Promise<StudentFormState>;
+
+const MINOR_AGE_OPTIONS = [
+  { value: "13_plus", label: "13 años o más" },
+  { value: "under_13", label: "Menos de 13" },
+];
+
+// Un alumno cargado al que no se le arma ningún link todavía: dice por qué y qué sigue.
+function NoLinkNote({ created }: { created: NoLinkData }) {
+  return (
+    <div className="bg-card rounded-card space-y-2 border p-5">
+      <SectionTitle>{created.studentName} quedó cargado</SectionTitle>
+      <p className="text-ink-3 text-sm">
+        {created.reason === "under_13"
+          ? "Es menor de 13 años: no tiene cuenta. Trabajás con él desde tu lado y su responsable ve las devoluciones en el reporte del mes."
+          : "Es menor y tiene 13 años o más, así que puede tener su cuenta con el consentimiento de quien paga. Cargá al responsable de pago desde Editar y pedile el consentimiento desde la ficha."}
+      </p>
+    </div>
+  );
+}
 
 export const EMPTY_STUDENT: StudentValues = {
   fullName: "",
@@ -37,6 +56,8 @@ export const EMPTY_STUDENT: StudentValues = {
   amount: "",
   lessonsPerPackage: "",
   billingDay: "",
+  isMinor: false,
+  minorAge: "",
 };
 
 export function StudentForm({
@@ -67,6 +88,7 @@ export function StudentForm({
   const [subjectChoice, setSubjectChoice] = useState(current.subjectChoice);
   const [areaId, setAreaId] = useState(current.areaId);
   const [levelId, setLevelId] = useState(current.levelId);
+  const [isMinor, setIsMinor] = useState(current.isMinor);
 
   const isOther = subjectChoice === OTHER_SUBJECT;
   const subject = catalog.subjects.find((item) => item.id === subjectChoice) ?? null;
@@ -96,9 +118,10 @@ export function StudentForm({
   }, [state]);
 
   if (state.created) {
+    const created = state.created;
     return (
       <div className="space-y-4">
-        <LinkShare share={state.created} />
+        {created.kind === "none" ? <NoLinkNote created={created} /> : <LinkShare share={created} />}
         {onAnother && (
           <Button type="button" variant="secondary" className="w-full" onClick={onAnother}>
             Cargar otro alumno
@@ -124,7 +147,7 @@ export function StudentForm({
             required
           />
         </Field>
-        <Field id="phone" label="WhatsApp" hint="Ahí le mandás su link." error={errors.phone}>
+        <Field id="phone" label="WhatsApp" hint="Ahí le mandás su invitación." error={errors.phone}>
           <Input
             id="phone"
             name="phone"
@@ -228,6 +251,46 @@ export function StudentForm({
             defaultValue={current.email}
           />
         </Field>
+        <label className="bg-card rounded-control flex min-h-11 cursor-pointer items-center gap-3 border px-3 text-sm">
+          <input
+            type="checkbox"
+            name="isMinor"
+            checked={isMinor}
+            onChange={(event) => setIsMinor(event.target.checked)}
+            className="accent-primary size-4 shrink-0"
+          />
+          Es menor de edad
+        </label>
+        {isMinor && (
+          <fieldset className="space-y-2">
+            <legend className="text-sm font-medium">¿Tiene 13 años o más?</legend>
+            <div className="grid grid-cols-2 gap-2">
+              {MINOR_AGE_OPTIONS.map((option) => (
+                <label
+                  key={option.value}
+                  className="bg-card has-[:checked]:border-primary has-[:checked]:bg-indigo-soft rounded-control flex min-h-11 cursor-pointer items-center justify-center border px-2 text-center text-sm has-[:checked]:font-medium"
+                >
+                  <input
+                    type="radio"
+                    name="minorAge"
+                    value={option.value}
+                    defaultChecked={current.minorAge === option.value}
+                    className="sr-only"
+                  />
+                  {option.label}
+                </label>
+              ))}
+            </div>
+            {errors.minorAge ? (
+              <FormError>{errors.minorAge}</FormError>
+            ) : (
+              <p className="text-ink-3 text-sm">
+                Desde los 13 tiene su propia cuenta, con el consentimiento de quien paga. Con menos,
+                trabajás con él desde tu lado.
+              </p>
+            )}
+          </fieldset>
+        )}
       </section>
 
       <section className="space-y-5">
