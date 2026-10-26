@@ -72,6 +72,8 @@ Nada de precios, métricas de negocio, estrategia ni datos de personas en códig
 
 Cada vez que se crea o modifica una funcionalidad en este repo, se documenta en `../producto/docs/Funcionalidades/` (un archivo por funcionalidad, más su fila en el índice del README de esa carpeta y una línea en `../producto/docs/bitacora.md`). Seguir la convención de ese README. Los commits de documentación van en `producto`, aparte de los de `app`.
 
+También se actualiza la guía de testing (`../producto/docs/testing/guia-de-testing.html`, ver su README): la ficha de la funcionalidad con sus pasos y chequeos, y después se republica el artifact.
+
 ## Contexto de producto
 
 Está en el repo privado `Lernio-app/producto`, clonado en `../producto`. Leer `../producto/docs/README.md` y `../producto/docs/02-plan-mvp.md` antes de trabajar en una fase. Las decisiones nuevas se registran como ADR en `../producto/docs/adr/`.
