@@ -1429,10 +1429,14 @@ export type Database = {
         Args: Record<PropertyKey, never>;
         Returns: {
           archived: boolean;
+          late_cancel_hours: number;
           org_name: string;
+          payment_alias: string;
+          payment_link: string;
           student_id: string;
           student_name: string;
           teacher_name: string;
+          timezone: string;
         }[];
       };
       record_payment: {

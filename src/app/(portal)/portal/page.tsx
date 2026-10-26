@@ -1,33 +1,57 @@
 import { Suspense } from "react";
+import Link from "next/link";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { EmptyState, PageContainer, PageHeader } from "@/components/ui/page-header";
+import { signOut } from "@/lib/auth-actions";
 import { firstName } from "@/lib/messages";
-import { listMyLinks, requireStudent } from "@/lib/portal";
+import { loadPortalSpaces, requireStudent } from "@/lib/portal";
+import { cn } from "@/lib/utils";
+import { getWorkspace } from "@/lib/workspace";
+import { PortalSpaceView } from "./space";
 
 export const metadata = { title: "Tu cuenta" };
 
-// Por ahora el portal solo muestra con quién tiene clases la cuenta; F4 suma tareas, exámenes,
-// próximas clases, saldo e historial.
+// El portal del alumno: lo que tiene para hacer y su historial con cada profe. Hoy muestra las
+// próximas clases, la cuenta con cómo pagar y el historial; tareas y exámenes llegan con F5 y F6.
 async function Portal() {
   const { profile } = await requireStudent();
-  const links = (await listMyLinks()).filter((link) => !link.archived);
+  const [spaces, workspace] = await Promise.all([loadPortalSpaces(), getWorkspace()]);
 
   return (
     <>
-      <PageHeader title={`Hola, ${firstName(profile.display_name)}`} />
-      {links.length === 0 ? (
+      <PageHeader
+        title={`Hola, ${firstName(profile.display_name)}`}
+        actions={
+          // Quien también es profe vuelve a su espacio con un toque.
+          workspace && (
+            <Link href="/" className={buttonVariants({ variant: "secondary" })}>
+              Mi espacio de profe
+            </Link>
+          )
+        }
+      />
+
+      {spaces.length === 0 ? (
         <EmptyState title="Todavía no tenés un profe en Lernio">
           Cuando un profe te invite, activás la invitación y lo ves acá.
         </EmptyState>
       ) : (
-        <ul className="space-y-2">
-          {links.map((link) => (
-            <li key={link.student_id} className="bg-card rounded-card border p-4">
-              <p className="font-medium">{link.teacher_name}</p>
-              <p className="text-ink-3 text-sm">{link.org_name}</p>
-            </li>
+        <div className="space-y-12">
+          {spaces.map((space) => (
+            <PortalSpaceView
+              key={space.link.student_id}
+              space={space}
+              showHeader={spaces.length > 1}
+            />
           ))}
-        </ul>
+        </div>
       )}
+
+      <form action={signOut} className="border-t pt-6">
+        <Button type="submit" variant="ghost" className={cn("text-ink-3")}>
+          Cerrar sesión
+        </Button>
+      </form>
     </>
   );
 }

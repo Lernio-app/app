@@ -1,6 +1,11 @@
 import { cache } from "react";
 import { redirect } from "next/navigation";
+import { listPayments, listStudentCharges, packageBalances } from "@/lib/billing-data";
+import type { ChargeRow, PaymentRow } from "@/lib/billing";
+import { localDate } from "@/lib/dates";
 import { hasAcceptedLegal } from "@/lib/legal";
+import { listStudentLessons } from "@/lib/lessons";
+import { CATALOG_SELECT, studentAreaKey, studentDetailLine } from "@/lib/students";
 import { createClient } from "@/lib/supabase/server";
 import { getUser } from "@/lib/workspace";
 
@@ -34,4 +39,57 @@ export async function listMyLinks() {
   const { data, error } = await supabase.rpc("my_student_links");
   if (error) throw new Error("No se pudieron cargar tus profes");
   return data ?? [];
+}
+
+// Todo lo que el portal muestra de una ficha vinculada: sus clases, su cuenta y su historial. Las
+// consultas usan la sesión del alumno: RLS le deja leer solo lo suyo.
+export type PortalSpace = {
+  link: Awaited<ReturnType<typeof listMyLinks>>[number];
+  detail: string;
+  area: ReturnType<typeof studentAreaKey>;
+  today: string;
+  lessons: Awaited<ReturnType<typeof listStudentLessons>>;
+  charges: ChargeRow[];
+  payments: PaymentRow[];
+  packageLeft: number | null;
+};
+
+export async function loadPortalSpaces(): Promise<PortalSpace[]> {
+  // Un profe archivó al alumno: ese espacio no se muestra (qué ve el alumno de su historial después
+  // del archivo sigue sin decidirse).
+  const links = (await listMyLinks()).filter((link) => !link.archived);
+  if (links.length === 0) return [];
+
+  const supabase = await createClient();
+  const { data: students } = await supabase
+    .from("students")
+    .select(`id, subject, ${CATALOG_SELECT}`)
+    .in(
+      "id",
+      links.map((link) => link.student_id),
+    );
+  const byId = new Map((students ?? []).map((student) => [student.id, student]));
+  const packages = await packageBalances();
+  const now = new Date();
+
+  return Promise.all(
+    links.map(async (link) => {
+      const student = byId.get(link.student_id);
+      const [lessons, charges, payments] = await Promise.all([
+        listStudentLessons(link.student_id, now),
+        listStudentCharges(link.student_id),
+        listPayments(link.student_id),
+      ]);
+      return {
+        link,
+        detail: student ? studentDetailLine(student) : "",
+        area: student ? studentAreaKey(student) : "otra",
+        today: localDate(now, link.timezone),
+        lessons,
+        charges,
+        payments: payments.filter((payment) => payment.voided_at === null),
+        packageLeft: packages.get(link.student_id) ?? null,
+      };
+    }),
+  );
 }
