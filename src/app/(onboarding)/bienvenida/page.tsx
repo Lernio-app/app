@@ -21,6 +21,7 @@ async function Welcome() {
       catalog={catalog}
       submitLabel="Crear mi espacio"
       pendingLabel="Creando…"
+      requireLegal
       defaults={{
         displayName: "",
         phone: "",

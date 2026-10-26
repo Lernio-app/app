@@ -4,6 +4,7 @@ import { useActionState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { LegalCheck } from "@/components/app/legal-check";
 import { FormError } from "@/components/ui/field";
 import { SectionTitle } from "@/components/ui/page-header";
 import { groupSubjects, type Catalog } from "@/lib/catalog";
@@ -74,12 +75,15 @@ export function WorkspaceForm({
   defaults,
   submitLabel,
   pendingLabel,
+  requireLegal = false,
 }: {
   action: Action;
   catalog: Catalog;
   defaults: WorkspaceDefaults;
   submitLabel: string;
   pendingLabel: string;
+  // En el alta del espacio, antes de cargar datos, se aceptan los términos y la privacidad.
+  requireLegal?: boolean;
 }) {
   const [state, formAction, pending] = useActionState(action, {});
   const errors = state.fieldErrors ?? {};
@@ -174,6 +178,8 @@ export function WorkspaceForm({
           />
         </Field>
       </section>
+
+      {requireLegal && <LegalCheck error={errors.legal} />}
 
       {state.message &&
         (state.ok ? (

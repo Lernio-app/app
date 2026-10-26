@@ -1,6 +1,8 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { LEGAL_REQUIRED_MESSAGE } from "@/components/app/legal-check";
+import { acceptLegal } from "@/lib/legal";
 import { createClient } from "@/lib/supabase/server";
 import { getUser } from "@/lib/workspace";
 import {
@@ -19,6 +21,17 @@ export async function createWorkspace(_prev: FormState, formData: FormData): Pro
     return { fieldErrors: fieldErrorsFrom(parsed.error), values: submittedValues(formData) };
   }
   const input = parsed.data;
+
+  // La aceptación va antes del alta: sin ella no se cargan datos, y repetirla no cambia nada.
+  if (formData.get("legal") !== "on") {
+    return { fieldErrors: { legal: LEGAL_REQUIRED_MESSAGE }, values: submittedValues(formData) };
+  }
+  if (!(await acceptLegal())) {
+    return {
+      message: "No pudimos guardar tu aceptación. Probá de nuevo en un rato.",
+      values: submittedValues(formData),
+    };
+  }
 
   const supabase = await createClient();
   const { error } = await supabase.rpc("create_workspace", {

@@ -180,7 +180,7 @@ tester.run("superficie", plugin.rules.superficie, {
     },
     {
       code: `export default function P() { return null; }`,
-      filename: file("src/app/(marketing)/page.tsx"),
+      filename: file("src/app/(interno)/page.tsx"),
       errors: 1,
     },
     {
