@@ -1,11 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { trackEvent } from "@/lib/events";
-
-// Solo rutas internas: evita que `next` mande a otro sitio.
-function safeNext(value: string | null) {
-  return value && value.startsWith("/") && !value.startsWith("//") ? value : "/";
-}
+import { safeNext } from "@/lib/next-path";
 
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = request.nextUrl;

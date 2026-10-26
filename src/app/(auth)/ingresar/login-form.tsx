@@ -11,9 +11,12 @@ import { SectionTitle } from "@/components/ui/page-header";
 export function LoginForm({
   initialError,
   googleEnabled,
+  next,
 }: {
   initialError: string | null;
   googleEnabled: boolean;
+  // A dónde volver después de ingresar (una invitación, el alta del profe).
+  next: string;
 }) {
   const [state, action, pending] = useActionState(sendMagicLink, {});
 
@@ -34,6 +37,7 @@ export function LoginForm({
   return (
     <div className="space-y-6">
       <form action={action} className="space-y-4" noValidate>
+        <input type="hidden" name="next" value={next} />
         <div className="space-y-2">
           <Label htmlFor="email">Tu email</Label>
           <Input
@@ -59,6 +63,7 @@ export function LoginForm({
 
       {googleEnabled && (
         <form action={signInWithGoogle}>
+          <input type="hidden" name="next" value={next} />
           <Button type="submit" variant="secondary" className="w-full">
             Continuar con Google
           </Button>

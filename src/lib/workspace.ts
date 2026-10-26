@@ -1,6 +1,7 @@
 import { cache } from "react";
 import { redirect } from "next/navigation";
 import { connection } from "next/server";
+import { hasAcceptedLegal } from "@/lib/legal";
 import { createClient } from "@/lib/supabase/server";
 import type { Tables } from "@/lib/supabase/types";
 
@@ -48,11 +49,20 @@ export const getWorkspace = cache(async (): Promise<Workspace | null> => {
   return { userId: user.id, email: user.email, org, profile, role: membership.role };
 });
 
-// Para las pantallas del profe: sin sesión va a ingresar, sin espacio va a la bienvenida.
+// Para las pantallas del profe: sin sesión va a ingresar, sin espacio va a la bienvenida y sin la
+// versión vigente de los términos aceptada, a aceptarla.
 export async function requireWorkspace(): Promise<Workspace> {
   const user = await getUser();
   if (!user) redirect("/ingresar");
   const workspace = await getWorkspace();
-  if (!workspace) redirect("/bienvenida");
+  if (!workspace) return redirectWithoutWorkspace();
+  if (!(await hasAcceptedLegal(user.id))) redirect("/aceptar");
   return workspace;
+}
+
+// Quien entra sin espacio: si ya es alumno va a su portal; si todavía no eligió, a elegir (ADR-0004 #4).
+async function redirectWithoutWorkspace(): Promise<never> {
+  const supabase = await createClient();
+  const { data } = await supabase.from("student_profiles").select("user_id").maybeSingle();
+  redirect(data ? "/portal" : "/rol");
 }

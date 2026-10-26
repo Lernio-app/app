@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { Logo } from "@/components/ui/logo";
 import { PageTitle } from "@/components/ui/page-header";
+import { safeNext } from "@/lib/next-path";
 import { getUser } from "@/lib/workspace";
 import { LoginForm } from "./login-form";
 
@@ -17,16 +18,19 @@ async function LoginContent({
 }: {
   searchParams: PageProps<"/ingresar">["searchParams"];
 }) {
-  // Si ya tiene sesión, no tiene sentido pedirle que ingrese.
-  if (await getUser()) redirect("/");
+  const params = await searchParams;
+  const first = (value: string | string[] | undefined) => (Array.isArray(value) ? value[0] : value);
+  const errorKey = first(params.error);
+  const next = safeNext(first(params.next));
 
-  const { error } = await searchParams;
-  const errorKey = Array.isArray(error) ? error[0] : error;
+  // Si ya tiene sesión, no tiene sentido pedirle que ingrese.
+  if (await getUser()) redirect(next);
 
   return (
     <LoginForm
       initialError={errorKey ? (ERRORS[errorKey] ?? null) : null}
       googleEnabled={process.env.NEXT_PUBLIC_GOOGLE_ENABLED === "true"}
+      next={next}
     />
   );
 }

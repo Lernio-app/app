@@ -36,16 +36,16 @@ select is((select lessons_per_package from public.price_plans), 4, 'el paquete g
 select is((select count(*)::int from public.events where name = 'student_created'), 1, 'quedó el evento de alta del alumno');
 select is((select length(token) from ctx where name = 'a'), 64, 'el token es largo (32 bytes en hex)');
 
--- El token no se guarda en claro y el cliente no lee student_access.
-select throws_ok($$select count(*) from public.student_access$$, '42501', null, 'el profe no lee student_access directo');
+-- El token no se guarda en claro y el cliente no lee student_invitations.
+select throws_ok($$select count(*) from public.student_invitations$$, '42501', null, 'el profe no lee student_invitations directo');
 
 reset role;
 select is(
-  (select count(*)::int from public.student_access where token_hash = (select token from ctx where name = 'a')),
+  (select count(*)::int from public.student_invitations where token_hash = (select token from ctx where name = 'a')),
   0, 'la base no guarda el token en claro'
 );
 select is(
-  (select count(*)::int from public.student_access
+  (select count(*)::int from public.student_invitations
    where token_hash = encode(sha256(convert_to((select token from ctx where name = 'a'), 'utf8')), 'hex')),
   1, 'la base guarda el hash del token'
 );
@@ -58,8 +58,8 @@ select is((select count(*)::int from public.price_plans), 0, 'B no ve planes de 
 update public.students set full_name = 'Hackeado';
 select is((select count(*)::int from public.students where full_name = 'Hackeado'), 0, 'B no modifica alumnos de A');
 select throws_ok(
-  format($$select public.issue_student_link(%L)$$, (select student_id from ctx where name = 'a')),
-  '42501', 'student_not_found', 'B no puede emitir un link para un alumno de A'
+  format($$select public.issue_student_invitation(%L)$$, (select student_id from ctx where name = 'a')),
+  '42501', 'student_not_found', 'B no puede emitir una invitación para un alumno de A'
 );
 select throws_ok(
   format($$select public.set_price_plan(%L, 'monthly', 100, null, 5::smallint)$$, (select student_id from ctx where name = 'a')),
@@ -77,27 +77,27 @@ select throws_ok(
   '23514', null, 'un plan mensual exige día de facturación'
 );
 
--- El link abre con el token vigente y deja de abrir al regenerarlo.
+-- La invitación abre con el token vigente y deja de abrir al regenerarla.
 reset role;
 set local role anon;
-select is((select student_name from public.student_by_token((select token from ctx where name = 'a'))), 'Lucía Pérez', 'el token vigente abre el link');
-select is((select count(*)::int from public.student_by_token('no-existe')), 0, 'un token inventado no abre nada');
+select is((select student_name from public.invitation_by_token((select token from ctx where name = 'a'))), 'Lucía Pérez', 'el token vigente abre la invitación');
+select is((select count(*)::int from public.invitation_by_token('no-existe')), 0, 'un token inventado no abre nada');
 
 reset role;
 set local role authenticated;
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000a1","role":"authenticated"}', true);
 insert into ctx select 'old', student_id, token from ctx where name = 'a';
-update ctx set token = (select public.issue_student_link((select student_id from ctx where name = 'a'))) where name = 'a';
+update ctx set token = (select public.issue_student_invitation((select student_id from ctx where name = 'a'))) where name = 'a';
 
 reset role;
 set local role anon;
 select is(
-  (select count(*)::int from public.student_by_token((select token from ctx where name = 'a'))),
-  1, 'el token nuevo abre el link'
+  (select count(*)::int from public.invitation_by_token((select token from ctx where name = 'a'))),
+  1, 'el token nuevo abre la invitación'
 );
 select is(
-  (select count(*)::int from public.student_by_token((select token from ctx where name = 'old'))),
-  0, 'el token anterior quedó revocado'
+  (select status from public.invitation_by_token((select token from ctx where name = 'old'))),
+  'unavailable', 'el token anterior quedó revocado'
 );
 
 -- Cambiar el plan conserva el historial.

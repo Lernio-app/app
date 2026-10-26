@@ -78,7 +78,7 @@ async function StudentList({
           <EmptyState title="No tenés alumnos archivados" />
         ) : (
           <EmptyState title="Todavía no cargaste alumnos">
-            Cargá al primero y mandale su link por WhatsApp.
+            Cargá al primero y mandale su invitación por WhatsApp.
           </EmptyState>
         )
       ) : (
@@ -100,6 +100,9 @@ async function StudentList({
                     </p>
                   )}
                   <p className="num text-ink-3 text-sm">{priceSummary(plan, formatARS)}</p>
+                  {!student.user_id && !archived && (
+                    <p className="text-ink-3 text-sm">Pendiente de activación</p>
+                  )}
                   {owed.has(student.id) && (
                     <p className="num text-debt text-sm font-medium">
                       Debe {formatARS(owed.get(student.id) ?? 0)}

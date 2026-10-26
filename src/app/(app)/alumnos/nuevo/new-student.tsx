@@ -6,7 +6,7 @@ import type { StudentValues } from "@/lib/validation/student";
 import { createStudent } from "../actions";
 import { StudentForm } from "../student-form";
 
-// Al terminar de mandar un link, "Cargar otro alumno" arranca el formulario de cero.
+// Al terminar de mandar una invitación, "Cargar otro alumno" arranca el formulario de cero.
 export function NewStudent({
   catalog,
   mainAreaId,
@@ -24,7 +24,7 @@ export function NewStudent({
       defaults={defaults}
       catalog={catalog}
       mainAreaId={mainAreaId}
-      submitLabel="Guardar y armar el link"
+      submitLabel="Guardar y armar la invitación"
       pendingLabel="Guardando…"
       onAnother={() => setRound((n) => n + 1)}
     />
