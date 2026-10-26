@@ -181,7 +181,7 @@ export async function saveLessonNotes(
   _prev: SimpleState,
   formData: FormData,
 ): Promise<SimpleState> {
-  await requireWorkspace();
+  const { org } = await requireWorkspace();
   const id = idSchema.safeParse(String(formData.get("lessonId") ?? ""));
   if (!id.success) return { message: "No encontramos la clase." };
 
@@ -195,10 +195,21 @@ export async function saveLessonNotes(
       topic: parsed.data.topic,
       meeting_url: parsed.data.meetingUrl,
       shared_notes: parsed.data.sharedNotes,
-      private_notes: parsed.data.privateNotes,
     })
     .eq("id", id.data);
   if (error) return { message: "No pudimos guardar los cambios. Probá de nuevo." };
+
+  // Nota privada: vive aparte. Una nota vacía no crea fila; si ya había una, queda en blanco.
+  const { privateNotes } = parsed.data;
+  const { error: notesError } = privateNotes
+    ? await supabase
+        .from("lesson_notes")
+        .upsert(
+          { org_id: org.id, lesson_id: id.data, body: privateNotes },
+          { onConflict: "lesson_id" },
+        )
+    : await supabase.from("lesson_notes").update({ body: "" }).eq("lesson_id", id.data);
+  if (notesError) return { message: "No pudimos guardar las notas privadas. Probá de nuevo." };
 
   refresh();
   return { ok: true };

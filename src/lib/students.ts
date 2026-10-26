@@ -19,6 +19,8 @@ export type StudentDetail = Student &
   CatalogRefs & {
     price_plans: PricePlan[];
     student_contacts: StudentContact[];
+    // Notas del profe: tabla aparte que el alumno vinculado nunca lee.
+    student_notes: { body: string } | null;
   };
 
 export const CATALOG_SELECT = "subjects(name), levels(name), areas(code)";
@@ -82,7 +84,7 @@ export async function getStudent(id: string): Promise<StudentDetail | null> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("students")
-    .select(`*, price_plans(*), student_contacts(*), ${CATALOG_SELECT}`)
+    .select(`*, price_plans(*), student_contacts(*), student_notes(body), ${CATALOG_SELECT}`)
     .eq("id", id)
     .maybeSingle();
   if (error) throw new Error("No se pudo cargar al alumno");

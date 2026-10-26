@@ -161,7 +161,7 @@ async function Clase({ params }: { params: PageProps<"/agenda/[id]">["params"] }
           topic={lesson.topic ?? ""}
           meetingUrl={lesson.meeting_url ?? ""}
           sharedNotes={lesson.shared_notes ?? ""}
-          privateNotes={lesson.private_notes ?? ""}
+          privateNotes={lesson.lesson_notes?.body ?? ""}
         />
       </section>
 

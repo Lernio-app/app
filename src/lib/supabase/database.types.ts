@@ -155,6 +155,31 @@ export type Database = {
           },
         ];
       };
+      legal_acceptances: {
+        Row: {
+          accepted_at: string;
+          document: string;
+          id: string;
+          user_id: string;
+          version: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          accepted_at?: string;
+          document: string;
+          id?: string;
+          user_id: string;
+          version: string;
+        };
+        Update: {
+          accepted_at?: string;
+          document?: string;
+          id?: string;
+          user_id?: string;
+          version?: string;
+        };
+        Relationships: [];
+      };
       lesson_attendees: {
         Row: {
           attendance: string | null;
@@ -204,6 +229,46 @@ export type Database = {
             columns: ["student_id"];
             isOneToOne: false;
             referencedRelation: "students";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      lesson_notes: {
+        Row: {
+          body: string;
+          id: string;
+          lesson_id: string;
+          org_id: string;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          body?: string;
+          id?: string;
+          lesson_id: string;
+          org_id: string;
+          updated_at?: string;
+        };
+        Update: {
+          body?: string;
+          id?: string;
+          lesson_id?: string;
+          org_id?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "lesson_notes_lesson_id_fkey";
+            columns: ["lesson_id"];
+            isOneToOne: true;
+            referencedRelation: "lessons";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "lesson_notes_org_id_fkey";
+            columns: ["org_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
             referencedColumns: ["id"];
           },
         ];
@@ -273,7 +338,6 @@ export type Database = {
           id: string;
           meeting_url: string | null;
           org_id: string;
-          private_notes: string | null;
           series_date: string | null;
           series_id: string | null;
           shared_notes: string | null;
@@ -294,7 +358,6 @@ export type Database = {
           id?: string;
           meeting_url?: string | null;
           org_id: string;
-          private_notes?: string | null;
           series_date?: string | null;
           series_id?: string | null;
           shared_notes?: string | null;
@@ -314,7 +377,6 @@ export type Database = {
           id?: string;
           meeting_url?: string | null;
           org_id?: string;
-          private_notes?: string | null;
           series_date?: string | null;
           series_id?: string | null;
           shared_notes?: string | null;
@@ -400,6 +462,71 @@ export type Database = {
             columns: ["org_id"];
             isOneToOne: false;
             referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      minor_consents: {
+        Row: {
+          contact_id: string;
+          created_at: string;
+          expires_at: string;
+          given_at: string | null;
+          id: string;
+          legal_version: string | null;
+          minor_email: string | null;
+          org_id: string;
+          revoked_at: string | null;
+          student_id: string;
+          token_hash: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          contact_id: string;
+          created_at?: string;
+          expires_at: string;
+          given_at?: string | null;
+          id?: string;
+          legal_version?: string | null;
+          minor_email?: string | null;
+          org_id: string;
+          revoked_at?: string | null;
+          student_id: string;
+          token_hash: string;
+        };
+        Update: {
+          contact_id?: string;
+          created_at?: string;
+          expires_at?: string;
+          given_at?: string | null;
+          id?: string;
+          legal_version?: string | null;
+          minor_email?: string | null;
+          org_id?: string;
+          revoked_at?: string | null;
+          student_id?: string;
+          token_hash?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "minor_consents_contact_id_fkey";
+            columns: ["contact_id"];
+            isOneToOne: false;
+            referencedRelation: "student_contacts";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "minor_consents_org_id_fkey";
+            columns: ["org_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "minor_consents_student_id_fkey";
+            columns: ["student_id"];
+            isOneToOne: false;
+            referencedRelation: "students";
             referencedColumns: ["id"];
           },
         ];
@@ -729,52 +856,6 @@ export type Database = {
           },
         ];
       };
-      student_access: {
-        Row: {
-          created_at: string;
-          id: string;
-          last_seen_at: string | null;
-          org_id: string;
-          revoked_at: string | null;
-          student_id: string;
-          token_hash: string;
-        };
-        ComputedFields: never;
-        Insert: {
-          created_at?: string;
-          id?: string;
-          last_seen_at?: string | null;
-          org_id: string;
-          revoked_at?: string | null;
-          student_id: string;
-          token_hash: string;
-        };
-        Update: {
-          created_at?: string;
-          id?: string;
-          last_seen_at?: string | null;
-          org_id?: string;
-          revoked_at?: string | null;
-          student_id?: string;
-          token_hash?: string;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "student_access_org_id_fkey";
-            columns: ["org_id"];
-            isOneToOne: false;
-            referencedRelation: "organizations";
-            referencedColumns: ["id"];
-          },
-          {
-            foreignKeyName: "student_access_student_id_fkey";
-            columns: ["student_id"];
-            isOneToOne: false;
-            referencedRelation: "students";
-            referencedColumns: ["id"];
-          },
-        ];
-      };
       student_contacts: {
         Row: {
           created_at: string;
@@ -830,6 +911,123 @@ export type Database = {
           },
         ];
       };
+      student_invitations: {
+        Row: {
+          accepted_at: string | null;
+          accepted_by: string | null;
+          created_at: string;
+          expires_at: string;
+          id: string;
+          org_id: string;
+          revoked_at: string | null;
+          student_id: string;
+          token_hash: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          accepted_at?: string | null;
+          accepted_by?: string | null;
+          created_at?: string;
+          expires_at: string;
+          id?: string;
+          org_id: string;
+          revoked_at?: string | null;
+          student_id: string;
+          token_hash: string;
+        };
+        Update: {
+          accepted_at?: string | null;
+          accepted_by?: string | null;
+          created_at?: string;
+          expires_at?: string;
+          id?: string;
+          org_id?: string;
+          revoked_at?: string | null;
+          student_id?: string;
+          token_hash?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "student_invitations_org_id_fkey";
+            columns: ["org_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "student_invitations_student_id_fkey";
+            columns: ["student_id"];
+            isOneToOne: false;
+            referencedRelation: "students";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      student_notes: {
+        Row: {
+          body: string;
+          id: string;
+          org_id: string;
+          student_id: string;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          body?: string;
+          id?: string;
+          org_id: string;
+          student_id: string;
+          updated_at?: string;
+        };
+        Update: {
+          body?: string;
+          id?: string;
+          org_id?: string;
+          student_id?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "student_notes_org_id_fkey";
+            columns: ["org_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "student_notes_student_id_fkey";
+            columns: ["student_id"];
+            isOneToOne: true;
+            referencedRelation: "students";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      student_profiles: {
+        Row: {
+          created_at: string;
+          display_name: string;
+          phone: string | null;
+          updated_at: string;
+          user_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          display_name: string;
+          phone?: string | null;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          display_name?: string;
+          phone?: string | null;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       students: {
         Row: {
           archived_at: string | null;
@@ -838,8 +1036,10 @@ export type Database = {
           email: string | null;
           full_name: string;
           id: string;
+          is_minor: boolean;
           level_id: string | null;
-          notes: string | null;
+          linked_at: string | null;
+          minor_13_plus: boolean | null;
           org_id: string;
           phone: string | null;
           status: string;
@@ -847,6 +1047,7 @@ export type Database = {
           subject_id: string | null;
           teacher_id: string;
           updated_at: string;
+          user_id: string | null;
         };
         ComputedFields: never;
         Insert: {
@@ -856,8 +1057,10 @@ export type Database = {
           email?: string | null;
           full_name: string;
           id?: string;
+          is_minor?: boolean;
           level_id?: string | null;
-          notes?: string | null;
+          linked_at?: string | null;
+          minor_13_plus?: boolean | null;
           org_id: string;
           phone?: string | null;
           status?: string;
@@ -865,6 +1068,7 @@ export type Database = {
           subject_id?: string | null;
           teacher_id: string;
           updated_at?: string;
+          user_id?: string | null;
         };
         Update: {
           archived_at?: string | null;
@@ -873,8 +1077,10 @@ export type Database = {
           email?: string | null;
           full_name?: string;
           id?: string;
+          is_minor?: boolean;
           level_id?: string | null;
-          notes?: string | null;
+          linked_at?: string | null;
+          minor_13_plus?: boolean | null;
           org_id?: string;
           phone?: string | null;
           status?: string;
@@ -882,6 +1088,7 @@ export type Database = {
           subject_id?: string | null;
           teacher_id?: string;
           updated_at?: string;
+          user_id?: string | null;
         };
         Relationships: [
           {
@@ -1111,10 +1318,22 @@ export type Database = {
       };
     };
     Functions: {
+      accept_legal: { Args: { p_version: string }; Returns: undefined };
+      accept_student_invitation: { Args: { p_token: string }; Returns: string };
       apply_price_changes: { Args: { p_changes: Json }; Returns: number };
       cancel_lesson: {
         Args: { p_by: string; p_lesson_id: string; p_reason?: string };
         Returns: undefined;
+      };
+      consent_by_token: {
+        Args: { p_token: string };
+        Returns: {
+          given_at: string;
+          payer_name: string;
+          status: string;
+          student_name: string;
+          teacher_name: string;
+        }[];
       };
       create_charge: {
         Args: { p_amount: number; p_description: string; p_due_on: string; p_student_id: string };
@@ -1150,8 +1369,10 @@ export type Database = {
           p_billing_day?: number;
           p_email?: string;
           p_full_name: string;
+          p_is_minor?: boolean;
           p_lessons_per_package?: number;
           p_level_id?: string;
+          p_minor_13_plus?: boolean;
           p_mode?: string;
           p_notes?: string;
           p_payer_email?: string;
@@ -1179,9 +1400,23 @@ export type Database = {
         Returns: string;
       };
       end_lesson_series: { Args: { p_series_id: string }; Returns: undefined };
+      ensure_student_profile: { Args: Record<PropertyKey, never>; Returns: undefined };
       extend_lesson_series: { Args: Record<PropertyKey, never>; Returns: number };
       generate_monthly_charges: { Args: Record<PropertyKey, never>; Returns: number };
-      issue_student_link: { Args: { p_student_id: string }; Returns: string };
+      give_minor_consent: {
+        Args: { p_legal_version: string; p_minor_email?: string; p_token: string };
+        Returns: undefined;
+      };
+      invitation_by_token: {
+        Args: { p_token: string };
+        Returns: {
+          org_name: string;
+          status: string;
+          student_name: string;
+          teacher_name: string;
+        }[];
+      };
+      issue_student_invitation: { Args: { p_student_id: string }; Returns: string };
       mark_charge_paid: {
         Args: { p_charge_id: string; p_method: string; p_paid_on: string };
         Returns: string;
@@ -1189,6 +1424,16 @@ export type Database = {
       move_lesson: {
         Args: { p_date: string; p_duration_min?: number; p_lesson_id: string; p_start: string };
         Returns: undefined;
+      };
+      my_student_links: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          archived: boolean;
+          org_name: string;
+          student_id: string;
+          student_name: string;
+          teacher_name: string;
+        }[];
       };
       record_payment: {
         Args: {
@@ -1202,7 +1447,9 @@ export type Database = {
         Returns: string;
       };
       renew_package: { Args: { p_student_id: string }; Returns: undefined };
+      request_minor_consent: { Args: { p_student_id: string }; Returns: string };
       restore_lesson: { Args: { p_lesson_id: string }; Returns: undefined };
+      revoke_minor_consent: { Args: { p_token: string }; Returns: undefined };
       set_attendance: {
         Args: {
           p_attendance?: string;
@@ -1226,14 +1473,26 @@ export type Database = {
         };
         Returns: string;
       };
-      student_by_token: {
-        Args: { p_token: string };
+      student_consent_info: {
+        Args: { p_student_id: string };
         Returns: {
-          org_name: string;
-          student_name: string;
-          teacher_name: string;
+          consent_status: string;
+          expires_at: string;
+          given_at: string;
+          is_minor: boolean;
+          minor_13_plus: boolean;
+          payer_name: string;
         }[];
       };
+      student_link_info: {
+        Args: { p_student_id: string };
+        Returns: {
+          linked_at: string;
+          linked_email: string;
+          pending_expires_at: string;
+        }[];
+      };
+      unlink_student: { Args: { p_student_id: string }; Returns: undefined };
       void_charge: { Args: { p_charge_id: string }; Returns: undefined };
       void_payment: { Args: { p_payment_id: string }; Returns: undefined };
     };

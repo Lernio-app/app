@@ -76,7 +76,7 @@ select throws_ok(
   $$update public.lessons set starts_at = now()$$,
   '42501', null, 'no se cambia la hora de una clase directo'
 );
-update public.lessons set topic = 'Pasado simple', private_notes = 'Repasar irregulares'
+update public.lessons set topic = 'Pasado simple', shared_notes = 'Repasar irregulares'
   where id = (select id from ctx where name = 'l1');
 select is(
   (select topic from public.lessons where id = (select id from ctx where name = 'l1')),

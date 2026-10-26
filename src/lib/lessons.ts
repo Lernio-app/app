@@ -18,6 +18,9 @@ export type LessonWithAttendees = Lesson & {
   })[];
 };
 
+// La clase abierta suma la nota privada del profe, que está aparte y no viaja en la agenda.
+export type LessonDetail = LessonWithAttendees & { lesson_notes: { body: string } | null };
+
 export type SeriesWithStudents = LessonSeries & {
   series_students: { students: Pick<Tables<"students">, "id" | "full_name"> }[];
 };
@@ -48,12 +51,12 @@ export async function listLessons(from: Date, to: Date): Promise<LessonWithAtten
   return data ?? [];
 }
 
-export async function getLesson(id: string): Promise<LessonWithAttendees | null> {
+export async function getLesson(id: string): Promise<LessonDetail | null> {
   if (!z.uuid().safeParse(id).success) return null;
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("lessons")
-    .select(LESSON_SELECT)
+    .select(`${LESSON_SELECT}, lesson_notes(body)`)
     .eq("id", id)
     .is("archived_at", null)
     .maybeSingle();
