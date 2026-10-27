@@ -1496,6 +1496,16 @@ export type Database = {
           pending_expires_at: string;
         }[];
       };
+      submit_contact_message: {
+        Args: {
+          p_email: string;
+          p_ip_hash: string;
+          p_message: string;
+          p_name: string;
+          p_topic: string;
+        };
+        Returns: undefined;
+      };
       unlink_student: { Args: { p_student_id: string }; Returns: undefined };
       void_charge: { Args: { p_charge_id: string }; Returns: undefined };
       void_payment: { Args: { p_payment_id: string }; Returns: undefined };

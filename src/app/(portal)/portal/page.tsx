@@ -24,7 +24,7 @@ async function Portal() {
         actions={
           // Quien también es profe vuelve a su espacio con un toque.
           workspace && (
-            <Link href="/" className={buttonVariants({ variant: "secondary" })}>
+            <Link href="/app" className={buttonVariants({ variant: "secondary" })}>
               Mi espacio de profe
             </Link>
           )

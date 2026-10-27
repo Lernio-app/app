@@ -51,5 +51,5 @@ export async function createWorkspace(_prev: FormState, formData: FormData): Pro
     await supabase.from("teacher_profiles").update({ phone: input.phone }).eq("user_id", user.id);
   }
 
-  redirect("/");
+  redirect("/app");
 }

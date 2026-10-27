@@ -9,7 +9,7 @@ type NavItem = { href: string; label: string; icon: LucideIcon };
 
 // Solo lo que existe. Cada fase suma su pantalla acá: Tareas (F5), Exámenes (F6) y Reportes (F8).
 const ITEMS: NavItem[] = [
-  { href: "/", label: "Inicio", icon: Home },
+  { href: "/app", label: "Inicio", icon: Home },
   { href: "/agenda", label: "Agenda", icon: CalendarDays },
   { href: "/alumnos", label: "Alumnos", icon: Users },
   { href: "/cobros", label: "Cobros", icon: Wallet },
@@ -18,7 +18,7 @@ const ITEMS: NavItem[] = [
 
 function useIsActive() {
   const pathname = usePathname();
-  return (href: string) => (href === "/" ? pathname === "/" : pathname.startsWith(href));
+  return (href: string) => (href === "/app" ? pathname === "/app" : pathname.startsWith(href));
 }
 
 // Barra inferior para el celular: todo se resuelve con el pulgar.

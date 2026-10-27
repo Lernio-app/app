@@ -14,7 +14,7 @@ export const metadata = { title: "Elegí cómo entrás" };
 // Quien entra sin invitación y sin espacio elige una sola vez (ADR-0004 #4).
 async function Choice() {
   if (!(await getUser())) redirect("/ingresar");
-  if (await getWorkspace()) redirect("/");
+  if (await getWorkspace()) redirect("/app");
   if (await getStudentProfile()) redirect("/portal");
 
   return (

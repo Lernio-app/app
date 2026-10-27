@@ -12,8 +12,8 @@ La especificación completa, con el porqué de cada decisión, está en `../prod
 | Valores que no pueden ser variables CSS (meta `theme-color`) | `src/design/meta.ts` |
 | Primitivas | `src/components/ui/` |
 | Componentes del profe (agenda, cobros, navegación) | `src/components/app/` |
-| Componentes del marketplace | `src/components/marketplace/` (todavía no existe) |
-| Stickers, banda y tiles de área | `src/components/expresivos/` (todavía no existe) |
+| Componentes del marketplace (`Buscador`, `PublicacionCard`, `Casilleros` y `GrillaHorarios`, `PanelFiltros`, `HojaFiltros`, `FormConsulta`, `PanelConsulta`, `Catalogo`) | `src/components/marketplace/` |
+| Stickers, banda, tiles de área, capturas del producto y maquetación del sitio | `src/components/expresivos/` (`sticker`, `sitio`, `marco`, `capturas`) |
 | Reglas de lint | `eslint-rules/lernio-design.mjs` y `eslint.config.mjs` |
 | Test de tokens y contraste | `src/design/tokens.test.ts` |
 | Test de las reglas de lint | `eslint-rules/lernio-design.test.mjs` |
@@ -59,6 +59,26 @@ Se usan siempre por nombre. Los valores están en `globals.css` y en §2.
 
 El resto del texto es Geist en 400, 500 o 600, con los tamaños `text-xs`, `text-sm`, `text-base` y `text-lg`.
 
+Escala de marketing (§3.3), solo en el sitio para profes y la home del marketplace:
+
+| Utilidad | Familia | Uso |
+|---|---|---|
+| `title-display` | Bricolage 800, `clamp(2.75rem, 6.4vw, 5.75rem)` | Titular del hero |
+| `title-h2` | Bricolage 800, `clamp(2.25rem, 4.4vw, 3.5rem)` | Títulos de sección y titular de las páginas internas |
+| `title-h3` | Bricolage 800, 23 px | Títulos de bloque y nombre de los tiles |
+| `title-strip` | Bricolage 800, `clamp(1.75rem, 3.4vw, 2.75rem)` | Banda índigo con ejemplos del oficio |
+| `lead` | Geist 400, `clamp(1.0625rem, 1.6vw, 1.25rem)` | Bajadas |
+
+Escala del marketplace (§12.3), en el catálogo, la página de la clase y el perfil:
+
+| Utilidad | Familia | Uso |
+|---|---|---|
+| `title-listing` | Bricolage 800, `clamp(2rem, 4vw, 3rem)` | Título del catálogo y de la clase |
+| `card-title` | Bricolage 800, 20 px, 2 líneas como máximo | Título de la tarjeta de clase |
+| `price` y `price-lg` | Tamaño 18 y 28 px; se escriben junto a `num` (Geist Mono) | Precio en la tarjeta y en la clase |
+
+El tracking más cerrado es −0.04em (la especificación pedía −0.05em en el display; se ajustó para que las tildes no se toquen).
+
 ## Primitivas
 
 | Componente | Archivo | Notas |
@@ -70,7 +90,7 @@ El resto del texto es Geist en 400, 500 o 600, con los tamaños `text-xs`, `text
 | `StatusChip` | `ui/status-chip.tsx` | `ok`, `pending`, `debt`, `next`. Ícono obligatorio; `cross` lo cambia por una x |
 | `AreaSwatch`, `AreaTag`, `TeacherAvatar` | `ui/area.tsx` | El color del área nunca aparece solo |
 | `PageContainer`, `PageHeader`, `PageTitle`, `SectionTitle`, `EmptyState` | `ui/page-header.tsx` | `PageHeader` va sobre cuadrícula, con `back`, `label`, `description` y `actions` |
-| `Resaltador` | `ui/resaltador.tsx` | Uno por pantalla, sobre una frase o la fecha |
+| `Resaltador` | `ui/resaltador.tsx` | Uno por pantalla, sobre una frase o la fecha. `variant="bloque"` sobre índigo (§5.2) |
 | `Surface` | `ui/surface.tsx` | Solo en los layouts de grupo, o anidada para mostrar una superficie dentro de otra |
 | `Logo` | `ui/logo.tsx` | Provisional (§5.6) |
 

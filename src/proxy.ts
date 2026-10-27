@@ -10,6 +10,13 @@ const PUBLIC_PREFIXES = [
   "/consentimiento/",
   "/terminos",
   "/privacidad",
+  "/ensenar",
+  "/contacto",
+  "/quienes-somos",
+  "/clases",
+  "/clase/",
+  "/perfil/",
+  "/blog",
 ];
 
 export async function proxy(request: NextRequest) {
@@ -39,7 +46,9 @@ export async function proxy(request: NextRequest) {
   const isSignedIn = Boolean(data?.claims);
 
   const { pathname } = request.nextUrl;
-  const isPublic = PUBLIC_PREFIXES.some((prefix) => pathname.startsWith(prefix));
+  // La home del marketplace es exactamente "/": no puede ser un prefijo, o abriría todo.
+  const isPublic =
+    pathname === "/" || PUBLIC_PREFIXES.some((prefix) => pathname.startsWith(prefix));
 
   if (!isSignedIn && !isPublic) {
     const url = request.nextUrl.clone();

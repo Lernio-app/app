@@ -26,7 +26,7 @@ const idSchema = z.uuid();
 
 function refresh() {
   revalidatePath("/agenda", "layout");
-  revalidatePath("/");
+  revalidatePath("/app");
 }
 
 // Los errores de las funciones de la base llegan como un código en el mensaje.

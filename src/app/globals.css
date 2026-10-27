@@ -229,6 +229,14 @@
     outline: 2px solid var(--ring);
     outline-offset: 2px;
   }
+  ::selection {
+    background-color: var(--highlighter);
+    color: var(--ink);
+  }
+  input,
+  textarea {
+    caret-color: var(--indigo);
+  }
   .on-indigo :focus-visible {
     outline-color: var(--primary-foreground);
   }
@@ -285,13 +293,78 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* Escala de marketing (§3.3). Solo en el sitio para profes y la home del marketplace. */
+@utility title-display {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(2.75rem, 6.4vw, 5.75rem);
+  line-height: 0.98;
+  letter-spacing: -0.04em;
+}
+@utility title-h2 {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(2.25rem, 4.4vw, 3.5rem);
+  line-height: 1.02;
+  letter-spacing: -0.04em;
+}
+@utility title-h3 {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.4375rem;
+  line-height: 1.2;
+  letter-spacing: -0.03em;
+}
+@utility title-strip {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(1.75rem, 3.4vw, 2.75rem);
+  line-height: 1.15;
+  letter-spacing: -0.035em;
+}
+@utility lead {
+  font-size: clamp(1.0625rem, 1.6vw, 1.25rem);
+  line-height: 1.6;
+}
+
+/* Marketplace (§12.3). El precio se escribe junto a `num`: la familia mono sale de ahí. */
+@utility title-listing {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1.05;
+  letter-spacing: -0.04em;
+}
+@utility card-title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.25rem;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+@utility price {
+  font-size: 1.125rem;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+@utility price-lg {
+  font-size: 1.75rem;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+}
+
 /* Recursos gráficos (§5). Únicos gradientes permitidos: son patrones, no lavados de color. */
 @utility bg-cuadricula {
-  background-color: var(--paper);
+  background-color: var(--cuadricula-bg, var(--paper));
   background-image:
-    linear-gradient(var(--grid) 1px, transparent 1px),
-    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    linear-gradient(var(--cuadricula-line, var(--grid)) 1px, transparent 1px),
+    linear-gradient(90deg, var(--cuadricula-line, var(--grid)) 1px, transparent 1px);
   background-size: var(--grid-size) var(--grid-size);
+}
+/* Bloque "Sumarme": la misma cuadrícula sobre índigo, con líneas --indigo-grid (§5.1). */
+@utility cuadricula-indigo {
+  --cuadricula-bg: var(--indigo);
+  --cuadricula-line: var(--indigo-grid);
 }
 @utility resaltador {
   background: linear-gradient(

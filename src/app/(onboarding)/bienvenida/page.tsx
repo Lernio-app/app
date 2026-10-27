@@ -11,7 +11,7 @@ export const metadata = { title: "Bienvenida" };
 
 async function Welcome() {
   if (!(await getUser())) redirect("/ingresar");
-  if (await getWorkspace()) redirect("/");
+  if (await getWorkspace()) redirect("/app");
 
   const catalog = await getCatalog();
 

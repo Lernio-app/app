@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { safeNext } from "@/lib/next-path";
+import { APP_HOME, safeNext } from "@/lib/next-path";
 import { createClient } from "@/lib/supabase/server";
 import { siteOrigin } from "@/lib/site";
 import type { FormState } from "@/lib/validation/workspace";
@@ -13,7 +13,7 @@ const emailSchema = z.email("Revisá el email: no parece válido.");
 async function callbackUrl(formData: FormData) {
   const next = safeNext(String(formData.get("next") ?? ""));
   const base = `${await siteOrigin()}/auth/callback`;
-  return next === "/" ? base : `${base}?next=${encodeURIComponent(next)}`;
+  return next === APP_HOME ? base : `${base}?next=${encodeURIComponent(next)}`;
 }
 
 export async function sendMagicLink(_prev: FormState, formData: FormData): Promise<FormState> {
