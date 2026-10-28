@@ -54,7 +54,16 @@ Está apagado hasta tener las credenciales. Para activarlo:
 1. Crear el proyecto en Supabase y vincularlo: `npx supabase login` y `npx supabase link --project-ref <ref>`.
 2. Aplicar las migraciones: `npx supabase db push`.
 3. En Supabase → Authentication → URL Configuration: `Site URL` con la URL de producción y `https://<dominio>/auth/callback` en las Redirect URLs.
-4. En Vercel, importar este repo y definir las variables de `.env.example`: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `NEXT_PUBLIC_SITE_URL` y, si corresponde, `NEXT_PUBLIC_GOOGLE_ENABLED`.
-5. Para que los emails de ingreso salgan de un remitente propio hace falta un SMTP (por ejemplo Resend) en Authentication → SMTP Settings.
+4. Crear el proyecto en Vercel **sin conectarlo a Git** (no se usa "Import Git Repository") y definir las variables de `.env.example` en Settings → Environment Variables: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `NEXT_PUBLIC_SITE_URL` y, si corresponde, `NEXT_PUBLIC_GOOGLE_ENABLED`. Desde la carpeta del repo: `npx vercel login` y `npx vercel link` (crea el proyecto y deja `.vercel/project.json`, ignorado por Git).
+5. Cargar en GitHub (Settings → Secrets and variables → Actions) los secrets `VERCEL_TOKEN` (Vercel → Account Settings → Tokens), `VERCEL_ORG_ID` y `VERCEL_PROJECT_ID` (los dos salen de `.vercel/project.json`) y la variable `VERCEL_DEPLOY` con el valor `true`.
+6. Para que los emails de ingreso salgan de un remitente propio hace falta un SMTP (por ejemplo Resend) en Authentication → SMTP Settings.
+
+### Cómo se despliega
+
+El deploy no usa la integración de Vercel con Git (ADR-0014 en el repo `producto`). El job `deploy` de `.github/workflows/ci.yml` corre en cada push a `main`, después de que pasan los jobs `app` y `database`: baja las variables con `vercel pull`, compila con `vercel build --prod` y sube el resultado con `vercel deploy --prebuilt --prod`. Si no está la variable `VERCEL_DEPLOY`, el job no corre.
+
+- No hay previews por PR. Para probar un cambio se usa `npm run dev` o `vercel deploy` a mano (genera una URL de preview).
+- Si se cambia de cuenta o de proyecto en Vercel, hay que regenerar los tres secrets y volver a correr `vercel link`.
+- Las variables de entorno del build se cambian en Vercel, no en GitHub.
 
 Nunca se commitean secretos. La clave de servicio de Supabase no se usa en la app y no va en variables `NEXT_PUBLIC_`.
