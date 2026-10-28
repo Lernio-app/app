@@ -41,6 +41,16 @@ Leer `docs/sistema-de-diseno.md` antes de tocar cualquier pantalla. Lo hacen cum
 - Los tokens de invitación del alumno se guardan hasheados.
 - Nunca se commitean secretos.
 
+## Credenciales y Notion
+
+Las credenciales del proyecto se documentan en la página de Notion "App Profes - Credenciales y configuración" (el enlace lo tiene el equipo; no se escribe acá porque el repo es público).
+
+- Cuando una implementación nueva requiera credenciales, claves, tokens, variables de entorno o cuentas, se agrega a esa página de Notion: qué es, para qué sirve y de dónde se obtiene.
+- La variable también se agrega a `.env.example`, con un comentario y sin valor real.
+- Los valores secretos o de producción (service_role, client secrets, tokens) no se escriben en Notion sin confirmación explícita del usuario. Se deja el nombre, la descripción y dónde obtenerlo.
+- Si no hay conexión con Notion (MCP no disponible), no omitir el paso en silencio: avisar y sugerir conectar el MCP (`https://mcp.notion.com/mcp`, en la configuración de MCP del editor) o listar exactamente qué hay que cargar a mano.
+- Ya registradas: las variables de Supabase (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`), `NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_GOOGLE_ENABLED` y la cuenta de mail provisoria del equipo.
+
 ## Git
 
 - Antes de empezar a trabajar y antes de pushear: `git pull --rebase origin main`. Si el push es rechazado, hacer pull y rebase de nuevo; nunca `push --force` sobre `main`.
