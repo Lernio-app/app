@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { parseARSToCentavos } from "@/lib/format";
+import { normalizeArPhone } from "@/lib/phone";
 import { fieldErrorsFrom } from "@/lib/validation/workspace";
 
 export const PLAN_MODES = ["per_lesson", "package", "monthly"] as const;
@@ -34,6 +35,26 @@ const optionalEmail = text(200).refine(
   "Revisá el email: no parece válido.",
 );
 
+// Teléfono escrito -> formato guardado. Vacío da null; uno que no se entiende marca el campo y
+// da null.
+function normalizePhoneField(
+  value: string | null,
+  path: "phone" | "payerPhone",
+  ctx: z.RefinementCtx,
+): string | null {
+  if (value === null) return null;
+  const normalized = normalizeArPhone(value);
+  if (normalized === null) {
+    ctx.addIssue({
+      code: "custom",
+      path: [path],
+      message:
+        "No entendimos el teléfono. Escribilo con el código de área, por ejemplo 11 5555 1234.",
+    });
+  }
+  return normalized;
+}
+
 export const studentSchema = z
   .object({
     fullName: z
@@ -60,7 +81,24 @@ export const studentSchema = z
     minorAge: z.string().trim(),
   })
   .transform((raw, ctx) => {
-    const { subjectChoice, areaId, levelId, isMinor, minorAge, ...value } = raw;
+    const { subjectChoice, areaId, levelId, isMinor, minorAge, ...fields } = raw;
+
+    // Teléfono obligatorio (ADR-0013): se guarda normalizado. Un menor puede usar el del
+    // responsable de pago, que cuenta solo si cargó al responsable.
+    const phone = normalizePhoneField(fields.phone, "phone", ctx);
+    const payerPhone = fields.payerName
+      ? normalizePhoneField(fields.payerPhone, "payerPhone", ctx)
+      : null;
+    if (fields.phone === null && !(isMinor && payerPhone)) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["phone"],
+        message: isMinor
+          ? "Poné un WhatsApp: el del alumno o el de su responsable de pago."
+          : "Poné el WhatsApp del alumno.",
+      });
+    }
+    const value = { ...fields, phone, payerPhone };
 
     // Un menor dice si tiene 13 años o más: define si puede tener cuenta (ADR-0009). Sin fecha de nacimiento.
     if (isMinor && !(MINOR_AGES as readonly string[]).includes(minorAge)) {

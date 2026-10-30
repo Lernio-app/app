@@ -8,6 +8,7 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { dayLabel, localDate } from "@/lib/dates";
 import { formatARS, formatDate, formatTime } from "@/lib/format";
 import { listStudentLessons } from "@/lib/lessons";
+import { formatArPhone } from "@/lib/phone";
 import { currentPlan, getStudent, studentAreaKey, studentDetailLine } from "@/lib/students";
 import { ATTENDANCE_LABELS, type Attendance } from "@/lib/validation/lesson";
 import { createClient } from "@/lib/supabase/server";
@@ -177,7 +178,7 @@ async function Ficha({ params }: { params: PageProps<"/alumnos/[id]">["params"] 
           <Detail label="Materia">
             <AreaTag area={studentAreaKey(student)}>{detail}</AreaTag>
           </Detail>
-          <Detail label="WhatsApp">{student.phone ?? "—"}</Detail>
+          <Detail label="WhatsApp">{formatArPhone(student.phone) || "—"}</Detail>
           <Detail label="Email">{student.email ?? "—"}</Detail>
           {student.student_notes?.body && (
             <Detail label="Notas">{student.student_notes.body}</Detail>
@@ -196,7 +197,7 @@ async function Ficha({ params }: { params: PageProps<"/alumnos/[id]">["params"] 
               <>
                 {payer.name}
                 {payer.relation ? ` (${payer.relation})` : ""}
-                {payer.phone ? ` · ${payer.phone}` : ""}
+                {payer.phone ? ` · ${formatArPhone(payer.phone)}` : ""}
               </>
             ) : (
               "El propio alumno"

@@ -1,6 +1,7 @@
 import { z } from "zod";
 import type { Area } from "@/components/ui/area";
 import { createClient } from "@/lib/supabase/server";
+import type { ExistingStudent } from "@/lib/duplicates";
 import type { Tables } from "@/lib/supabase/types";
 
 export type PricePlan = Tables<"price_plans">;
@@ -89,4 +90,16 @@ export async function getStudent(id: string): Promise<StudentDetail | null> {
     .maybeSingle();
   if (error) throw new Error("No se pudo cargar al alumno");
   return data;
+}
+
+// Alumnos del espacio (también archivados) con lo necesario para avisar de un posible duplicado.
+export async function listStudentsForDuplicateCheck(): Promise<
+  (ExistingStudent & { detail: string })[]
+> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("students")
+    .select(`id, full_name, phone, subject_id, subject, archived_at, ${CATALOG_SELECT}`);
+  if (error) throw new Error("No se pudo revisar si el alumno ya existe");
+  return (data ?? []).map((student) => ({ ...student, detail: studentDetailLine(student) }));
 }

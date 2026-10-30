@@ -11,10 +11,12 @@ export function NewStudent({
   catalog,
   mainAreaId,
   defaults,
+  returnTo,
 }: {
   catalog: Catalog;
   mainAreaId: string | null;
   defaults: StudentValues;
+  returnTo?: string;
 }) {
   const [round, setRound] = useState(0);
   return (
@@ -27,6 +29,7 @@ export function NewStudent({
       submitLabel="Guardar y armar la invitación"
       pendingLabel="Guardando…"
       onAnother={() => setRound((n) => n + 1)}
+      returnTo={returnTo}
     />
   );
 }

@@ -8,7 +8,18 @@ import { NewStudent } from "./new-student";
 
 export const metadata = { title: "Nuevo alumno" };
 
-async function Form() {
+// Desde «Nueva clase» se llega con `volver`: al terminar, el alumno nuevo vuelve elegido a la clase.
+// Solo se acepta esa pantalla, para que el parámetro no mande a otro lado.
+function classReturn(value: string | string[] | undefined) {
+  return typeof value === "string" && value.startsWith("/agenda/nueva") ? value : undefined;
+}
+
+async function Form({
+  searchParams,
+}: {
+  searchParams: PageProps<"/alumnos/nuevo">["searchParams"];
+}) {
+  const returnTo = classReturn((await searchParams).volver);
   const { profile } = await requireWorkspace();
   const catalog = await getCatalog();
 
@@ -25,10 +36,17 @@ async function Form() {
       }
     : EMPTY_STUDENT;
 
-  return <NewStudent catalog={catalog} mainAreaId={profile.main_area_id} defaults={defaults} />;
+  return (
+    <NewStudent
+      catalog={catalog}
+      mainAreaId={profile.main_area_id}
+      defaults={defaults}
+      returnTo={returnTo}
+    />
+  );
 }
 
-export default function NuevoAlumnoPage() {
+export default function NuevoAlumnoPage(props: PageProps<"/alumnos/nuevo">) {
   return (
     <PageContainer>
       <PageHeader
@@ -36,7 +54,7 @@ export default function NuevoAlumnoPage() {
         description="Con el nombre y cómo le cobrás alcanza. El resto lo podés completar después."
       />
       <Suspense fallback={<div className="h-96" aria-hidden />}>
-        <Form />
+        <Form searchParams={props.searchParams} />
       </Suspense>
     </PageContainer>
   );

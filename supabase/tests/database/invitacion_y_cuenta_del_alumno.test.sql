@@ -15,11 +15,11 @@ grant all on ctx to authenticated, anon;
 set local role authenticated;
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000a1","role":"authenticated"}', true);
 select public.create_workspace('Ana', 'Ana');
-insert into ctx select 'lucia', r.student_id, r.token from public.create_student('Lucía Pérez', p_subject => 'Otra', p_notes => 'Nota privada') r;
-insert into ctx select 'otro', r.student_id, r.token from public.create_student('Otro Alumno', p_subject => 'Otra') r;
+insert into ctx select 'lucia', r.student_id, r.token from public.create_student('Lucía Pérez', p_phone => '1155551234', p_subject => 'Otra', p_notes => 'Nota privada') r;
+insert into ctx select 'otro', r.student_id, r.token from public.create_student('Otro Alumno', p_phone => '1155551234', p_subject => 'Otra') r;
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000b2","role":"authenticated"}', true);
 select public.create_workspace('Beto', 'Beto');
-insert into ctx select 'beto', r.student_id, r.token from public.create_student('Alumno de Beto', p_subject => 'Otra') r;
+insert into ctx select 'beto', r.student_id, r.token from public.create_student('Alumno de Beto', p_phone => '1155551234', p_subject => 'Otra') r;
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000a1","role":"authenticated"}', true);
 
 -- ---------------------------------------------------------------------------

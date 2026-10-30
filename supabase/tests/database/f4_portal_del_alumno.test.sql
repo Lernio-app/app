@@ -17,15 +17,15 @@ set local role authenticated;
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000a1","role":"authenticated"}', true);
 select public.create_workspace('Ana', 'Ana', '{}', 'ana.profe', 'https://mpago.example.test/ana', 12);
 insert into ctx select 'lucia', r.student_id, r.token from public.create_student(
-  'Lucía Pérez', p_subject => 'Otra', p_notes => 'Nota privada de Lucía',
+  'Lucía Pérez', p_phone => '1155551234', p_subject => 'Otra', p_notes => 'Nota privada de Lucía',
   p_payer_name => 'Marta Pérez', p_mode => 'per_lesson', p_amount => 1800000
 ) r;
 insert into ctx select 'mateo', r.student_id, r.token from public.create_student(
-  'Mateo Gómez', p_subject => 'Otra', p_mode => 'per_lesson', p_amount => 2000000
+  'Mateo Gómez', p_phone => '1155551234', p_subject => 'Otra', p_mode => 'per_lesson', p_amount => 2000000
 ) r;
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000b2","role":"authenticated"}', true);
 select public.create_workspace('Beto', 'Beto');
-insert into ctx select 'beto', r.student_id, r.token from public.create_student('Alumno de Beto', p_subject => 'Otra', p_mode => 'per_lesson', p_amount => 900000) r;
+insert into ctx select 'beto', r.student_id, r.token from public.create_student('Alumno de Beto', p_phone => '1155551234', p_subject => 'Otra', p_mode => 'per_lesson', p_amount => 900000) r;
 insert into ctx select 'lb', public.create_lesson('2026-11-04', '10:00', 60, array[(select id from ctx where name = 'beto')]);
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000a1","role":"authenticated"}', true);
 

@@ -15,17 +15,17 @@ grant all on ctx to authenticated, anon;
 set local role authenticated;
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000a1","role":"authenticated"}', true);
 select public.create_workspace('Ana', 'Ana');
-insert into ctx select 'adulto', r.student_id, r.token from public.create_student('Adulto Gómez', p_subject => 'Otra') r;
+insert into ctx select 'adulto', r.student_id, r.token from public.create_student('Adulto Gómez', p_phone => '1155551234', p_subject => 'Otra') r;
 insert into ctx select 'teen', r.student_id, r.token from public.create_student(
-  'Teo Pérez', p_subject => 'Otra', p_is_minor => true, p_minor_13_plus => true,
+  'Teo Pérez', p_phone => '1155551234', p_subject => 'Otra', p_is_minor => true, p_minor_13_plus => true,
   p_payer_name => 'Marta Pérez', p_payer_relation => 'Madre', p_payer_phone => '1155550000'
 ) r;
 insert into ctx select 'kid', r.student_id, r.token from public.create_student(
-  'Kiki Pérez', p_subject => 'Otra', p_is_minor => true, p_minor_13_plus => false,
+  'Kiki Pérez', p_phone => '1155551234', p_subject => 'Otra', p_is_minor => true, p_minor_13_plus => false,
   p_payer_name => 'Marta Pérez'
 ) r;
 insert into ctx select 'sinresp', r.student_id, r.token from public.create_student(
-  'Sin Responsable', p_subject => 'Otra', p_is_minor => true, p_minor_13_plus => true
+  'Sin Responsable', p_phone => '1155551234', p_subject => 'Otra', p_is_minor => true, p_minor_13_plus => true
 ) r;
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000b2","role":"authenticated"}', true);
 select public.create_workspace('Beto', 'Beto');
@@ -40,7 +40,7 @@ select is((select token from ctx where name = 'kid'), null, 'tampoco uno de meno
 select is((select is_minor from public.students where id = (select id from ctx where name = 'teen')), true, 'queda marcado como menor');
 select is((select minor_13_plus from public.students where id = (select id from ctx where name = 'teen')), true, 'con su franja de edad');
 select throws_ok(
-  $$select * from public.create_student('Sin Edad', p_subject => 'Otra', p_is_minor => true)$$,
+  $$select * from public.create_student('Sin Edad', p_phone => '1155551234', p_subject => 'Otra', p_is_minor => true)$$,
   '23514', null, 'un menor necesita decir si tiene 13 años o más'
 );
 select throws_ok(
@@ -189,7 +189,7 @@ update public.students set is_minor = true, minor_13_plus = true where id = (sel
 select is((select is_minor from public.students where id = (select id from ctx where name = 'adulto')), true, 'deshecho el vínculo, se lo puede marcar');
 
 -- Al pasar a menor, la invitación pendiente deja de valer.
-insert into ctx select 'otro', r.student_id, r.token from public.create_student('Otro Adulto', p_subject => 'Otra') r;
+insert into ctx select 'otro', r.student_id, r.token from public.create_student('Otro Adulto', p_phone => '1155551234', p_subject => 'Otra') r;
 update public.students set is_minor = true, minor_13_plus = true where id = (select id from ctx where name = 'otro');
 select is((select status from public.invitation_by_token((select token from ctx where name = 'otro'))), 'unavailable', 'la invitación pendiente de quien pasa a ser menor queda sin efecto');
 

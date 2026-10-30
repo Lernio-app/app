@@ -1,11 +1,14 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState, useEffect, useState } from "react";
 import { Field, FormError } from "@/components/ui/field";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Textarea } from "@/components/ui/textarea";
+import { submitKeepingForm } from "@/lib/forms";
 import { defaultAreaFor, groupSubjects, type Catalog } from "@/lib/catalog";
 import {
   OTHER_SUBJECT,
@@ -14,6 +17,7 @@ import {
   type PriceChoice,
   type StudentValues,
 } from "@/lib/validation/student";
+import { DuplicateNotice } from "./duplicate-notice";
 import { LinkShare } from "./link-share";
 import type { NoLinkData, StudentFormState } from "./actions";
 import { SectionTitle } from "@/components/ui/page-header";
@@ -69,6 +73,7 @@ export function StudentForm({
   submitLabel,
   pendingLabel,
   onAnother,
+  returnTo,
 }: {
   action: Action;
   defaults: StudentValues;
@@ -79,6 +84,8 @@ export function StudentForm({
   submitLabel: string;
   pendingLabel: string;
   onAnother?: () => void;
+  // Pantalla de la que se vino (la clase que se estaba armando): se ofrece volver con el alumno elegido.
+  returnTo?: string;
 }) {
   const [state, formAction, pending] = useActionState(action, {});
   const errors = state.fieldErrors ?? {};
@@ -114,6 +121,8 @@ export function StudentForm({
   useEffect(() => {
     if (state.fieldErrors) {
       document.querySelector("[role=alert]")?.scrollIntoView({ block: "center" });
+    } else if (state.duplicates) {
+      document.querySelector("[role=status]")?.scrollIntoView({ block: "center" });
     }
   }, [state]);
 
@@ -122,6 +131,14 @@ export function StudentForm({
     return (
       <div className="space-y-4">
         {created.kind === "none" ? <NoLinkNote created={created} /> : <LinkShare share={created} />}
+        {returnTo && (
+          <Link
+            href={`${returnTo}${returnTo.includes("?") ? "&" : "?"}alumno=${created.studentId}`}
+            className={cn(buttonVariants(), "w-full")}
+          >
+            Volver a la clase
+          </Link>
+        )}
         {onAnother && (
           <Button type="button" variant="secondary" className="w-full" onClick={onAnother}>
             Cargar otro alumno
@@ -132,7 +149,7 @@ export function StudentForm({
   }
 
   return (
-    <form action={formAction} className="space-y-8" noValidate>
+    <form onSubmit={submitKeepingForm(formAction)} className="space-y-8" noValidate>
       {studentId && <input type="hidden" name="studentId" value={studentId} />}
 
       <section className="space-y-5">
@@ -147,7 +164,16 @@ export function StudentForm({
             required
           />
         </Field>
-        <Field id="phone" label="WhatsApp" hint="Ahí le mandás su invitación." error={errors.phone}>
+        <Field
+          id="phone"
+          label="WhatsApp"
+          hint={
+            isMinor
+              ? "Alcanza con uno: el del alumno o el de quien paga."
+              : "Ahí le mandás su invitación."
+          }
+          error={errors.phone}
+        >
           <Input
             id="phone"
             name="phone"
@@ -155,6 +181,7 @@ export function StudentForm({
             inputMode="tel"
             defaultValue={current.phone}
             placeholder="11 5555 1234"
+            required={!isMinor}
           />
         </Field>
         <Field id="subjectChoice" label="Materia" error={errors.subjectChoice}>
@@ -431,6 +458,8 @@ export function StudentForm({
         />
         {errors.notes && <FormError>{errors.notes}</FormError>}
       </section>
+
+      {state.duplicates && <DuplicateNotice duplicates={state.duplicates} pending={pending} />}
 
       {state.message && <FormError>{state.message}</FormError>}
 

@@ -3,15 +3,23 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
+import { findDuplicates, type DuplicateMatch } from "@/lib/duplicates";
 import { trackEvent } from "@/lib/events";
 import { consentMessage, waLink, welcomeMessage } from "@/lib/messages";
 import { siteOrigin } from "@/lib/site";
-import { currentPlan, getStudent, payerContact } from "@/lib/students";
+import {
+  currentPlan,
+  getStudent,
+  listStudentsForDuplicateCheck,
+  payerContact,
+  studentDetailLine,
+} from "@/lib/students";
 import { createClient } from "@/lib/supabase/server";
 import {
   fieldErrorsFrom,
   parseStudentForm,
   submittedStudentValues,
+  type StudentInput,
   type StudentValues,
 } from "@/lib/validation/student";
 import type { FormState } from "@/lib/validation/workspace";
@@ -37,7 +45,14 @@ export type NoLinkData = {
   reason: "under_13" | "no_payer";
 };
 
-export type StudentFormState = FormState<StudentValues> & { created?: LinkShareData | NoLinkData };
+// Un alumno ya cargado que se parece al que se está dando de alta, con su materia a la vista.
+export type PossibleDuplicate = DuplicateMatch & { detail: string };
+
+export type StudentFormState = FormState<StudentValues> & {
+  created?: LinkShareData | NoLinkData;
+  // El alta se frenó para que el profe confirme: no bloquea, «Cargar igual» la repite.
+  duplicates?: PossibleDuplicate[];
+};
 export type LinkState = { share?: LinkShareData; message?: string };
 
 async function buildShare(
@@ -82,6 +97,86 @@ async function buildConsentShare(
   };
 }
 
+// La base repite la regla del teléfono (ADR-0013) por si algo llega sin pasar por el formulario.
+function phoneRuleError(message: string | undefined): Pick<StudentFormState, "fieldErrors"> | null {
+  if (message?.includes("invalid_phone")) {
+    return { fieldErrors: { phone: "No entendimos el teléfono. Revisalo e intentá de nuevo." } };
+  }
+  if (message?.includes("phone_required")) {
+    return { fieldErrors: { phone: "Poné el WhatsApp del alumno." } };
+  }
+  return null;
+}
+
+async function possibleDuplicates(input: StudentInput): Promise<PossibleDuplicate[]> {
+  const existing = await listStudentsForDuplicateCheck();
+  const matches = findDuplicates(
+    {
+      fullName: input.fullName,
+      phone: input.phone,
+      subjectId: input.subjectId,
+      subject: input.subject,
+    },
+    existing,
+  );
+  const details = new Map(existing.map((student) => [student.id, student.detail]));
+  return matches.map((match) => ({ ...match, detail: details.get(match.id) ?? "" }));
+}
+
+// Alta rápida desde «Nueva clase» (F2-3): nombre, teléfono y materia. Crea un alumno adulto, sin
+// precio ni responsable de pago; lo demás y la invitación se completan después en la ficha.
+export type QuickStudentResult = {
+  student?: { id: string; name: string; detail: string };
+  fieldErrors?: Record<string, string>;
+  message?: string;
+  duplicates?: PossibleDuplicate[];
+};
+
+export async function quickCreateStudent(formData: FormData): Promise<QuickStudentResult> {
+  await requireWorkspace();
+
+  // Solo se leen los campos del alta rápida: el resto del formulario completo queda vacío.
+  const basic = new FormData();
+  for (const key of ["fullName", "phone", "subjectChoice", "areaId", "subject", "levelId"]) {
+    basic.set(key, String(formData.get(key) ?? ""));
+  }
+  const parsed = parseStudentForm(basic);
+  if (!parsed.success) return { fieldErrors: fieldErrorsFrom(parsed.error) };
+  const input = parsed.data;
+
+  if (formData.get("confirmDuplicates") !== "1") {
+    const duplicates = await possibleDuplicates(input);
+    if (duplicates.length > 0) return { duplicates };
+  }
+
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("create_student", {
+    p_full_name: input.fullName,
+    p_phone: input.phone ?? undefined,
+    p_area_id: input.areaId ?? undefined,
+    p_subject_id: input.subjectId ?? undefined,
+    p_subject: input.subject ?? undefined,
+    p_level_id: input.levelId ?? undefined,
+    p_is_minor: false,
+  });
+  const phoneError = phoneRuleError(error?.message);
+  if (phoneError) return { fieldErrors: phoneError.fieldErrors };
+  const created = data?.[0];
+  if (error || !created) {
+    return { message: "No pudimos cargar al alumno. Probá de nuevo en un rato." };
+  }
+
+  revalidatePath("/alumnos");
+  const student = await getStudent(created.student_id);
+  return {
+    student: {
+      id: created.student_id,
+      name: input.fullName,
+      detail: student ? studentDetailLine(student) : "",
+    },
+  };
+}
+
 export async function createStudent(
   _prev: StudentFormState,
   formData: FormData,
@@ -96,6 +191,14 @@ export async function createStudent(
     };
   }
   const input = parsed.data;
+
+  // Aviso de posible duplicado (F1-6): el profe lo confirma con «Cargar igual».
+  if (formData.get("confirmDuplicates") !== "1") {
+    const duplicates = await possibleDuplicates(input);
+    if (duplicates.length > 0) {
+      return { duplicates, values: submittedStudentValues(formData) };
+    }
+  }
 
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("create_student", {
@@ -120,6 +223,8 @@ export async function createStudent(
   });
 
   const created = data?.[0];
+  const phoneError = phoneRuleError(error?.message);
+  if (phoneError) return { ...phoneError, values: submittedStudentValues(formData) };
   if (error || !created) {
     return {
       message: "No pudimos guardar al alumno. Probá de nuevo en un rato.",
@@ -207,6 +312,8 @@ export async function updateStudent(
       "Este alumno ya tiene su cuenta vinculada. Para marcarlo como menor o cambiarle la edad, primero deshacé el vínculo desde su ficha.",
     );
   }
+  const phoneError = phoneRuleError(studentError?.message);
+  if (phoneError) return { ...phoneError, values: submittedStudentValues(formData) };
   if (studentError) return fail("No pudimos guardar los cambios. Probá de nuevo en un rato.");
 
   // Notas del profe: viven aparte. Una nota vacía no crea fila; si ya había una, queda en blanco.

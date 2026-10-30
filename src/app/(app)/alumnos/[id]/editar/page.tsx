@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { PageContainer, PageHeader } from "@/components/ui/page-header";
 import { getCatalog } from "@/lib/catalog-data";
 import { formatARS } from "@/lib/format";
+import { formatArPhone } from "@/lib/phone";
 import { currentPlan, getStudent, payerContact } from "@/lib/students";
 import { OTHER_SUBJECT, type StudentValues } from "@/lib/validation/student";
 import { requireWorkspace } from "@/lib/workspace";
@@ -27,7 +28,7 @@ async function EditForm({ params }: { params: PageProps<"/alumnos/[id]/editar">[
   const payer = payerContact(student.student_contacts);
   const defaults: StudentValues = {
     fullName: student.full_name,
-    phone: student.phone ?? "",
+    phone: formatArPhone(student.phone),
     email: student.email ?? "",
     subjectChoice: student.subject_id ?? OTHER_SUBJECT,
     areaId: student.area_id ?? "",
@@ -36,7 +37,7 @@ async function EditForm({ params }: { params: PageProps<"/alumnos/[id]/editar">[
     notes: student.student_notes?.body ?? "",
     payerName: payer?.name ?? "",
     payerRelation: payer?.relation ?? "",
-    payerPhone: payer?.phone ?? "",
+    payerPhone: formatArPhone(payer?.phone),
     payerEmail: payer?.email ?? "",
     mode: (plan?.mode as StudentValues["mode"]) ?? "none",
     amount: plan ? amountField(plan.amount) : "",

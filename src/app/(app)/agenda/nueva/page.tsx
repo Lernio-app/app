@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import { PageContainer, PageHeader } from "@/components/ui/page-header";
+import { getCatalog } from "@/lib/catalog-data";
 import { isYmd, localDate } from "@/lib/dates";
 import { listStudents, studentDetailLine } from "@/lib/students";
 import { DEFAULT_DURATION } from "@/lib/validation/lesson";
@@ -14,18 +15,22 @@ async function NewLesson({
 }: {
   searchParams: PageProps<"/agenda/nueva">["searchParams"];
 }) {
-  const { org } = await requireWorkspace();
+  const { org, profile } = await requireWorkspace();
   const params = await searchParams;
-  const students = await listStudents({});
+  const [students, catalog] = await Promise.all([listStudents({}), getCatalog()]);
 
   const date =
     typeof params.fecha === "string" && isYmd(params.fecha)
       ? params.fecha
       : localDate(new Date(), org.timezone);
-  const preselected = typeof params.alumno === "string" ? [params.alumno] : [];
+  // `alumno` puede repetirse: la clase grupal que vuelve del alta completa trae a todos los elegidos.
+  const preselected = [params.alumno ?? []].flat();
 
   return (
     <LessonForm
+      // Al volver del alta completa con otros alumnos en la URL, el formulario se arma de nuevo en
+      // vez de conservar el estado de la visita anterior.
+      key={`${date}|${preselected.join(",")}`}
       defaults={{
         date,
         start: "",
@@ -36,6 +41,9 @@ async function NewLesson({
         repeat: false,
         endsOn: "",
       }}
+      catalog={catalog}
+      mainAreaId={profile.main_area_id}
+      defaultSubjectId={profile.subject_ids.length === 1 ? profile.subject_ids[0] : ""}
       students={students.map((student) => ({
         id: student.id,
         name: student.full_name,

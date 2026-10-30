@@ -91,7 +91,7 @@ select throws_ok(
 
 select lives_ok(
   $$select * from public.create_student(
-    'Con lista',
+    'Con lista', p_phone => '1155551234',
     p_area_id => (select id from public.areas where code = 'idiomas'),
     p_subject_id => (select id from public.subjects where code = 'ingles'),
     p_subject => 'First',
@@ -101,7 +101,7 @@ select lives_ok(
 );
 select lives_ok(
   $$select * from public.create_student(
-    'Otra materia', p_subject => 'Ajedrez'
+    'Otra materia', p_phone => '1155551234', p_subject => 'Ajedrez'
   )$$,
   'se carga un alumno con «Otra» y su nombre'
 );
@@ -111,18 +111,18 @@ select is(
 );
 
 select throws_ok(
-  $$select * from public.create_student('Sin materia')$$,
+  $$select * from public.create_student('Sin materia', p_phone => '1155551234')$$,
   '23514', null, 'el alumno necesita materia o «Otra» con su nombre'
 );
 select throws_ok(
   $$select * from public.create_student(
-    'Sin área', p_subject_id => (select id from public.subjects where code = 'ingles')
+    'Sin área', p_phone => '1155551234', p_subject_id => (select id from public.subjects where code = 'ingles')
   )$$,
   '23514', null, 'una materia de la lista exige el área'
 );
 select throws_ok(
   $$select * from public.create_student(
-    'Área equivocada',
+    'Área equivocada', p_phone => '1155551234',
     p_area_id => (select id from public.areas where code = 'musica'),
     p_subject_id => (select id from public.subjects where code = 'ingles')
   )$$,
@@ -130,7 +130,7 @@ select throws_ok(
 );
 select throws_ok(
   $$select * from public.create_student(
-    'Nivel de otra área',
+    'Nivel de otra área', p_phone => '1155551234',
     p_area_id => (select id from public.areas where code = 'idiomas'),
     p_subject_id => (select id from public.subjects where code = 'ingles'),
     p_level_id => (select id from public.levels where code = 'primaria')
@@ -139,7 +139,7 @@ select throws_ok(
 );
 select throws_ok(
   $$select * from public.create_student(
-    'Otra con nivel',
+    'Otra con nivel', p_phone => '1155551234',
     p_subject => 'Ajedrez',
     p_level_id => (select id from public.levels where code = 'a1')
   )$$,
@@ -149,7 +149,7 @@ select throws_ok(
 -- Física puede cargarse en las dos áreas.
 select lives_ok(
   $$select * from public.create_student(
-    'Física apoyo',
+    'Física apoyo', p_phone => '1155551234',
     p_area_id => (select id from public.areas where code = 'apoyo'),
     p_subject_id => (select id from public.subjects where code = 'fisica')
   )$$,
@@ -157,7 +157,7 @@ select lives_ok(
 );
 select lives_ok(
   $$select * from public.create_student(
-    'Física ingreso',
+    'Física ingreso', p_phone => '1155551234',
     p_area_id => (select id from public.areas where code = 'ingreso'),
     p_subject_id => (select id from public.subjects where code = 'fisica')
   )$$,

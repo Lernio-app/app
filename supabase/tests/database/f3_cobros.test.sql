@@ -13,14 +13,14 @@ grant all on ctx to authenticated, anon;
 set local role authenticated;
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000a1","role":"authenticated"}', true);
 select public.create_workspace('Ana', 'Ana');
-insert into ctx select 's1', r.student_id from public.create_student('Por clase', p_subject => 'Otra', p_mode => 'per_lesson', p_amount => 1800000) r;
-insert into ctx select 's2', r.student_id from public.create_student('Paquete', p_subject => 'Otra', p_mode => 'package', p_amount => 6400000, p_lessons_per_package => 4) r;
-insert into ctx select 's3', r.student_id from public.create_student('Mensual', p_subject => 'Otra', p_mode => 'monthly', p_amount => 5000000, p_billing_day => 1::smallint) r;
-insert into ctx select 's4', r.student_id from public.create_student('Sin precio', p_subject => 'Otra') r;
-insert into ctx select 's5', r.student_id from public.create_student('Pagos', p_subject => 'Otra') r;
+insert into ctx select 's1', r.student_id from public.create_student('Por clase', p_phone => '1155551234', p_subject => 'Otra', p_mode => 'per_lesson', p_amount => 1800000) r;
+insert into ctx select 's2', r.student_id from public.create_student('Paquete', p_phone => '1155551234', p_subject => 'Otra', p_mode => 'package', p_amount => 6400000, p_lessons_per_package => 4) r;
+insert into ctx select 's3', r.student_id from public.create_student('Mensual', p_phone => '1155551234', p_subject => 'Otra', p_mode => 'monthly', p_amount => 5000000, p_billing_day => 1::smallint) r;
+insert into ctx select 's4', r.student_id from public.create_student('Sin precio', p_phone => '1155551234', p_subject => 'Otra') r;
+insert into ctx select 's5', r.student_id from public.create_student('Pagos', p_phone => '1155551234', p_subject => 'Otra') r;
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000b2","role":"authenticated"}', true);
 select public.create_workspace('Beto', 'Beto');
-insert into ctx select 'sb', r.student_id from public.create_student('Alumno de Beto', p_subject => 'Otra') r;
+insert into ctx select 'sb', r.student_id from public.create_student('Alumno de Beto', p_phone => '1155551234', p_subject => 'Otra') r;
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000a1","role":"authenticated"}', true);
 
 -- ---------------------------------------------------------------------------
