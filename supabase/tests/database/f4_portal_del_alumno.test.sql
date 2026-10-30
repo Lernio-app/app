@@ -1,5 +1,5 @@
 begin;
-select plan(27);
+select plan(36);
 
 insert into auth.users (id, instance_id, aud, role, email)
 values
@@ -98,6 +98,30 @@ select throws_ok(
     select org_id, id, 1, 'cash', current_date, user_id from public.students limit 1$$,
   '42501', null, 'no registra pagos'
 );
+
+-- ---------------------------------------------------------------------------
+-- Alumno archivado: solo lectura y sin próximas clases (producto #13)
+-- ---------------------------------------------------------------------------
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000a1","role":"authenticated"}', true);
+insert into ctx select 'l_futura', public.create_lesson('2099-01-05', '10:00', 60, array[(select id from ctx where name = 'lucia')]);
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000c3","role":"authenticated"}', true);
+select is((select count(*)::int from public.lessons where id = (select id from ctx where name = 'l_futura')), 1, 'antes de archivarlo ve su próxima clase');
+
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000a1","role":"authenticated"}', true);
+update public.students set archived_at = now() where id = (select id from ctx where name = 'lucia');
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000c3","role":"authenticated"}', true);
+select is((select count(*)::int from public.lessons), 2, 'archivado sigue viendo sus clases pasadas');
+select is((select count(*)::int from public.lessons where id = (select id from ctx where name = 'l_futura')), 0, 'pero no la próxima clase');
+select is((select count(*)::int from public.charge_balances where status = 'active'), 2, 'sigue viendo sus cargos');
+select is((select sum(remaining)::int from public.charge_balances where status = 'active'), 2600000, 'y cuánto debe');
+select is((select count(*)::int from public.payments), 1, 'y sus pagos');
+select is((select archived from public.my_student_links()), true, 'el espacio figura archivado');
+select is((select payment_alias from public.my_student_links()), 'ana.profe', 'y sigue viendo cómo pagar');
+
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000a1","role":"authenticated"}', true);
+update public.students set archived_at = null where id = (select id from ctx where name = 'lucia');
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000c3","role":"authenticated"}', true);
+select is((select count(*)::int from public.lessons), 3, 'al restaurarlo vuelve a ver su próxima clase');
 
 -- Mateo, sin cuenta vinculada, no ve nada de esto.
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000d4","role":"authenticated"}', true);

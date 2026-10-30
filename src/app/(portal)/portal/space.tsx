@@ -276,16 +276,23 @@ export function PortalSpaceView({
   space: PortalSpace;
   showHeader: boolean;
 }) {
-  const { link, detail, area, lessons } = space;
+  const { link, detail, area, lessons, archived } = space;
   return (
     <div className="space-y-8">
-      {showHeader && (
+      {(showHeader || archived) && (
         <header className="space-y-1">
           <h2 className="title-section">{link.teacher_name}</h2>
           {detail && <AreaTag area={area}>{detail}</AreaTag>}
         </header>
       )}
-      <Upcoming rows={lessons.upcoming} timeZone={link.timezone} />
+      {archived ? (
+        <p className="bg-card rounded-card text-ink-2 border p-4 text-sm">
+          {firstName(link.teacher_name)} archivó tu ficha: ves tu historial, tus pagos y lo que
+          quede pendiente, pero ya no hay clases por venir.
+        </p>
+      ) : (
+        <Upcoming rows={lessons.upcoming} timeZone={link.timezone} />
+      )}
       <Account space={space} />
       <History space={space} />
     </div>

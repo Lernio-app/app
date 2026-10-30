@@ -52,12 +52,14 @@ export type PortalSpace = {
   charges: ChargeRow[];
   payments: PaymentRow[];
   packageLeft: number | null;
+  // El profe archivó al alumno: solo lectura y sin próximas clases.
+  archived: boolean;
 };
 
 export async function loadPortalSpaces(): Promise<PortalSpace[]> {
-  // Un profe archivó al alumno: ese espacio no se muestra (qué ve el alumno de su historial después
-  // del archivo sigue sin decidirse).
-  const links = (await listMyLinks()).filter((link) => !link.archived);
+  // Un profe puede haber archivado al alumno: el espacio se sigue viendo en solo lectura, con el
+  // historial y lo que deba, pero sin próximas clases (la base ya no se las deja leer).
+  const links = await listMyLinks();
   if (links.length === 0) return [];
 
   const supabase = await createClient();
@@ -85,7 +87,8 @@ export async function loadPortalSpaces(): Promise<PortalSpace[]> {
         detail: student ? studentDetailLine(student) : "",
         area: student ? studentAreaKey(student) : "otra",
         today: localDate(now, link.timezone),
-        lessons,
+        lessons: link.archived ? { ...lessons, upcoming: [] } : lessons,
+        archived: link.archived,
         charges,
         payments: payments.filter((payment) => payment.voided_at === null),
         packageLeft: packages.get(link.student_id) ?? null,
