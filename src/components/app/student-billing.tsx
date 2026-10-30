@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ChargeItem } from "@/components/app/charge-item";
+import { RecordMenu } from "@/components/app/record-menu";
 import { buttonVariants } from "@/components/ui/button";
 import { renewPackage } from "@/app/(app)/cobros/actions";
 import { Button } from "@/components/ui/button";
@@ -107,10 +108,7 @@ export async function StudentBilling({
             )}
           </div>
         )}
-        <div className="flex flex-wrap gap-2">
-          <Link href={`/cobros/pago?alumno=${student.id}`} className={buttonVariants()}>
-            Registrar pago
-          </Link>
+        <RecordMenu studentId={student.id}>
           {owing && person && (
             <a
               href={debtNoticeUrl({
@@ -128,7 +126,7 @@ export async function StudentBilling({
               Avisar por WhatsApp
             </a>
           )}
-        </div>
+        </RecordMenu>
       </div>
 
       {open.length > 0 && (

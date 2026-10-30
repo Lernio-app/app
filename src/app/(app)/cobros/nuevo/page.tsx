@@ -6,7 +6,7 @@ import { listStudents } from "@/lib/students";
 import { requireWorkspace } from "@/lib/workspace";
 import { ChargeForm } from "./charge-form";
 
-export const metadata = { title: "Nuevo cargo" };
+export const metadata = { title: "Me debe" };
 
 async function NewCharge({
   searchParams,
@@ -36,8 +36,8 @@ export default function NuevoCargoPage(props: PageProps<"/cobros/nuevo">) {
           ← Cobros
         </Link>
         <PageHeader
-          title="Nuevo cargo"
-          description="Algo que le cobrás a un alumno, ahora o a futuro."
+          title="Me debe"
+          description="Anotar algo que me tiene que pagar, ahora o a futuro."
         />
       </div>
       <Suspense fallback={<div className="h-96" aria-hidden />}>

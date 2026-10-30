@@ -81,7 +81,7 @@ export function PaymentForm({
       {state.message && <FormError>{state.message}</FormError>}
 
       <Button type="submit" className="w-full sm:w-auto sm:px-8" disabled={pending}>
-        {pending ? "Guardando…" : "Registrar pago"}
+        {pending ? "Guardando…" : "Anotar pago"}
       </Button>
     </form>
   );

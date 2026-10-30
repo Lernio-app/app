@@ -73,7 +73,7 @@ export function ChargeForm({
       {state.message && <FormError>{state.message}</FormError>}
 
       <Button type="submit" className="w-full sm:w-auto sm:px-8" disabled={pending}>
-        {pending ? "Guardando…" : "Guardar cargo"}
+        {pending ? "Guardando…" : "Anotar deuda"}
       </Button>
     </form>
   );

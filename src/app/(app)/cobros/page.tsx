@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import { ChargeItem } from "@/components/app/charge-item";
+import { RecordMenu } from "@/components/app/record-menu";
 import { ConfirmForm } from "@/components/ui/confirm-form";
 import { EmptyState, PageContainer, PageHeader, SectionTitle } from "@/components/ui/page-header";
 import { buttonVariants } from "@/components/ui/button";
@@ -112,17 +113,11 @@ async function Cobros() {
         <Stat label="Vencido" value={sums.overdue} tone="owed" />
       </div>
 
-      <div className="flex flex-wrap gap-2">
-        <Link href="/cobros/pago" className={buttonVariants()}>
-          Registrar pago
-        </Link>
-        <Link href="/cobros/nuevo" className={buttonVariants({ variant: "secondary" })}>
-          Nuevo cargo
-        </Link>
+      <RecordMenu>
         <Link href="/cobros/aumento" className={buttonVariants({ variant: "secondary" })}>
           Aumentar precios
         </Link>
-      </div>
+      </RecordMenu>
 
       <Section
         title="Quién debe"
@@ -199,7 +194,7 @@ async function Cobros() {
       >
         {upcoming.length === 0 ? (
           <EmptyState title="No hay cuentas a cobrar">
-            Cargá un cargo con fecha de vencimiento desde «Nuevo cargo».
+            Anotá lo que te deben con fecha de vencimiento desde «Me debe».
           </EmptyState>
         ) : (
           <ul className="space-y-2">

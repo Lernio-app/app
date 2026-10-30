@@ -6,7 +6,7 @@ import { listStudents } from "@/lib/students";
 import { requireWorkspace } from "@/lib/workspace";
 import { PaymentForm } from "./payment-form";
 
-export const metadata = { title: "Registrar pago" };
+export const metadata = { title: "Me pagó" };
 
 async function NewPayment({
   searchParams,
@@ -35,10 +35,7 @@ export default function PagoPage(props: PageProps<"/cobros/pago">) {
         <Link href="/cobros" className="text-ink-3 text-sm hover:underline">
           ← Cobros
         </Link>
-        <PageHeader
-          title="Registrar pago"
-          description="Lo que un alumno te pagó, por fuera de la app."
-        />
+        <PageHeader title="Me pagó" description="Anotar plata que recibí, por fuera de la app." />
       </div>
       <Suspense fallback={<div className="h-96" aria-hidden />}>
         <NewPayment searchParams={props.searchParams} />
