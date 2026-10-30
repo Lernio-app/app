@@ -1,5 +1,7 @@
 // Mensajes listos para WhatsApp. El profe los manda con un toque desde su teléfono (links wa.me).
 
+import { normalizeArPhone } from "@/lib/phone";
+
 export function firstName(fullName: string) {
   return fullName.trim().split(/\s+/)[0] ?? "";
 }
@@ -66,6 +68,53 @@ export function lessonReminderMessage({
   return lines.join("\n");
 }
 
+// Aviso de que el profe movió una clase (F2-4). `from` y `to` son "mañana" o "el lunes 2 de noviembre"
+// más la hora, ya dichos para un mensaje.
+export function lessonMovedMessage({
+  studentName,
+  teacherName,
+  from,
+  to,
+  meetingUrl,
+}: {
+  studentName: string;
+  teacherName: string;
+  from: { when: string; time: string };
+  to: { when: string; time: string };
+  meetingUrl: string | null;
+}) {
+  const lines = [
+    `Hola ${firstName(studentName)}! Soy ${firstName(teacherName)}.`,
+    `Tuve que mover nuestra clase: era ${from.when} a las ${from.time} y pasa a ser ${to.when} a las ${to.time}.`,
+  ];
+  if (meetingUrl) lines.push(`Es por acá: ${meetingUrl}`);
+  lines.push("Avisame si te sirve. ¡Gracias!");
+  return lines.join("\n");
+}
+
+// Aviso de que el profe canceló una clase (F2-4). `when` es "mañana" o "el lunes 2 de noviembre".
+export function lessonCancelledMessage({
+  studentName,
+  teacherName,
+  when,
+  time,
+  reason,
+}: {
+  studentName: string;
+  teacherName: string;
+  when: string;
+  time: string;
+  reason: string | null;
+}) {
+  const lines = [
+    `Hola ${firstName(studentName)}! Soy ${firstName(teacherName)}.`,
+    `Tuve que cancelar la clase que teníamos ${when} a las ${time}.`,
+  ];
+  if (reason) lines.push(`Motivo: ${reason}`);
+  lines.push("Después coordinamos otro día. ¡Perdoná las molestias!");
+  return lines.join("\n");
+}
+
 // Aviso de deuda: el monto y cómo pagar ya escritos. `forStudent` va cuando el mensaje es para el
 // responsable de pago y no para el alumno. `amount` y `since` llegan ya formateados.
 export function debtMessage({
@@ -95,29 +144,6 @@ export function debtMessage({
   if (paymentLink) lines.push(`O pagar acá: ${paymentLink}`);
   lines.push("Cuando lo hagas avisame así lo registro. ¡Gracias!");
   return lines.join("\n");
-}
-
-// Teléfono argentino escrito de cualquier forma -> formato internacional de celular (549 + área + número).
-// Devuelve null si no se puede interpretar.
-export function normalizeArPhone(raw: string): string | null {
-  let digits = raw.replace(/\D/g, "");
-  if (!digits) return null;
-
-  digits = digits.replace(/^0+/, "");
-  if (digits.startsWith("54")) {
-    digits = digits.slice(2);
-    if (digits.startsWith("9")) digits = digits.slice(1);
-  }
-  // El 15 de los celulares se saca: 11 15 5555 1234 -> 11 5555 1234.
-  if (digits.length === 12) {
-    for (const at of [2, 3, 4]) {
-      if (digits.slice(at, at + 2) === "15") {
-        digits = digits.slice(0, at) + digits.slice(at + 2);
-        break;
-      }
-    }
-  }
-  return digits.length === 10 ? `549${digits}` : null;
 }
 
 // Link de WhatsApp con el texto escrito. Sin teléfono válido abre WhatsApp para elegir el contacto.

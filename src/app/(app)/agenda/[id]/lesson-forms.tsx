@@ -2,7 +2,7 @@
 
 import { useActionState } from "react";
 import { Field, FormError } from "@/components/ui/field";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -115,6 +115,26 @@ export function MoveForm({
         />
       </Field>
       <Status state={state} doneLabel="Clase movida." />
+      {state.notices && state.notices.length > 0 && (
+        <div className="space-y-2">
+          <p className="text-ink-3 text-sm">
+            Avisales el cambio: se abre WhatsApp con el mensaje escrito y lo enviás vos.
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {state.notices.map((notice) => (
+              <a
+                key={notice.studentId}
+                href={notice.href}
+                target="_blank"
+                rel="noreferrer"
+                className={buttonVariants({ variant: "secondary" })}
+              >
+                Avisar a {notice.name}
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
       <Button type="submit" variant="secondary" disabled={pending}>
         {pending ? "Moviendo…" : "Mover clase"}
       </Button>

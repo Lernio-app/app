@@ -7,7 +7,7 @@ import { lessonCharges } from "@/lib/billing-data";
 import { dayLabel, localDate, localTime, spokenDay } from "@/lib/dates";
 import { formatTime } from "@/lib/format";
 import { attendeesOf, getLesson, lessonTitle, reminderPhone } from "@/lib/lessons";
-import { firstName, lessonReminderMessage, waLink } from "@/lib/messages";
+import { firstName, lessonCancelledMessage, lessonReminderMessage, waLink } from "@/lib/messages";
 import { listStudents } from "@/lib/students";
 import { cn } from "@/lib/utils";
 import type { Attendance } from "@/lib/validation/lesson";
@@ -82,6 +82,37 @@ async function Clase({ params }: { params: PageProps<"/agenda/[id]">["params"] }
                 : "Avisó a tiempo, así que no se cobra."}
             </p>
           )}
+          {lesson.cancelled_by !== "student" &&
+            new Date(lesson.starts_at).getTime() > now.getTime() && (
+              <div className="space-y-2">
+                <p className="text-ink-3 text-sm">
+                  Avisales que la cancelaste: se abre WhatsApp con el mensaje escrito y lo enviás
+                  vos.
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {attendees.map((a) => (
+                    <a
+                      key={a.student_id}
+                      href={waLink(
+                        reminderPhone(a.students),
+                        lessonCancelledMessage({
+                          studentName: a.students.full_name,
+                          teacherName: profile.display_name,
+                          when: spokenDay(day, today),
+                          time: start,
+                          reason: lesson.cancel_reason,
+                        }),
+                      )}
+                      target="_blank"
+                      rel="noreferrer"
+                      className={buttonVariants({ variant: "secondary" })}
+                    >
+                      Avisar a {firstName(a.students.full_name)}
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
           <form action={restoreLesson}>
             <input type="hidden" name="lessonId" value={lesson.id} />
             <Button type="submit" variant="secondary">

@@ -2,25 +2,12 @@ import { describe, expect, it } from "vitest";
 import {
   consentMessage,
   debtMessage,
+  lessonCancelledMessage,
+  lessonMovedMessage,
   lessonReminderMessage,
-  normalizeArPhone,
   waLink,
   welcomeMessage,
 } from "./messages";
-
-describe("normalizeArPhone", () => {
-  it("entiende celulares escritos de distintas formas", () => {
-    expect(normalizeArPhone("11 5555 1234")).toBe("5491155551234");
-    expect(normalizeArPhone("011 15 5555-1234")).toBe("5491155551234");
-    expect(normalizeArPhone("+54 9 11 5555 1234")).toBe("5491155551234");
-    expect(normalizeArPhone("54 11 5555 1234")).toBe("5491155551234");
-    expect(normalizeArPhone("0351 15 555 1234")).toBe("5493515551234");
-  });
-  it("devuelve null si no se entiende", () => {
-    expect(normalizeArPhone("")).toBeNull();
-    expect(normalizeArPhone("1234")).toBeNull();
-  });
-});
 
 describe("waLink", () => {
   it("arma el link al contacto con el texto codificado", () => {
@@ -91,6 +78,56 @@ describe("lessonReminderMessage", () => {
 
   it("sin regla de cancelación no pide aviso", () => {
     expect(lessonReminderMessage({ ...base, lateCancelHours: 0 })).not.toContain("avisame");
+  });
+});
+
+describe("lessonMovedMessage", () => {
+  const base = {
+    studentName: "Lucía Pérez",
+    teacherName: "Ana Gómez",
+    from: { when: "mañana", time: "17:00" },
+    to: { when: "el martes 3 de noviembre", time: "18:30" },
+    meetingUrl: null as string | null,
+  };
+
+  it("dice cómo era y cómo queda, con voseo", () => {
+    const text = lessonMovedMessage(base);
+    expect(text).toContain("Hola Lucía! Soy Ana.");
+    expect(text).toContain(
+      "era mañana a las 17:00 y pasa a ser el martes 3 de noviembre a las 18:30",
+    );
+    expect(text).toContain("Avisame si te sirve");
+    expect(text).not.toContain("Es por acá");
+  });
+
+  it("suma el link de la clase si lo hay", () => {
+    expect(lessonMovedMessage({ ...base, meetingUrl: "https://meet.test/abc" })).toContain(
+      "Es por acá: https://meet.test/abc",
+    );
+  });
+});
+
+describe("lessonCancelledMessage", () => {
+  const base = {
+    studentName: "Lucía Pérez",
+    teacherName: "Ana Gómez",
+    when: "mañana",
+    time: "17:00",
+    reason: null as string | null,
+  };
+
+  it("avisa qué clase se cancela y propone coordinar otro día", () => {
+    const text = lessonCancelledMessage(base);
+    expect(text).toContain("Hola Lucía! Soy Ana.");
+    expect(text).toContain("cancelar la clase que teníamos mañana a las 17:00");
+    expect(text).toContain("coordinamos otro día");
+    expect(text).not.toContain("Motivo");
+  });
+
+  it("suma el motivo si el profe lo escribió", () => {
+    expect(lessonCancelledMessage({ ...base, reason: "Estoy enfermo" })).toContain(
+      "Motivo: Estoy enfermo",
+    );
   });
 });
 

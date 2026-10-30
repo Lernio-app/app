@@ -3,7 +3,9 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { isoWeekday } from "@/lib/dates";
+import { isoWeekday, localDate, localTime, spokenDay } from "@/lib/dates";
+import { attendeesOf, getLesson, reminderPhone } from "@/lib/lessons";
+import { firstName, lessonMovedMessage, waLink } from "@/lib/messages";
 import { createClient } from "@/lib/supabase/server";
 import {
   ATTENDANCE_VALUES,
@@ -20,7 +22,16 @@ import type { FormState } from "@/lib/validation/workspace";
 import { requireWorkspace } from "@/lib/workspace";
 
 export type LessonFormState = FormState<LessonValues>;
-export type SimpleState = { ok?: boolean; message?: string; fieldErrors?: Record<string, string> };
+// Aviso por WhatsApp para un alumno afectado por un cambio de la clase (F2-4): el mensaje ya viene
+// escrito en el link y lo envía el profe.
+export type LessonNotice = { studentId: string; name: string; href: string };
+
+export type SimpleState = {
+  ok?: boolean;
+  message?: string;
+  fieldErrors?: Record<string, string>;
+  notices?: LessonNotice[];
+};
 
 const idSchema = z.uuid();
 
@@ -126,13 +137,14 @@ export async function setAttendance(
 }
 
 export async function moveLesson(_prev: SimpleState, formData: FormData): Promise<SimpleState> {
-  await requireWorkspace();
+  const { org, profile } = await requireWorkspace();
   const id = idSchema.safeParse(String(formData.get("lessonId") ?? ""));
   if (!id.success) return { message: "No encontramos la clase." };
 
   const parsed = parseMoveForm(formData);
   if (!parsed.success) return { fieldErrors: fieldErrorsFrom(parsed.error) };
 
+  const before = await getLesson(id.data);
   const supabase = await createClient();
   const { error } = await supabase.rpc("move_lesson", {
     p_lesson_id: id.data,
@@ -142,8 +154,33 @@ export async function moveLesson(_prev: SimpleState, formData: FormData): Promis
   });
   if (error) return { message: friendly(error, "No pudimos mover la clase. Probá de nuevo.") };
 
+  // Un aviso por alumno, solo si la clase cambió de día u hora.
+  const after = await getLesson(id.data);
+  const notices: LessonNotice[] = [];
+  if (before && after && before.starts_at !== after.starts_at) {
+    const today = localDate(new Date(), org.timezone);
+    const said = (iso: string) => ({
+      when: spokenDay(localDate(iso, org.timezone), today),
+      time: localTime(iso, org.timezone),
+    });
+    for (const attendee of attendeesOf(after)) {
+      const message = lessonMovedMessage({
+        studentName: attendee.students.full_name,
+        teacherName: profile.display_name,
+        from: said(before.starts_at),
+        to: said(after.starts_at),
+        meetingUrl: after.meeting_url,
+      });
+      notices.push({
+        studentId: attendee.student_id,
+        name: firstName(attendee.students.full_name),
+        href: waLink(reminderPhone(attendee.students), message),
+      });
+    }
+  }
+
   refresh();
-  return { ok: true };
+  return { ok: true, notices };
 }
 
 export async function cancelLesson(_prev: SimpleState, formData: FormData): Promise<SimpleState> {
