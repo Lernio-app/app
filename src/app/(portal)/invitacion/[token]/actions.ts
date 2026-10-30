@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { LEGAL_REQUIRED_MESSAGE } from "@/components/app/legal-check";
 import { acceptLegal } from "@/lib/legal";
 import { createClient } from "@/lib/supabase/server";
+import { parseAccountForm } from "@/lib/validation/account";
 import type { FormState } from "@/lib/validation/workspace";
 import { getUser } from "@/lib/workspace";
 
@@ -18,15 +19,32 @@ const ERRORS: Record<string, string> = {
 
 export async function activateAccount(_prev: FormState, formData: FormData): Promise<FormState> {
   const token = String(formData.get("token") ?? "");
-  if (!(await getUser())) redirect(`/ingresar?next=${encodeURIComponent(`/invitacion/${token}`)}`);
+  const user = await getUser();
+  if (!user) redirect(`/ingresar?next=${encodeURIComponent(`/invitacion/${token}`)}`);
 
-  // Los términos se aceptan al activar la cuenta, antes de vincularla.
-  if (formData.get("legal") !== "on") return { fieldErrors: { legal: LEGAL_REQUIRED_MESSAGE } };
+  // El alumno confirma su nombre y su teléfono (F1-5) y acepta los términos, todo antes de vincular.
+  const account = parseAccountForm(formData);
+  const fieldErrors: Record<string, string> = account.success ? {} : { ...account.fieldErrors };
+  if (formData.get("legal") !== "on") fieldErrors.legal = LEGAL_REQUIRED_MESSAGE;
+  if (!account.success || fieldErrors.legal) return { fieldErrors };
   if (!(await acceptLegal())) {
     return { message: "No pudimos guardar tu aceptación. Probá de nuevo en un rato." };
   }
 
+  // Los datos quedan en su cuenta, no en la ficha del profe. Si la cuenta todavía no existe se crea
+  // primero; la vinculación respeta lo que se acaba de guardar.
   const supabase = await createClient();
+  const { error: ensureError } = await supabase.rpc("ensure_student_profile");
+  const { error: profileError } = ensureError
+    ? { error: ensureError }
+    : await supabase
+        .from("student_profiles")
+        .update({ display_name: account.data.fullName, phone: account.data.phone })
+        .eq("user_id", user.id);
+  if (profileError) {
+    return { message: "No pudimos guardar tus datos. Probá de nuevo en un rato." };
+  }
+
   const { error } = await supabase.rpc("accept_student_invitation", { p_token: token });
   if (error) {
     const code = Object.keys(ERRORS).find((key) => error.message.includes(key));

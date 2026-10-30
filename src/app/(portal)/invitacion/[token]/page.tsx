@@ -6,6 +6,8 @@ import { connection } from "next/server";
 import { buttonVariants } from "@/components/ui/button";
 import { PageTitle } from "@/components/ui/page-header";
 import { firstName } from "@/lib/messages";
+import { formatArPhone } from "@/lib/phone";
+import { getStudentProfile } from "@/lib/portal";
 import { createClient } from "@/lib/supabase/server";
 import { cn } from "@/lib/utils";
 import { getUser } from "@/lib/workspace";
@@ -55,6 +57,13 @@ async function Invitation({ params }: { params: PageProps<"/invitacion/[token]">
     );
   }
 
+  // Si la cuenta ya existe se propone lo que tiene; si no, el nombre con que el profe la cargó.
+  const profile = user ? await getStudentProfile() : null;
+  const defaults = {
+    fullName: profile?.display_name ?? invitation.student_name,
+    phone: formatArPhone(profile?.phone),
+  };
+
   return (
     <>
       <PageTitle>Hola, {firstName(invitation.student_name)}</PageTitle>
@@ -67,7 +76,7 @@ async function Invitation({ params }: { params: PageProps<"/invitacion/[token]">
           <p className="text-ink-3 text-sm">
             Vas a activar tu cuenta con <strong className="text-ink">{user.email}</strong>.
           </p>
-          <ActivateForm token={token} />
+          <ActivateForm token={token} defaults={defaults} />
         </>
       ) : (
         <>
